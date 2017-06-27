@@ -70,6 +70,7 @@ install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 %_datadir/QOwnNotes/languages/QOwnNotes_*.qm
 %_desktopdir/QOwnNotes.desktop
 %_iconsdir/hicolor/*/apps/QOwnNotes.png
+%_iconsdir/hicolor/scalable/apps/QOwnNotes.png
 %_pixmapsdir/QOwnNotes.png
 
 %changelog
