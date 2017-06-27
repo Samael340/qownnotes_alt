@@ -52,7 +52,6 @@ pushd build
 popd
 
 %build
-
 pushd build
 CFLAGS=$RPM_OPT_FLAGS CCFLAGS=$CFLAGS
 %make_build
@@ -66,7 +65,7 @@ popd
 
 # install visuals
 install -D -m 0644 QOwnNotes.desktop %buildroot%_desktopdir/QOwnNotes.desktop
-install -D -m644 "images/icons/128x128/apps/QOwnNotes.png" "%buildroot%_datadir/pixmaps/QOwnNotes.png"
+install -D -m644 "images/icons/128x128/apps/QOwnNotes.png" "%buildroot%_pixmapsdir/QOwnNotes.png"
 for format in {16x16,24x24,32x32,48x48,64x64,96x96,128x128,256x256,512x512}; do
     install -D -m644 "images/icons/$format/apps/QOwnNotes.png" "%buildroot%_iconsdir/hicolor/$format/apps/QOwnNotes.png"
     done
@@ -81,11 +80,11 @@ install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 
 %files
 doc LICENSE README.md CHANGELOG.md SHORTCUTS.md
-/usr/bin/QOwnNotes
-/usr/share/QOwnNotes/languages/QOwnNotes_*.qm
-/usr/share/applications/QOwnNotes.desktop           
-/usr/share/icons/hicolor/*/apps/QOwnNotes.png 
-/usr/share/pixmaps/QOwnNotes.png              
+%_bindir/QOwnNotes
+%_datadir/QOwnNotes/languages/QOwnNotes_*.qm
+%_desktopdir/QOwnNotes.desktop
+%_iconsdir/hicolor/*/apps/QOwnNotes.png
+%_pixmapsdir/QOwnNotes.png
 
 %changelog
 * Tue Jun 27 2017 Konstantin Artyushkin <akv@altlinux.org> 17.06.6-alt1
