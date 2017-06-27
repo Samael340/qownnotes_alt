@@ -59,9 +59,9 @@ CFLAGS=$RPM_OPT_FLAGS CCFLAGS=$CFLAGS
 popd
 
 %install
-#pushd build
-#install -D -m 0755 QOwnNotes %buildroot%_bindir/QOwnNotes
-#popd
+pushd build
+install -D -m 0755 QOwnNotes %buildroot%_bindir/QOwnNotes
+popd
 #
 #install -D -m 0644 QOwnNotes.desktop %buildroot%_desktopdir/QOwnNotes.desktop
 #
