@@ -76,10 +76,10 @@ install -D -m644 "images/icons/scalable/apps/QOwnNotes.svg" "%buildroot%_iconsdi
 install -d "%buildroot/%_datadir/QOwnNotes/languages/"
 install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 
-#fdupes %buildroot%prefix
+%fdupes %buildroot%prefix
 
 %files
-doc LICENSE README.md CHANGELOG.md SHORTCUTS.md
+%doc LICENSE README.md CHANGELOG.md SHORTCUTS.md
 %_bindir/QOwnNotes
 %_datadir/QOwnNotes/languages/QOwnNotes_*.qm
 %_desktopdir/QOwnNotes.desktop
