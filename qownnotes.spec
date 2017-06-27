@@ -48,7 +48,7 @@ Patrizio Bekerle <patrizio@bekerle.com>
 %setup
 mkdir build
 pushd build
-%qmake-qt5 ..
+%qmake_qt5 ..
 popd
 
 %build
