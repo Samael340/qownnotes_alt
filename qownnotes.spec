@@ -9,7 +9,7 @@ Name: qownnotes
 Version: 17.06.6
 Release: alt1
 License: GPL-2.0
-Group: System/GUI/Productivity
+Group: Office
 Summary: Note-taking app and todo list manager with ownCloud/Nextcloud integration
 Url: http://www.qownnotes.org/
 
