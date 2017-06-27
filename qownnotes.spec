@@ -14,16 +14,17 @@ Summary: Note-taking app and todo list manager with ownCloud/Nextcloud integrati
 Url: http://www.qownnotes.org/
 
 BuildRequires: gcc gcc-c++ fdupes
-BuildRequires: qt5-qtbase
-BuildRequires: qt5-qtbase-devel
-BuildRequires: qt5-qtbase-gui
+#BuildRequires: qt5-qtbase
+BuildRequires: qt5-base-devel
+#BuildRequires: qt5-qtbase-gui
 #BuildRequires:  qt5-qtwebkit-devel
-BuildRequires: qt5-qttools qt5-qttools-devel
-BuildRequires: qt5-qtsvg-devel
-BuildRequires: qt5-qtdeclarative-devel
-BuildRequires: qt5-qtxmlpatterns-devel
+#BuildRequires: qt5-qttools qt5-qttools-devel
+BuildRequires: qt5-tools-devel
+BuildRequires: qt5-svg-devel
+BuildRequires: qt5-declarative-devel
+BuildRequires: qt5-xmlpatterns-devel
 BuildRequires: desktop-file-utils
-Requires: qt5-qtsvg qt5-qtxmlpatterns
+#Requires: qt5-qtsvg qt5-qtxmlpatterns
 Packager: Konstantin Artyushkin <akv@altlinux.org>
 
 Source: %name-%version.tar.xz
