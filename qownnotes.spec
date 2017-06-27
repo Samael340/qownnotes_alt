@@ -1,10 +1,3 @@
-#
-# Spec file for package qownnotes for openSUSE Linux, Fedora Linux and CentOS 7
-#
-# Check for Linux distribution version numbers here:
-# https://en.opensuse.org/openSUSE:Build_Service_cross_distribution_howto
-#
-
 Name: qownnotes
 Version: 17.06.6
 Release: alt1
@@ -14,11 +7,7 @@ Summary: Note-taking app and todo list manager with ownCloud/Nextcloud integrati
 Url: http://www.qownnotes.org/
 
 BuildRequires: gcc gcc-c++ fdupes
-#BuildRequires: qt5-qtbase
 BuildRequires: qt5-base-devel
-#BuildRequires: qt5-qtbase-gui
-#BuildRequires:  qt5-qtwebkit-devel
-#BuildRequires: qt5-qttools qt5-qttools-devel
 BuildRequires: qt5-tools-devel
 BuildRequires: qt5-svg-devel
 BuildRequires: qt5-declarative-devel
