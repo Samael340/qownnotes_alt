@@ -80,59 +80,12 @@ install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 #fdupes %buildroot%prefix
 
 %files
-#doc LICENSE README.md CHANGELOG.md SHORTCUTS.md
-#_bindir/QOwnNotes
-#_pixmapsdir/QOwnNotes.png
-
-#_iconsdir/hicolor/16x16/apps/QOwnNotes.png
-#_iconsdir/hicolor/24x24/apps/QOwnNotes.png
-#_iconsdir/hicolor/32x32/apps/QOwnNotes.png
-#_iconsdir/hicolor/48x48/apps/QOwnNotes.png
-#_iconsdir/hicolor/64x64/apps/QOwnNotes.png
-#_iconsdir/hicolor/96x96/apps/QOwnNotes.png
-#_iconsdir/hicolor/128x128/apps/QOwnNotes.png
-#_iconsdir/hicolor/256x256/apps/QOwnNotes.png
-#_iconsdir/hicolor/512x512/apps/QOwnNotes.png
-#_datadir/QOwnNotes/languages/QOwnNotes_en.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_de.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_fr.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_pl.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_zh.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_ru.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_pt_BR.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_pt_PT.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_es.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_nl.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_hu.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_ja.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_it.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_ar.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_uk.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_cs.qm
-#_datadir/QOwnNotes/languages/QOwnNotes_hr.qm
-#_desktopdir/QOwnNotes.desktop
-
-#dir %_iconsdir/hicolor/512x512/apps
-#dir %_iconsdir/hicolor/256x256/apps
-#dir %_iconsdir/hicolor/128x128/apps
-#dir %_iconsdir/hicolor/96x96/apps
-#dir %_iconsdir/hicolor/64x64/apps
-#dir %_iconsdir/hicolor/48x48/apps
-#dir %_iconsdir/hicolor/32x32/apps
-#dir %_iconsdir/hicolor/24x24/apps
-#dir %_iconsdir/hicolor/16x16/apps
-#dir %_iconsdir/hicolor/512x512
-#dir %_iconsdir/hicolor/256x256
-#dir %_iconsdir/hicolor/128x128
-#dir %_iconsdir/hicolor/96x96
-#dir %_iconsdir/hicolor/64x64
-#dir %_iconsdir/hicolor/48x48
-#dir %_iconsdir/hicolor/32x32
-#dir %_iconsdir/hicolor/24x24
-#dir %_iconsdir/hicolor/16x16
-#dir %_iconsdir/hicolor
-#dir %_datadir/QOwnNotes/languages
-#dir %_datadir/QOwnNotes
+doc LICENSE README.md CHANGELOG.md SHORTCUTS.md
+/usr/bin/QOwnNotes
+/usr/share/QOwnNotes/languages/QOwnNotes_*.qm
+/usr/share/applications/QOwnNotes.desktop           
+/usr/share/icons/hicolor/*/apps/QOwnNotes.png 
+/usr/share/pixmaps/QOwnNotes.png              
 
 %changelog
 * Tue Jun 27 2017 Konstantin Artyushkin <akv@altlinux.org> 17.06.6-alt1
