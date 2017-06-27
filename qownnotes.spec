@@ -53,7 +53,6 @@ popd
 
 %build
 pushd build
-CFLAGS=$RPM_OPT_FLAGS CCFLAGS=$CFLAGS
 %make_build
 popd
 
@@ -75,8 +74,6 @@ install -D -m644 "images/icons/scalable/apps/QOwnNotes.svg" "%buildroot%_iconsdi
 # install languages
 install -d "%buildroot/%_datadir/QOwnNotes/languages/"
 install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
-
-%fdupes %buildroot%prefix
 
 %files
 %doc LICENSE README.md CHANGELOG.md SHORTCUTS.md
