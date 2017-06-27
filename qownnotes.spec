@@ -59,39 +59,23 @@ CFLAGS=$RPM_OPT_FLAGS CCFLAGS=$CFLAGS
 popd
 
 %install
+# install application
 pushd build
 install -D -m 0755 QOwnNotes %buildroot%_bindir/QOwnNotes
 popd
-#
-#install -D -m 0644 QOwnNotes.desktop %buildroot%_desktopdir/QOwnNotes.desktop
-#
-#install -D -m 0644 images/icons/128x128/apps/QOwnNotes.png %buildroot%_pixmapsdir/QOwnNotes.png
-#install -D -m 0644 images/icons/16x16/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/16x16/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/24x24/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/24x24/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/32x32/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/32x32/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/48x48/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/48x48/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/64x64/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/64x64/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/96x96/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/96x96/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/128x128/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/128x128/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/256x256/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/256x256/apps/QOwnNotes.png
-#install -D -m 0644 images/icons/512x512/apps/QOwnNotes.png %buildroot%_iconsdir/hicolor/512x512/apps/QOwnNotes.png
-#install -D -m 0644 languages/QOwnNotes_en.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_en.qm
-#install -D -m 0644 languages/QOwnNotes_de.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_de.qm
-#install -D -m 0644 languages/QOwnNotes_fr.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_fr.qm
-#install -D -m 0644 languages/QOwnNotes_pl.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_pl.qm
-#install -D -m 0644 languages/QOwnNotes_zh.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_zh.qm
-#install -D -m 0644 languages/QOwnNotes_ru.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_ru.qm
-#install -D -m 0644 languages/QOwnNotes_pt_BR.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_pt_BR.qm
-#install -D -m 0644 languages/QOwnNotes_pt_PT.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_pt_PT.qm
-#install -D -m 0644 languages/QOwnNotes_es.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_es.qm
-#install -D -m 0644 languages/QOwnNotes_nl.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_nl.qm
-#install -D -m 0644 languages/QOwnNotes_hu.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_hu.qm
-#install -D -m 0644 languages/QOwnNotes_ja.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_ja.qm
-#install -D -m 0644 languages/QOwnNotes_it.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_it.qm
-#install -D -m 0644 languages/QOwnNotes_ar.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_ar.qm
-#install -D -m 0644 languages/QOwnNotes_uk.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_uk.qm
-#install -D -m 0644 languages/QOwnNotes_cs.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_cs.qm
-#install -D -m 0644 languages/QOwnNotes_hr.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_hr.qm
+
+# install visuals
+install -D -m 0644 QOwnNotes.desktop %buildroot%_desktopdir/QOwnNotes.desktop
+install -D -m644 "images/icons/128x128/apps/QOwnNotes.png" "%buildroot%_datadir/pixmaps/QOwnNotes.png"
+for format in {16x16,24x24,32x32,48x48,64x64,96x96,128x128,256x256,512x512}; do
+    install -D -m644 "images/icons/$format/apps/QOwnNotes.png" "%buildroot%_iconsdir/hicolor/$format/apps/QOwnNotes.png"
+    done
+
+install -D -m644 "images/icons/scalable/apps/QOwnNotes.svg" "%buildroot%_iconsdir/hicolor/scalable/apps/QOwnNotes.svg"
+
+# install languages
+install -d "%buildroot/%_datadir/QOwnNotes/languages/"
+install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 
 #fdupes %buildroot%prefix
 
