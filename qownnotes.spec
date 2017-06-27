@@ -93,10 +93,6 @@ install -D -m 0644 languages/QOwnNotes_uk.qm %buildroot%_datadir/QOwnNotes/langu
 install -D -m 0644 languages/QOwnNotes_cs.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_cs.qm
 install -D -m 0644 languages/QOwnNotes_hr.qm %buildroot%_datadir/QOwnNotes/languages/QOwnNotes_hr.qm
 
-%if 0%{?suse_version}
-%suse_update_desktop_file -c  QOwnNotes QOwnNotes QOwnNotes QOwnNotes QOwnNotes "Utility;SyncUtility;"
-%endif
-
 %fdupes %buildroot%prefix
 
 %files
