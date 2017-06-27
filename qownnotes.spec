@@ -6,6 +6,13 @@
 #
 
 Name: qownnotes
+Version: 17.06.6
+Release: alt1
+License: GPL-2.0
+Group: System/GUI/Productivity
+Summary: Note-taking app and todo list manager with ownCloud/Nextcloud integration
+Url: http://www.qownnotes.org/
+
 BuildRequires: gcc gcc-c++ fdupes
 BuildRequires: qt5-qtbase
 BuildRequires: qt5-qtbase-devel
@@ -17,14 +24,6 @@ BuildRequires: qt5-qtdeclarative-devel
 BuildRequires: qt5-qtxmlpatterns-devel
 BuildRequires: desktop-file-utils
 Requires: qt5-qtsvg qt5-qtxmlpatterns
-
-License: GPL-2.0
-Group: System/GUI/Productivity
-Summary: Note-taking app and todo list manager with ownCloud/Nextcloud integration
-Url: http://www.qownnotes.org/
-Version: 17.06.6
-Release: alt1
-
 Packager: Konstantin Artyushkin <akv@altlinux.org>
 
 Source: %name-%version.tar.xz
