@@ -12,6 +12,7 @@ BuildRequires: qt5-tools-devel
 BuildRequires: qt5-svg-devel
 BuildRequires: qt5-declarative-devel
 BuildRequires: qt5-xmlpatterns-devel
+BuildRequires: qt5-websockets-devel
 BuildRequires: desktop-file-utils
 Requires: libqt5-svg
 Packager: Konstantin Artyushkin <akv@altlinux.org>
