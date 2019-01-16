@@ -1,5 +1,5 @@
 Name: qownnotes
-Version: 17.06.6
+Version: 19.1.3
 Release: alt1
 License: GPLv2
 Group: Office
@@ -74,6 +74,9 @@ install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 %_pixmapsdir/QOwnNotes.png
 
 %changelog
+* Wed Jan 16 2019 Konstantin Artyushkin <akv@altlinux.org> 19.1.3-alt1
+- new version
+
 * Tue Jun 27 2017 Konstantin Artyushkin <akv@altlinux.org> 17.06.6-alt1
 - initial build for ALT Sisyphus
 
