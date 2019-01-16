@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LinkDialog</class>
+ <widget class="QDialog" name="LinkDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>524</width>
+    <height>531</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Link an url or note</string>
+  </property>
+  <property name="windowIcon">
+   <iconset theme="insert-link" resource="../breeze-qownnotes.qrc">
+    <normaloff>:/icons/breeze-qownnotes/16x16/insert-link.svg</normaloff>:/icons/breeze-qownnotes/16x16/insert-link.svg</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QFrame" name="horizontalFrame">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>9</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="urlEdit">
+          <property name="statusTip">
+           <string>Enter URL</string>
+          </property>
+          <property name="whatsThis">
+           <string/>
+          </property>
+          <property name="accessibleName">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>Enter an URL to link to</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="fileUrlButton">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select local file to link to&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string notr="true">…</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="searchLineEdit">
+       <property name="toolTip">
+        <string>Search for notes or create new notes by entering text and pressing return</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit {
+	border: 1px solid lightgray;
+	border-radius: 5px;
+	padding: 2px 5px 2px 25px;
+	background-image: url(:/images/search.png);
+	background-repeat: no-repeat;
+	background-position: center left;
+	margin-right: 0px;
+}
+</string>
+       </property>
+       <property name="placeholderText">
+        <string>Search for a note to link to</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="notesListWidget"/>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../breeze-qownnotes.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>LinkDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>262</x>
+     <y>516</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>LinkDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>516</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
