@@ -53,7 +53,7 @@ install -D -m 0755 QOwnNotes %buildroot%_bindir/QOwnNotes
 popd
 
 # install visuals
-install -D -m 0644 QOwnNotes.desktop %buildroot%_desktopdir/QOwnNotes.desktop
+install -D -m 0644 PBE.QOwnNotes.desktop %buildroot%_desktopdir/QOwnNotes.desktop
 install -D -m644 "images/icons/128x128/apps/QOwnNotes.png" "%buildroot%_pixmapsdir/QOwnNotes.png"
 for format in {16x16,24x24,32x32,48x48,64x64,96x96,128x128,256x256,512x512}; do
     install -D -m644 "images/icons/$format/apps/QOwnNotes.png" "%buildroot%_iconsdir/hicolor/$format/apps/QOwnNotes.png"
