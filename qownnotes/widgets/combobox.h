@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,22 +13,20 @@
 
 #pragma once
 
-#include <QWidget>
 #include <QComboBox>
+class QWidget;
 
-class ComboBox : public QComboBox
-{
-Q_OBJECT
+class ComboBox : public QComboBox {
+    Q_OBJECT
 
-public:
+   public:
     explicit ComboBox(QWidget *parent = Q_NULLPTR);
 
-protected:
-
-private slots:
+   protected:
+   private slots:
     void onFocusChanged(QWidget *old, QWidget *now);
 
-signals:
+   signals:
     void focusIn();
     void focusOut();
 };

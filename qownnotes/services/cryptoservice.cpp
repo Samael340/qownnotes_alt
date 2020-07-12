@@ -1,17 +1,17 @@
 #include "cryptoservice.h"
-#include <QSettings>
-#include <QDebug>
-#include <QCoreApplication>
 
-CryptoService::CryptoService(QObject *parent) : QObject(parent)
-{
+#include <QCoreApplication>
+#include <QDebug>
+#include <QSettings>
+
+CryptoService::CryptoService(QObject *parent) : QObject(parent) {
     QSettings settings;
-    qint64 cryptoKey = settings.value("cryptoKey").toUInt();
+    qint64 cryptoKey = settings.value(QStringLiteral("cryptoKey")).toUInt();
 
     // generate a key if we don't have one
     if (cryptoKey == 0) {
         cryptoKey = qrand();
-        settings.setValue("cryptoKey", cryptoKey);
+        settings.setValue(QStringLiteral("cryptoKey"), cryptoKey);
     }
 
     _simpleCrypt = new SimpleCrypt(static_cast<quint64>(cryptoKey));
@@ -21,12 +21,12 @@ CryptoService::CryptoService(QObject *parent) : QObject(parent)
  * Fetches the global instance of the class
  * The instance will be created if it doesn't exist.
  */
-CryptoService * CryptoService::instance() {
-    CryptoService *cryptoService =
-            qApp->property("cryptoService").value<CryptoService *>();
+CryptoService *CryptoService::instance() {
+    auto *cryptoService =
+        qApp->property("cryptoService").value<CryptoService *>();
 
-    if (cryptoService == NULL) {
-        cryptoService = createInstance(NULL);
+    if (cryptoService == nullptr) {
+        cryptoService = createInstance(nullptr);
     }
 
     return cryptoService;
@@ -35,12 +35,11 @@ CryptoService * CryptoService::instance() {
 /**
  * Creates a global instance of the class
  */
-CryptoService * CryptoService::createInstance(QObject *parent) {
-    CryptoService *cryptoService = new CryptoService(parent);
+CryptoService *CryptoService::createInstance(QObject *parent) {
+    auto *cryptoService = new CryptoService(parent);
 
-    qApp->setProperty(
-            "cryptoService",
-            QVariant::fromValue<CryptoService *>(cryptoService));
+    qApp->setProperty("cryptoService",
+                      QVariant::fromValue<CryptoService *>(cryptoService));
 
     return cryptoService;
 }
@@ -48,13 +47,13 @@ CryptoService * CryptoService::createInstance(QObject *parent) {
 /**
  * Encrypts a string as string
  */
-QString CryptoService::encryptToString(QString text) {
+QString CryptoService::encryptToString(const QString &text) {
     return _simpleCrypt->encryptToString(text);
 }
 
 /**
  * Decrypts a string as string
  */
-QString CryptoService::decryptToString(QString text) {
+QString CryptoService::decryptToString(const QString &text) {
     return _simpleCrypt->decryptToString(text);
 }

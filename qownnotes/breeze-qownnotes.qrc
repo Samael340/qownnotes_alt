@@ -1,10 +1,11 @@
-<!DOCTYPE RCC><RCC version="1.0">
-    <qresource prefix="icons/breeze-qownnotes">
+<RCC>
+    <qresource prefix="/icons/breeze-qownnotes">
         <file alias="index.theme">icons/breeze-qownnotes/index.theme</file>
         <file alias="16x16/document-edit.svg">icons/breeze-qownnotes/16x16/document-edit.svg</file>
         <file alias="16x16/document-new.svg">icons/breeze-qownnotes/16x16/document-new.svg</file>
         <file alias="16x16/document-save.svg">icons/breeze-qownnotes/16x16/document-save.svg</file>
         <file alias="16x16/edit-delete.svg">icons/breeze-qownnotes/16x16/edit-delete.svg</file>
+        <file alias="16x16/edit-paste.svg">icons/breeze-qownnotes/16x16/edit-paste.svg</file>
         <file alias="16x16/edit-find.svg">icons/breeze-qownnotes/16x16/edit-find.svg</file>
         <file alias="16x16/edit-find-in-note.svg">icons/breeze-qownnotes/16x16/edit-find-in-note.svg</file>
         <file alias="16x16/folder-sync.svg">icons/breeze-qownnotes/16x16/folder-sync.svg</file>
@@ -57,6 +58,7 @@
         <file alias="16x16/code-context.svg">icons/breeze-qownnotes/16x16/code-context.svg</file>
         <file alias="16x16/zoom-original.svg">icons/breeze-qownnotes/16x16/zoom-original.svg</file>
         <file alias="16x16/format-text-bold.svg">icons/breeze-qownnotes/16x16/format-text-bold.svg</file>
+        <file alias="16x16/format-text-underline.svg">icons/breeze-qownnotes/16x16/format-text-underline.svg</file>
         <file alias="16x16/format-text-italic.svg">icons/breeze-qownnotes/16x16/format-text-italic.svg</file>
         <file alias="16x16/zoom-in.svg">icons/breeze-qownnotes/16x16/zoom-in.svg</file>
         <file alias="16x16/zoom-out.svg">icons/breeze-qownnotes/16x16/zoom-out.svg</file>
@@ -96,5 +98,9 @@
         <file alias="16x16/format-text-blockquote.svg">icons/breeze-qownnotes/16x16/format-text-blockquote.svg</file>
         <file alias="16x16/window.svg">icons/breeze-qownnotes/16x16/window.svg</file>
         <file alias="16x16/mail-attachment.svg">icons/breeze-qownnotes/16x16/mail-attachment.svg</file>
+        <file alias="16x16/transform-crop.svg">icons/breeze-qownnotes/16x16/transform-crop.svg</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>icons/breeze-qownnotes/16x16/tools-check-spelling.svg</file>
     </qresource>
 </RCC>

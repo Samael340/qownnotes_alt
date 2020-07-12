@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,8 +11,9 @@
  * for more details.
  */
 
-#include <utils/misc.h>
 #include "label.h"
+
+#include <utils/misc.h>
 
 Label::Label(QWidget *parent, Qt::WindowFlags f) {
     Q_UNUSED(parent);
@@ -23,7 +24,7 @@ Label::Label(const QString &text, QWidget *parent, Qt::WindowFlags f) {
     Q_UNUSED(text);
     Q_UNUSED(parent);
     Q_UNUSED(f);
-//    QLabel::QLabel(injectCSS(text), parent, f);
+    //    QLabel::QLabel(injectCSS(text), parent, f);
 }
 
 /**
@@ -31,9 +32,7 @@ Label::Label(const QString &text, QWidget *parent, Qt::WindowFlags f) {
  *
  * @param text
  */
-void Label::setText(const QString &text) {
-    QLabel::setText(injectCSS(text));
-}
+void Label::setText(const QString &text) { QLabel::setText(injectCSS(text)); }
 
 /**
  * Injects CSS styles into the text
@@ -41,7 +40,14 @@ void Label::setText(const QString &text) {
  * @param text
  * @return
  */
-QString Label::injectCSS(QString text) {
-//    text = text.remove("<html>").remove("</html>").remove("<head/>");
-    return "<style>" + Utils::Misc::genericCSS() + "</style>" + text;
+QString Label::injectCSS(const QString &text) {
+    //    text = text.remove("<html>").remove("</html>").remove("<head/>");
+    QString ret;
+    ret.reserve(text.size() + 15 + Utils::Misc::genericCSS().size() +
+                text.size());
+    ret.append(QStringLiteral("<style>"));
+    ret.append(Utils::Misc::genericCSS());
+    ret.append(QStringLiteral("</style>"));
+    ret.append(text);
+    return ret;
 }

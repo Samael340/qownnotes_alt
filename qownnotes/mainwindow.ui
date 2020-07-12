@@ -331,6 +331,9 @@
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
               </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::EditKeyPressed</set>
+              </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::ExtendedSelection</enum>
               </property>
@@ -417,7 +420,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="noteEditFrame">
+       <widget class="QTabWidget" name="noteEditTabWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>5</horstretch>
@@ -427,278 +430,292 @@
         <property name="styleSheet">
          <string notr="true"/>
         </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+        <property name="currentIndex">
+         <number>0</number>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QFrame" name="multiSelectActionFrame">
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="1">
-             <widget class="QLabel" name="notesSelectedLabel">
-              <property name="text">
-               <string notr="true">x notes selected</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="2">
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="0">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="1">
-             <widget class="QPushButton" name="noteOperationsButton">
-              <property name="text">
-               <string>Note operations…</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="2" column="1">
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="noteEditorFrame">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>400</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_6">
-            <property name="spacing">
-             <number>0</number>
+        <property name="documentMode">
+         <bool>true</bool>
+        </property>
+        <property name="tabsClosable">
+         <bool>true</bool>
+        </property>
+        <property name="movable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="noteEditTabWidgetPage">
+         <attribute name="title">
+          <string/>
+         </attribute>
+         <layout class="QVBoxLayout" name="noteEditTabWidgetLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QFrame" name="multiSelectActionFrame">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="leftMargin">
-             <number>0</number>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
-            <property name="topMargin">
-             <number>0</number>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="1" column="1">
+              <widget class="QLabel" name="notesSelectedLabel">
+               <property name="text">
+                <string notr="true">x notes selected</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="3" column="2">
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="3" column="0">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="3" column="1">
+              <widget class="QPushButton" name="noteOperationsButton">
+               <property name="text">
+                <string>Note operations…</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="2" column="1">
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="noteEditorFrame">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>400</height>
+             </size>
             </property>
-            <property name="rightMargin">
-             <number>0</number>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="bottomMargin">
-             <number>0</number>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
-            <item>
-             <widget class="QOwnNotesMarkdownTextEdit" name="noteTextEdit">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="contextMenuPolicy">
-               <enum>Qt::CustomContextMenu</enum>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="cursorWidth">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QOwnNotesMarkdownTextEdit" name="encryptedNoteTextEdit">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="contextMenuPolicy">
-               <enum>Qt::CustomContextMenu</enum>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPlainTextEdit {
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QOwnNotesMarkdownTextEdit" name="noteTextEdit">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::CustomContextMenu</enum>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="cursorWidth">
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QOwnNotesMarkdownTextEdit" name="encryptedNoteTextEdit">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::CustomContextMenu</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPlainTextEdit {
 	border: 3px dashed #aa0000;
 }
 </string>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QFrame" name="noteTextEditSearchFrame">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="lineWidth">
-               <number>0</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="noteTagFrame">
-           <property name="styleSheet">
-            <string notr="true">QFrame { border: none; }</string>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QToolButton" name="selectedTagsToolButton">
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="text">
-               <string notr="true">2</string>
-              </property>
-              <property name="icon">
-               <iconset theme="text-x-generic" resource="breeze-qownnotes.qrc">
-                <normaloff>:/icons/breeze-qownnotes/16x16/text-x-generic.svg</normaloff>:/icons/breeze-qownnotes/16x16/text-x-generic.svg</iconset>
-              </property>
-              <property name="toolButtonStyle">
-               <enum>Qt::ToolButtonTextBesideIcon</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QFrame" name="noteTagButtonFrame">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Plain</enum>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <property name="leftMargin">
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="noteTextEditSearchFrame">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="lineWidth">
                 <number>0</number>
                </property>
-               <property name="topMargin">
-                <number>0</number>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="noteTagFrame">
+            <property name="styleSheet">
+             <string notr="true">QFrame { border: none; }</string>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QToolButton" name="selectedTagsToolButton">
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
-               <property name="rightMargin">
-                <number>0</number>
+               <property name="text">
+                <string notr="true">2</string>
                </property>
-               <property name="bottomMargin">
-                <number>0</number>
+               <property name="icon">
+                <iconset theme="text-x-generic" resource="breeze-qownnotes.qrc">
+                 <normaloff>:/icons/breeze-qownnotes/16x16/text-x-generic.svg</normaloff>:/icons/breeze-qownnotes/16x16/text-x-generic.svg</iconset>
                </property>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="newNoteTagButton">
-              <property name="toolTip">
-               <string>Add a tag to the current note</string>
-              </property>
-              <property name="text">
-               <string>Add tag</string>
-              </property>
-              <property name="icon">
-               <iconset theme="tag" resource="breeze-qownnotes.qrc">
-                <normaloff>:/icons/breeze-qownnotes/16x16/tag.svg</normaloff>:/icons/breeze-qownnotes/16x16/tag.svg</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="newNoteTagLineEdit">
-              <property name="placeholderText">
-               <string>New tag</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="noteTagButtonFrame">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Plain</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="newNoteTagButton">
+               <property name="toolTip">
+                <string>Add a tag to the current note</string>
+               </property>
+               <property name="text">
+                <string>Add tag</string>
+               </property>
+               <property name="icon">
+                <iconset theme="tag" resource="breeze-qownnotes.qrc">
+                 <normaloff>:/icons/breeze-qownnotes/16x16/tag.svg</normaloff>:/icons/breeze-qownnotes/16x16/tag.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="newNoteTagLineEdit">
+               <property name="placeholderText">
+                <string>New tag</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
       <item>
@@ -753,7 +770,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>300</width>
+              <width>293</width>
               <height>28</height>
              </rect>
             </property>
@@ -792,9 +809,6 @@
            <property name="enabled">
             <bool>true</bool>
            </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::CustomContextMenu</enum>
-           </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
@@ -813,6 +827,9 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="acceptRichText">
             <bool>false</bool>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
            </property>
            <property name="openExternalLinks">
             <bool>true</bool>
@@ -842,7 +859,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1383</width>
-     <height>27</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQOwnNotes">
@@ -887,6 +904,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <addaction name="actionImport_notes_from_Evernote"/>
      <addaction name="actionImport_notes_from_text_files"/>
+     <addaction name="actionImport_bookmarks_from_server"/>
     </widget>
     <widget class="QMenu" name="menuNavigation">
      <property name="title">
@@ -900,6 +918,10 @@ p, li { white-space: pre-wrap; }
      <addaction name="action_Forward_in_note_history"/>
      <addaction name="actionPrevious_Note"/>
      <addaction name="actionNext_note"/>
+     <addaction name="actionPrevious_note_tab"/>
+     <addaction name="actionNext_note_tab"/>
+     <addaction name="actionClose_current_note_tab"/>
+     <addaction name="actionToggle_note_stickiness_of_current_tab"/>
     </widget>
     <widget class="QMenu" name="menuPrint">
      <property name="title">
@@ -936,6 +958,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionShow_trash"/>
     </widget>
     <addaction name="action_New_note"/>
+    <addaction name="actionNew_note_in_new_tab"/>
     <addaction name="action_Find_note"/>
     <addaction name="actionFind_notes_in_all_subfolders"/>
     <addaction name="menuNavigation"/>
@@ -973,6 +996,7 @@ p, li { white-space: pre-wrap; }
        <normaloff>:/icons/breeze-qownnotes/16x16/im-user-online.svg</normaloff>:/icons/breeze-qownnotes/16x16/im-user-online.svg</iconset>
      </property>
      <addaction name="actionTelegram"/>
+     <addaction name="actionRiot"/>
      <addaction name="actionGitter"/>
      <addaction name="actionOpen_IRC_Channel"/>
     </widget>
@@ -1021,6 +1045,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <addaction name="actionFormat_text_bold"/>
      <addaction name="actionFormat_text_italic"/>
+     <addaction name="actionFormat_text_underline"/>
      <addaction name="actionStrike_out_text"/>
      <addaction name="actionToggle_text_case"/>
     </widget>
@@ -1038,6 +1063,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionDelete_orphaned_images"/>
      <addaction name="actionManage_orphaned_attachments"/>
      <addaction name="actionSplit_note_at_cursor_position"/>
+     <addaction name="actionActivate_context_menu"/>
     </widget>
     <widget class="QMenu" name="menuEditNote">
      <property name="title">
@@ -1075,6 +1101,16 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionEdit_encrypted_note"/>
      <addaction name="actionDecrypt_note"/>
     </widget>
+    <widget class="QMenu" name="menuLanguages">
+     <property name="title">
+      <string>Languages</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuSpelling_backend">
+     <property name="title">
+      <string>Spelling backend</string>
+     </property>
+    </widget>
     <addaction name="menuEditNote"/>
     <addaction name="action_Remove_note"/>
     <addaction name="separator"/>
@@ -1089,6 +1125,11 @@ p, li { white-space: pre-wrap; }
     <addaction name="menuVersioning"/>
     <addaction name="menuEncryption"/>
     <addaction name="menuExtra"/>
+    <addaction name="separator"/>
+    <addaction name="actionCheck_spelling"/>
+    <addaction name="menuSpelling_backend"/>
+    <addaction name="menuLanguages"/>
+    <addaction name="actionManage_dictionaries"/>
    </widget>
    <widget class="QMenu" name="menuTodo">
     <property name="title">
@@ -1111,6 +1152,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionEditorWidthMedium"/>
      <addaction name="actionEditorWidthWide"/>
      <addaction name="actionEditorWidthFull"/>
+     <addaction name="actionEditorWidthCustom"/>
     </widget>
     <widget class="QMenu" name="menuWorkspaces">
      <property name="title">
@@ -1140,6 +1182,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionShow_status_bar"/>
      <addaction name="actionShow_log"/>
      <addaction name="actionShow_all_panels"/>
+     <addaction name="actionShow_Hide_application"/>
     </widget>
     <widget class="QMenu" name="menuWorkspace">
      <property name="title">
@@ -1150,8 +1193,17 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionRename_current_workspace"/>
      <addaction name="actionSwitch_to_previous_workspace"/>
     </widget>
+    <widget class="QMenu" name="menuJumpTo">
+     <property name="title">
+      <string>Jump to</string>
+     </property>
+     <addaction name="actionJump_to_note_text_edit"/>
+     <addaction name="actionJump_to_note_list_panel"/>
+     <addaction name="actionJump_to_note_subfolder_panel"/>
+     <addaction name="actionJump_to_tags_panel"/>
+    </widget>
     <addaction name="menuShow"/>
-    <addaction name="actionJump_to_note_text_edit"/>
+    <addaction name="menuJumpTo"/>
     <addaction name="menuToolbars"/>
     <addaction name="menuPanels"/>
     <addaction name="menuWorkspaces"/>
@@ -1160,9 +1212,12 @@ p, li { white-space: pre-wrap; }
     <addaction name="menuWorkspace"/>
     <addaction name="separator"/>
     <addaction name="actionUse_softwrap_in_note_editor"/>
+    <addaction name="actionTypewriter_mode"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_distraction_free_mode"/>
     <addaction name="menuEditor_width"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggle_fullscreen"/>
     <addaction name="separator"/>
     <addaction name="action_Increase_note_text_size"/>
     <addaction name="action_Decrease_note_text_size"/>
@@ -2072,7 +2127,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show note list under tag pane</string>
+    <string>Show note list under tag panel</string>
    </property>
   </action>
   <action name="actionDonate">
@@ -2136,6 +2191,21 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="statusTip">
     <string>Open the Telegram group</string>
+   </property>
+  </action>
+  <action name="actionRiot">
+   <property name="icon">
+    <iconset theme="im-user-online" resource="breeze-qownnotes.qrc">
+     <normaloff>:/icons/breeze-qownnotes/16x16/im-user-online.svg</normaloff>:/icons/breeze-qownnotes/16x16/im-user-online.svg</iconset>
+   </property>
+   <property name="text">
+    <string notr="true">Riot</string>
+   </property>
+   <property name="toolTip">
+    <string extracomment="&quot;Riot&quot; as in the chat service">Open the Riot room</string>
+   </property>
+   <property name="statusTip">
+    <string extracomment="&quot;Riot&quot; as in the chat service">Open the Riot room</string>
    </property>
   </action>
   <action name="actionGitter">
@@ -2365,7 +2435,7 @@ p, li { white-space: pre-wrap; }
     <string>Insert attachment</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Shift+E</string>
+    <string notr="true">Ctrl+Shift+X</string>
    </property>
   </action>
   <action name="actionAllow_note_editing">
@@ -2373,8 +2443,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="document-save" resource="breeze-qownnotes.qrc">
-     <normaloff>:/icons/breeze-qownnotes/16x16/document-save.svg</normaloff>:/icons/breeze-qownnotes/16x16/document-save.svg</iconset>
+    <iconset theme="document-edit" resource="breeze-qownnotes.qrc">
+     <normaloff>:/icons/breeze-qownnotes/16x16/document-edit.svg</normaloff>:/icons/breeze-qownnotes/16x16/document-edit.svg</iconset>
    </property>
    <property name="text">
     <string>Allow all note editing</string>
@@ -2421,6 +2491,168 @@ p, li { white-space: pre-wrap; }
     <string>Manage orphaned attachments</string>
    </property>
   </action>
+  <action name="actionJump_to_note_subfolder_panel">
+   <property name="text">
+    <string>Jump to note subfolder panel</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F6</string>
+   </property>
+  </action>
+  <action name="actionJump_to_tags_panel">
+   <property name="text">
+    <string>Jump to tags panel</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F7</string>
+   </property>
+  </action>
+  <action name="actionJump_to_note_list_panel">
+   <property name="text">
+    <string>Jump to note list panel</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F5</string>
+   </property>
+  </action>
+  <action name="actionActivate_context_menu">
+   <property name="text">
+    <string>Activate context menu</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F10</string>
+   </property>
+  </action>
+  <action name="actionImport_bookmarks_from_server">
+   <property name="text">
+    <string>Import bookmarks from server</string>
+   </property>
+  </action>
+  <action name="actionToggle_fullscreen">
+   <property name="text">
+    <string>Toggle full-screen mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle full-screen mode</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F11</string>
+   </property>
+  </action>
+  <action name="actionTypewriter_mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Typewriter mode</string>
+   </property>
+  </action>
+  <action name="actionCheck_spelling">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="tools-check-spelling">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Check spelling</string>
+   </property>
+  </action>
+  <action name="actionAuto_Detect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Automatically detect</string>
+   </property>
+  </action>
+  <action name="actionManage_dictionaries">
+   <property name="text">
+    <string>Manage dictionaries</string>
+   </property>
+  </action>
+  <action name="actionEditorWidthCustom">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Custom</string>
+   </property>
+   <property name="whatsThis">
+    <string>5</string>
+   </property>
+  </action>
+  <action name="actionShow_Hide_application">
+   <property name="text">
+    <string>Show/Hide application</string>
+   </property>
+  </action>
+  <action name="actionPrevious_note_tab">
+   <property name="icon">
+    <iconset theme="go-previous" resource="breeze-qownnotes.qrc">
+     <normaloff>:/icons/breeze-qownnotes/16x16/go-previous.svg</normaloff>:/icons/breeze-qownnotes/16x16/go-previous.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Previous note tab</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Alt+PgUp</string>
+   </property>
+  </action>
+  <action name="actionNext_note_tab">
+   <property name="icon">
+    <iconset theme="go-next" resource="breeze-qownnotes.qrc">
+     <normaloff>:/icons/breeze-qownnotes/16x16/go-next.svg</normaloff>:/icons/breeze-qownnotes/16x16/go-next.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Next note tab</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Alt+PgDown</string>
+   </property>
+  </action>
+  <action name="actionClose_current_note_tab">
+   <property name="icon">
+    <iconset theme="window-close" resource="breeze-qownnotes.qrc">
+     <normaloff>:/icons/breeze-qownnotes/16x16/window-close.svg</normaloff>:/icons/breeze-qownnotes/16x16/window-close.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Close current note tab</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionNew_note_in_new_tab">
+   <property name="icon">
+    <iconset theme="document-new" resource="breeze-qownnotes.qrc">
+     <normaloff>:/icons/breeze-qownnotes/16x16/document-new.svg</normaloff>:/icons/breeze-qownnotes/16x16/document-new.svg</iconset>
+   </property>
+   <property name="text">
+    <string>New note in new tab</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionToggle_note_stickiness_of_current_tab">
+   <property name="text">
+    <string>Toggle note stickiness of current tab</string>
+   </property>
+  </action>
+  <action name="actionFormat_text_underline">
+   <property name="icon">
+    <iconset theme="format-text-underline" resource="breeze-qownnotes.qrc">
+     <normaloff>:/icons/breeze-qownnotes/16x16/format-text-underline.svg</normaloff>:/icons/breeze-qownnotes/16x16/format-text-underline.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Format text underline</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+U</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2450,10 +2682,28 @@ p, li { white-space: pre-wrap; }
    <header location="global">widgets/lineedit.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>noteSubFolderLineEdit</tabstop>
+  <tabstop>noteSubFolderTreeWidget</tabstop>
+  <tabstop>tagLineEdit</tabstop>
+  <tabstop>tagTreeWidget</tabstop>
+  <tabstop>noteFolderComboBox</tabstop>
+  <tabstop>searchLineEdit</tabstop>
+  <tabstop>noteTreeWidget</tabstop>
+  <tabstop>navigationLineEdit</tabstop>
+  <tabstop>navigationWidget</tabstop>
+  <tabstop>noteOperationsButton</tabstop>
+  <tabstop>noteTextEdit</tabstop>
+  <tabstop>encryptedNoteTextEdit</tabstop>
+  <tabstop>newNoteTagButton</tabstop>
+  <tabstop>newNoteTagLineEdit</tabstop>
+  <tabstop>scriptingScrollArea</tabstop>
+  <tabstop>noteTextView</tabstop>
+ </tabstops>
  <resources>
   <include location="breeze-qownnotes.qrc"/>
-  <include location="breeze-dark-qownnotes.qrc"/>
   <include location="images.qrc"/>
+  <include location="breeze-dark-qownnotes.qrc"/>
  </resources>
  <connections/>
 </ui>

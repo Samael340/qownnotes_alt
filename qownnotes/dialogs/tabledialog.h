@@ -1,21 +1,23 @@
 #pragma once
 
-#include <QDialog>
 #include "masterdialog.h"
+
+#include <QTemporaryFile>
 
 namespace Ui {
 class TableDialog;
 }
 
-class TableDialog : public MasterDialog
-{
+class QTableWidgetItem;
+
+class TableDialog : public MasterDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit TableDialog(QWidget *parent = 0);
     ~TableDialog();
 
-private slots:
+   private slots:
     void on_createTableWidget_itemSelectionChanged();
 
     void on_buttonBox_accepted();
@@ -24,15 +26,20 @@ private slots:
 
     void on_fileButton_clicked();
 
+    void on_createTableWidget_itemChanged(QTableWidgetItem *item);
+
+    void on_clipboardButton_clicked();
+
 private:
-    enum Tab {
-        CreateTab,
-        ImportTab
-    };
+    enum Tab { CreateTab, ImportTab };
 
     Ui::TableDialog *ui;
+    int _maxColumns = 0;
+    int _maxRows = 0;
+    QTemporaryFile *_tempFile;
 
     void createMarkdownTable();
-
     void importCSV();
+    void updateMaxItems();
+    void updateSeparator(const QString &text) const;
 };

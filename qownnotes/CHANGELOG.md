@@ -1,9 +1,2555 @@
 # QOwnNotes Changelog
 
+## 20.7.3
+- fixed a possible crash when showing note versions of a note with note links
+  (for [#1805](https://github.com/pbek/QOwnNotes/pull/1805))
+- more minor fixes for preview syntax highlighter where made
+  (for [#1821](https://github.com/pbek/QOwnNotes/pull/1821), thank you @Waqar144)
+- added more translation (thank you Fabijenna, MGuerra, rakekniven, mlocati, unchase, gbabin)
+
+## 20.7.2
+- scripts in the script repository are now checked for updates on application
+  start (for [#1820](https://github.com/pbek/QOwnNotes/issues/1820))
+    - if an update was found you'll be asked if you want to open the script
+      update dialog 
+- more highlighting improvements were made in the note text edit
+  (for [#122](https://github.com/pbek/qmarkdowntextedit/pull/122), thank you @Waqar144)
+- added more translation (thank you manuelarodsilva, MGuerra, Gregory.K,
+  rakekniven, unchase, mlimacarlos, richarson, Zack-83)
+
+## 20.7.1
+- if the filename that is generated from the headline of a note turns out to be
+  empty it will now be substituted by `Note.md` (for [#1813](https://github.com/pbek/QOwnNotes/issues/1813))
+    - if that file already exists in the current folder `Note 1.md` will be
+      used (and so on) 
+- more C++11/20 keywords and some types were added to the C++ highlighter
+  (for [#120](https://github.com/pbek/qmarkdowntextedit/pull/120), thank you @data-man)
+- there now is a context menu for note tabs which allows you to toggle the note stickiness
+  and to close all other note tabs (for [#1814](https://github.com/pbek/QOwnNotes/issues/1814))
+- added more Italian, German, French translation (thank you mlocati, rakekniven, gbabin, Zack-83)
+
+## 20.7.0
+- you can now press <kbd>Ctrl</kbd> + <kbd>U</kbd> to format the selected text underline
+  (for [#1811](https://github.com/pbek/QOwnNotes/issues/1811))
+- the QOwnNotes Gentoo overlay was added to the official Gentoo repository for
+  easier installation (for [#1807](https://github.com/pbek/QOwnNotes/issues/1807))
+    - please visit the [Gentoo installation page](https://www.qownnotes.org/installation#Gentoo)
+      for the updated instructions
+- added more translation (thank you Fabijenna)
+
+## 20.6.11
+- the *Note dialog* for opening notes in a new window can now also use custom
+  preview fonts (for [#1806](https://github.com/pbek/QOwnNotes/issues/1806))
+
+## 20.6.10
+- incorrect headings like `#headline` will now not be rendered as heading in the preview
+ (for [#1802](https://github.com/pbek/QOwnNotes/issues/1802), thank you @Waqar144)
+- the note tabs will now be hidden in distraction free mode
+- the *Note dialog* for opening notes in a new window now remembers whether it
+  showed the note text or the preview last time so you can use the dialog as
+  preview in the *Distraction free mode* (for [#1804](https://github.com/pbek/QOwnNotes/issues/1804))
+- added more translation (thank you ardakilicdagi, MGuerra, rakekniven, richarson)
+
+## 20.6.9
+- fixed unwanted `def foo[A](a: A)` note link generation in code blocks in the preview
+  (for [#1794](https://github.com/pbek/QOwnNotes/issues/1794), thank you @Waqar144)
+- you can now turn off support for the QOwnNotesAPI Nextcloud/ownCloud app
+- added more translation (thank you unchase, gbabin, Gregory.K, tiwi90)
+
+## 20.6.8
+- the creation date is now restored when a note gets renamed under Windows
+  (for [#1743](https://github.com/pbek/QOwnNotes/issues/1743))
+
+## 20.6.7
+- you can now remove a tabulator list indent of a new list item with `Shift + Tab`
+  if the setting `Use tab character instead of spaces` is disabled
+  (for [#1793](https://github.com/pbek/QOwnNotes/issues/1793))
+
+## 20.6.6
+- fixed note links if note is inside a sym-linked subfolder that lies outside
+  the note folder (for [#1792](https://github.com/pbek/QOwnNotes/issues/1792))
+
+## 20.6.5
+- fixed preview of inserted images from another drive without copying them to the
+  media library on Windows if filename has spaces in it (for [#1787](https://github.com/pbek/QOwnNotes/issues/1787))
+
+## 20.6.4
+- fixed string not being highlighted if there is a char before it
+  (for [#1786](https://github.com/pbek/QOwnNotes/pull/1786), thank you @Waqar144)
+
+## 20.6.3
+- fixed preview of inserted images from another drive without copying them to the
+  media library on Windows (for [#1785](https://github.com/pbek/QOwnNotes/issues/1785))
+- fixed quote behavior when cursor is at word start (for [#118](https://github.com/pbek/qmarkdowntextedit/pull/118),
+  thank you @Waqar144)
+- added more Greek translation (thank you Gregory.K)
+
+## 20.6.2
+- if `Use editor highlighting styles also for the preview` is turned on now the
+  preview fonts will be disabled at all and will not leak into the preview any more
+- fixed possible crash if no screen is present
+
+## 20.6.1
+- fixed a problem with empty shortcuts if the menubar is disabled and settings
+  were stored in the *Settings dialog* (for [#1708](https://github.com/pbek/QOwnNotes/issues/1708))
+
+## 20.6.0
+- fixed problem with adding QOwnNotes installed from snap as favorite
+  in Ubuntu 20.04 (for [#1713](https://github.com/pbek/QOwnNotes/issues/1713))
+- fixed markdown heading highlighting issue (for [#1777](https://github.com/pbek/QOwnNotes/issues/1777), thank you @Waqar144)
+- the scripting commands `preNoteToMarkdownHtmlHook` and `preNoteToMarkdownHtmlHook`
+  now have a new parameter `forExport` (for [#1769](https://github.com/pbek/QOwnNotes/pull/1769), thank you @r00tr4v3n)
+    - please take a look at the documentation for
+      [preNoteToMarkdownHtmlHook](https://docs.qownnotes.org/en/latest/scripting/hooks/#prenotetomarkdownhtmlhook)
+      and [noteToMarkdownHtmlHook](https://docs.qownnotes.org/en/latest/scripting/hooks/#notetomarkdownhtmlhook)
+      for more information
+
+## 20.5.13
+- improved autocompletion for "bold" and "italic" markdown markers
+  (for [#1753](https://github.com/pbek/QOwnNotes/issues/1753), thank you @Waqar144)
+- fixed hex numbers highlighting (for [#117](https://github.com/pbek/qmarkdowntextedit/pull/117), thank you @Waqar144)
+- added more translation (thank you Zack-83, mlimacarlos, MGuerra, rakekniven)
+
+## 20.5.12
+- fixed copying and moving of notes into sub-folders and note-folders and other
+  things that were broken by [#1749](https://github.com/pbek/QOwnNotes/pull/1749) 
+  (for [#1764](https://github.com/pbek/QOwnNotes/issues/1764)
+  and [#1743](https://github.com/pbek/QOwnNotes/issues/1743))
+- the scripting hook `noteToMarkdownHtmlHook` will now be called after modifications
+  to images in the note are made (for [#1766](https://github.com/pbek/QOwnNotes/issues/1766))
+- the `QHotkey` library was updated
+- added more translation (thank you unchase, richarson, gbabin, Fabijenna)
+
+## 20.5.11
+- some startup performance improvements were made (for [#1755](https://github.com/pbek/QOwnNotes/pull/1755), thank you @Waqar144)
+- markdown checkbox list items now have a square as list-style in the preview
+  (for [#1761](https://github.com/pbek/QOwnNotes/issues/1761))
+- the scripting command `startDetachedProcess` now has new parameters to define
+  a callback identifier that can later be implemented via the new scripting hook
+  `onDetachedProcessCallback` to be able to handle the output of a detached process
+  in a script (for [#1746](https://github.com/pbek/QOwnNotes/issues/1746), thank you @r00tr4v3n)
+    - please take a look at the documentation for
+      [startDetachedProcess](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#starting-an-external-program-in-the-background)
+      and [onDetachedProcessCallback](https://docs.qownnotes.org/en/latest/scripting/hooks/#ondetachedprocesscallback)
+      for more information
+- if the tab of current note was clicked now the subfolder of the note is
+  activated if that is needed to show the note in the note list
+  (for [#1754](https://github.com/pbek/QOwnNotes/issues/1754))
+- you can now enable a checkbox in the *Editor settings* to automatically
+  **remove trailing spaces** from the current note text when the note is stored
+  to disk (for [#1759](https://github.com/pbek/QOwnNotes/issues/1759))
+    - you will only see the changes once the note edit panel is refreshed to
+      prevent cursor jumping while you are editing the note
+- added more translation (thank you unchase, Gregory.K, Fabijenna, rakekniven, gbabin)
+
+## 20.5.10
+- fixed file links interpreted in code blocks (for [#1748](https://github.com/pbek/QOwnNotes/issues/1748), thank you @Waqar144)
+- migrated from `sub-folder` to `subfolder` in menu items, documentation, comments and general text
+- added more translation (thank you Fabijenna)
+
+## 20.5.9
+- added a **new editor color schema** *Solarized Dark*
+  (for [#1742](https://github.com/pbek/QOwnNotes/issues/1742), thank you @sauces1313)
+- the note files are now actually renamed if the headline of a note changes instead
+  of a new note file being created (for [#1743](https://github.com/pbek/QOwnNotes/issues/1743))
+    - if if the note file was successfully renamed now a copy will not be move
+      to the local trash
+- added more Spanish translation (thank you richarson)
+
+## 20.5.8
+- you can now copy an image to the clipboard by right-clicking on it in the preview
+  (for [#1741](https://github.com/pbek/QOwnNotes/issues/1741))
+    - this works for local and as well for remote images
+- the binary translation files were removed from the git repository, they are now
+  built in all build systems (for [#1744](https://github.com/pbek/QOwnNotes/issues/1744))
+- added more French, German, Russian, Catalan, Italian, Bengali translation
+  (thank you gbabin, rakekniven, unchase, MGuerra, tiwi90, Oymate)
+
+## 20.5.7
+- there now is a new method `insertHtmlAsMarkdownIntoCurrentNote` for `mainWindow`
+  in the scripting engine that inserts html in the current note as markdown
+  (for [#1740](https://github.com/pbek/QOwnNotes/issues/1740))
+    - this method also downloads remote images and transforms `data:image` urls
+      to local images stored in the media directory
+    - for more information please take a look at the
+      [Mainwindow scripting documentation](https://docs.qownnotes.org/en/latest/scripting/classes/#mainwindow)
+- added a new scripting hook `websocketRawDataHook` that is called when data is
+  sent from the QOwnNotes Web Companion browser extension via the web browser's
+  context menu (for [#1740](https://github.com/pbek/QOwnNotes/issues/1740))
+    - you need the QOwnNotes Web Companion 20.5.0 or higher for this to work
+    - this works with either the `send page` and `send selection` feature of the
+      web companion
+    - if a hook implementation is found in a script no new note will be created
+    - take a look at the
+      [handleNoteNameHook documentation](https://docs.qownnotes.org/en/latest/scripting/hooks/#websocketrawdatahook)
+      for more information
+- note tabs will now be reloaded correctly if the note-folder is reloaded
+  (for [#1720](https://github.com/pbek/QOwnNotes/issues/1720))
+    - all note assignments were previously lost because reloading the note-folder
+      causes all note ids to be different than before
+- fixed a possible crash when restoring note tabs (for [#1720](https://github.com/pbek/QOwnNotes/issues/1720))
+- added new scripting methods `fileExists` and `readFromFile` and a new parameter
+  `createParentDirs` for method `writeToFile` (for [#1736](https://github.com/pbek/QOwnNotes/issues/1736), thank you @r00tr4v3n)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/)
+- there now is a new sub-menu for custom actions from scripts in the note-edit
+  context menu to prevent that too many menu items are shown on the first level
+  of the menu (for [#1737](https://github.com/pbek/QOwnNotes/issues/1737), thank you @r00tr4v3n)
+- added more Bengali, Brazilian Portuguese, French translation (thank you Oymate,
+  Fabijenna, gbabin, bepolymathe)
+
+## 20.5.6
+- leaving the distraction free mode with <kbd>Escape</kbd> now doesn't cause you
+  to enter the read-only mode automatically, you have to press <kbd>Escape</kbd>
+  a 2nd time to enter the read-only mode (for [#1733](https://github.com/pbek/QOwnNotes/issues/1733))
+- fixed a possible focus problem when entering the distraction free mode
+  (for [#1733](https://github.com/pbek/QOwnNotes/issues/1733))
+- fixed a possible crash in code block preview (for [#1731](https://github.com/pbek/QOwnNotes/pull/1731),
+  thank you @Waqar144)
+- added more translation (thank you Fabijenna)
+
+## 20.5.5
+- now a tooltip is shown for note tabs to guide you how to stick and unstick notes
+  (for [#1730](https://github.com/pbek/QOwnNotes/issues/1730))
+- the note tab sticky status will now be shown correctly if a note is double-clicked
+  in the note list (for [#1730](https://github.com/pbek/QOwnNotes/issues/1730))
+- added more translation (thank you rakekniven,
+  gbabin, unchase, mlocati, MGuerra, Oymate, Fabijenna, mlimacarlos)
+
+## 20.5.4
+- you can now stick a note to a tab with the new action `Toggle note stickiness of current tab`
+  in the *Note / Navigation* menu or by double-clicking on the tab
+  (for [#1730](https://github.com/pbek/QOwnNotes/issues/1730))
+    - this will cause a new tab being opened automatically if you click on
+      another note while in this tab
+    - the stickiness status will get also restored when the note folder is
+      switched or the application is started
+- if the note of the current tab is renamed now the tab also will be renamed
+  (for [#1720](https://github.com/pbek/QOwnNotes/issues/1720))
+
+## 20.5.3
+- fixed a problem with restoring note tabs of notes from sub-subfolders
+  (for [#1726](https://github.com/pbek/QOwnNotes/issues/1726))
+- fixed `Show note in file manager` for file manager Caja on Linux
+  (for [#1727](https://github.com/pbek/QOwnNotes/issues/1727), thank you @r00tr4v3n)
+- added more debug output in case note folder was not found on server
+  (for [#1725](https://github.com/pbek/QOwnNotes/issues/1725))
+- added more Spanish, Catalan, French, German, Italian, Russian translation
+  (thank you richarson, MGuerra, Fabijenna, gbabin, rakekniven, mlocati, unchase)
+
+## 20.5.2
+- **open note tabs are now restored** when the note folder is switched or the
+  application is started (for [#1726](https://github.com/pbek/QOwnNotes/issues/1726))
+    - restoring the last open note when switching note folders was also improved
+    - you can turn note tab restoring off in the *Panels settings*
+- added more Bengali translation (thank you Oymate)
+
+## 20.5.1
+- new tabbing shortcuts were added (for [#1720](https://github.com/pbek/QOwnNotes/issues/1720))
+    - you can now jump to the previous or next note tab with <kbd>Alt + PgUp</kbd>
+      and <kbd>Alt + PgDn</kbd>
+    - you can now close the current note tab with <kbd>Ctrl + W</kbd>
+    - you can now open a new note in a new tab with <kbd>Ctrl + Shift + N</kbd>
+    - do keep in mind that you can change or disable all shortcuts in the *Shortcuts settings*
+    - please visit [QOwnNotes shortcuts](https://www.qownnotes.org/shortcuts/QOwnNotes)
+      for a list of all shortcuts
+- some glitches with duplicate tabs when the application was jumping to notes
+  while the note was already open as a tab were fixed (for [#1720](https://github.com/pbek/QOwnNotes/issues/1720))
+- tabs of removed notes are now also removed automatically (for [#1720](https://github.com/pbek/QOwnNotes/issues/1720))
+- there now is a software repository for **Fedora 32**
+    - please visit the [Fedora installation page](https://www.qownnotes.org/installation#Fedora)
+      for instructions
+- added more Russian, German, Catalan translation (thank you unchase, rakekniven, MGuerra)
+
+## 20.5.0
+- you now can right-click on a note in the note list and click `Open note in tab`
+  to **open the note in a tab** in the note edit panel (for [#1720](https://github.com/pbek/QOwnNotes/issues/1720))
+    - those tabs can be individually closed and moved
+    - opening notes without the new context menu action will open the note in
+      the current tab
+    - if only one tab is open the tabbed interface will be hidden
+    - since right-clicking a note in the note list also already opens the note
+      a click on the new context menu action will attempt to open the last note
+      to really open a new tab if only one tab was open
+    - double clicking a note in the note list will now cause the note to be
+      loaded in a tab if no `noteDoubleClickedHook` was registered in the
+      scripting engine
+- you will now get a warning dialog if you attempt to create a note subfolder
+  that will be ignored by the application, because the name is either used
+  internally or ignored in the *Panels settings* (for [#1718](https://github.com/pbek/QOwnNotes/issues/1718))
+- added more German, Spanish, Russian, Catalan, Bengali, Italian translation
+  (thank you rakekniven, richarson, unchase, MGuerra, 2fake1987, Oymate, tiwi90)
+
+## 20.4.18
+- the counts in the tag tree are now showing the amount of linked notes and not
+  the amount of note-links of a tag (for [#1709](https://github.com/pbek/QOwnNotes/issues/1709))
+- you now are able to show invisible subfolders (folders starting with `.`) in
+  the note subfolder panel if you clear the default `Ignored subfolders`
+  setting in the *Panels settings* (for [#1718](https://github.com/pbek/QOwnNotes/issues/1718))
+
+## 20.4.17
+- if you insert media files or attachments now a stripped-down version of the
+  file's original basename will be included into the filename of resulting file
+  in the `media` or `attachments` directory (for [#1716](https://github.com/pbek/QOwnNotes/issues/1716))
+
+## 20.4.16
+- there now are new scripting functions `note.renameNoteFile()` to rename a note
+  file and `note.allowDifferentFileName()` to check if it is allowed to have a
+  different note file name than the headline (for [#1704](https://github.com/pbek/QOwnNotes/issues/1704))
+    - the [meeting-note](https://github.com/qownnotes/scripts/tree/master/meeting-note)
+      script now makes use of these scripting functions
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/classes/#note)
+- fixed tag adding when moving tags to another parent in the tag panel when
+  handled by the scripting hook `noteTaggingByObjectHook` (for [#1705](https://github.com/pbek/QOwnNotes/issues/1705))
+
+## 20.4.15
+- when the setting to show all notes of a tag including the notes of their
+  children-tags is turned on now the note-count in the tag tree is adapted to
+  also count the notes of the children-tags (for [#1709](https://github.com/pbek/QOwnNotes/issues/1709))
+- some safety measures against note folder update race-conditions when renaming
+  tags while using the note-tagging scripting hooks `noteTaggingHook` or
+  `noteTaggingByObjectHook` were included (for [#1705](https://github.com/pbek/QOwnNotes/issues/1705))
+
+## 20.4.14
+- there now is a new scripting function `getTagByNameBreadcrumbList` to create
+  or fetch a tag by its name breadcrumb list (for [#1705](https://github.com/pbek/QOwnNotes/issues/1705))
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#create-or-fetch-a-tag-by-its-name-breadcrumb-list)
+- moving of tags to another parent in the tag panel can now also be handled by
+  the scripting hook `noteTaggingByObjectHook` (for [#1705](https://github.com/pbek/QOwnNotes/issues/1705))
+    - the application will trigger a series of `add` and `remove` actions for
+      all selected tags and their children on all notes if tags are moved
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/hooks/#notetaggingbyobjecthook)
+- added more Albanian, Basque, Chinese Traditional, Hindi, French, Khmer,
+  Kurdish translation (thank you Fabijenna)
+
+## 20.4.13
+- there now is a new scripting hook `noteTaggingByObjectHook` to implement your
+  own note tagging mechanism in a script (for [#1703](https://github.com/pbek/QOwnNotes/issues/1703))
+    - similarly to `noteTaggingHook` you can implement your own note tagging
+      mechanism, but you are not bound to tag names in the tag tree root,
+      this way you can make use of the whole tag tree instead of only a tag list
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/hooks/#notetaggingbyobjecthook)
+- you can now fetch a tag by name (if there already exists a tag object) with
+  `tag.fetchByName()` via the scripting engine (for [#1703](https://github.com/pbek/QOwnNotes/issues/1703))
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/classes/#tag)
+- you can now fetch the parent tag names of a tag with `tag.getParentTagNames()`
+  via the scripting engine (for [#1703](https://github.com/pbek/QOwnNotes/issues/1703))
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/classes/#tag)
+
+## 20.4.12
+- when tags in the tag tree are double-clicked now the tag also is added or
+  removed via the scripting engine (for [#84](https://github.com/qownnotes/scripts/issues/84))
+
+## 20.4.11
+- links to urls ending with `.md` are now not highlighted as broken note links
+  in the editor any more
+- the column widths of the tag tree panel are now also recalculated when the
+  tree items are expanded or collapsed, not only when the tree is rebuilt or the
+  application window is resized (for [#1690](https://github.com/pbek/QOwnNotes/issues/1690))
+- added more translation (thank you Fabijenna, MGuerra, tiwi90)
+
+## 20.4.10
+- for all question dialogs where you clicked the checkbox `Don't ask again!` you
+  will be now asked again next time if you answer the dialog question with `No`
+  and remembering that decisions makes no sense (for [#1697](https://github.com/pbek/QOwnNotes/issues/1697))
+    - this will help you in case when you accidentally clicked the checkbox and
+      then pressed `No`, for example with shortcut-triggered dialogs like
+      `Remove current note`
+    - for all dialogs where remembering your `No` makes sense all of your
+      decisions will be still remembered, for example with the dialog
+      `Note editing is currently disabled, do you want to allow it again?`
+      when you try to edit a note in read-only mode
+- added more Russian, German translation (thank you unchase, rakekniven)
+
+## 20.4.9
+- notes in 2nd level subfolders (or deeper) are now shown correctly in the
+  note-list after clicking on `All notes` in the subfolder panel and filtering
+  by tag (for [#1696](https://github.com/pbek/QOwnNotes/issues/1696))
+- if the application is in "portable mode" then this will now also be shown in
+  the title bar (for [#1677](https://github.com/pbek/QOwnNotes/issues/1677))
+- added more translation (thank you MGuerra, Fabijenna, richarson)
+
+## 20.4.8
+- you can now also **clear local shortcuts** in the *Shortcuts settings*
+  (for [#1693](https://github.com/pbek/QOwnNotes/issues/1693))
+- added more Hungarian, Dutch, Basque, Croatian, Czech, Danish, Estonian,
+  Filipino, Finnish, Greek, Hausa, Hebrew, Icelandic, Irish, Italian, German,
+  Russian translation (thank you Fabijenna, mlocati, rakekniven, unchase)
+
+## 20.4.7
+- tags are now not lost if a note in a subfolder is renamed after clicking on
+  `All notes` in the subfolder panel (for [#1691](https://github.com/pbek/QOwnNotes/issues/1691))
+- added a **new editor color schema** *Atom One Dark Reasonable* by @leoniscsem
+  (for [#1694](https://github.com/pbek/QOwnNotes/issues/1694))
+- added more Shona, Brazilian Portuguese, French, Icelandic, Indonesian, Irish,
+  Italian, Khmer, Persian, Polish, Portuguese, Punjabi, Ukrainian, Urdu (Pakistan),
+  Uzbek, Vietnamese, Spanish, Catalan translation (thank you Fabijenna, mlimacarlos,
+  richarson, MGuerra)
+
+## 20.4.6
+- fixed renaming of note subfolders under Windows if the folders contain other
+  subfolders (for [#1683](https://github.com/pbek/QOwnNotes/issues/1683))
+- the note folder will now be reloaded if a note subfolder was deleted in the *Subfolders panel*
+- fixed optional automatic database closing under Windows (for [#926](https://github.com/pbek/QOwnNotes/issues/926))
+- notes are now correctly filtered by tag even if notes with the same name are
+  in different note subfolders (for [#1686](https://github.com/pbek/QOwnNotes/issues/1686))
+- added more Bosnian, Albanian, Arabic, Basque, Bengali, Bulgarian, Catalan,
+  Chinese Simplified, Chinese Traditional, Croatian, Czech, Danish, Dutch,
+  Estonian, Filipino, Finnish, Galician, Greek, Hausa, Hebrew, Hungarian,
+  Turkish, Swedish, Slovenian, Slovak, Serbian (Cyrillic), Romanian, Polish,
+  Norwegian, Macedonian, Lithuanian, Latvian, Kurdish, Korean, Japanese
+  translation (thank you Fabijenna)
+
+## 20.4.5
+- fixed the time formats link in the *Editor settings*
+  (for [#1685](https://github.com/pbek/QOwnNotes/issues/1685))
+- now an error message in the log is shown if renaming of a note subfolder fails
+  (for [#1683](https://github.com/pbek/QOwnNotes/issues/1683))
+- fixed note linking with subfolders if the note folder is outside of the application
+  directory in portable mode (for [#1682](https://github.com/pbek/QOwnNotes/issues/1682))
+- added more German, Russian, Italian translation (thank you rakekniven, unchase, tiwi90)
+
+## 20.4.4
+- some improvements for possible "cursor jumping to the top" issues were made
+  (for [#1681](https://github.com/pbek/QOwnNotes/issues/1681))
+
+## 20.4.3
+- when right-clicking a note in the note list and clicking `Open note in different window`
+  you can now also show a **preview of your note** instead of the note text
+  (for [#1678](https://github.com/pbek/QOwnNotes/issues/1678))
+- added more Catalan, German, Spanish, Albanian, Khmer, Arabic, Korean, Basque,
+  Kurdish, Bengali, Latvian, Bosnian, Lithuanian, Bulgarian, Macedonian, Cebuano,
+  Malay, Norwegian, Chinese Simplified, Romanian, Chinese Traditional,
+  Serbian (Cyrillic), Croatian, Slovak, Czech, Slovenian, Estonian, Swedish,
+  Filipino, Turkish, Finnish, Ukrainian, Galician, Urdu (Pakistan), Greek, Uzbek,
+  Hausa, Vietnamese, Hebrew, Hindi, Icelandic, Indonesian, Dutch, Irish,
+  Hungarian, Danish, Japanese, Italian, Russian translation (thank you MGuerra,
+  rakekniven, richarson, Fabijenna, tiwi90, unchase)
+
+## 20.4.2
+- you can now choose to **show your note folders** in your *Note folders panel*
+  **as buttons** in the *Panels settings* (for [#1676](https://github.com/pbek/QOwnNotes/issues/1676))
+    - you can use this button list vertically or horizontally, the buttons will
+      float to the next line if there is no space left
+- some title bar improvements were made (for [#1677](https://github.com/pbek/QOwnNotes/issues/1677))
+    - if more than one note folder exists then the name of the current note folder
+      will be shown in the title bar
+    - if a session was set with the `--session` cli parameter then it will be
+      shown in the title bar
+- added more German, Zulu, Shona, Maori, Xhosa, Filipino, Icelandic, Malay,
+  Serbian (Cyrillic), Vietnamese, Finnish, Indonesian, Irish, Slovak, French,
+  Japanese, Slovenian, Galician, Norwegian, Albanian, Arabic, Basque, Bengali,
+  Bosnian, Khmer, Persian, Bulgarian, Swedish, Polish, Greek, Cebuano, Korean,
+  Portuguese, Tagalog, Turkish, Chinese Simplified, Hausa, Ukrainian,
+  Chinese Traditional, Punjabi, Hebrew, Kurdish, Latvian, Croatian, Urdu (Pakistan),
+  Romanian, Czech, Hindi, Lithuanian, Uzbek, Danish, Estonian, Macedonian,
+  Hungarian, Dutch translation (thank you Fabijenna)
+
+## 20.4.1
+- you can now use the **Meta key in keyboard shortcuts** in the *Shortcuts settings*
+  (for [#1671](https://github.com/pbek/QOwnNotes/issues/1671))
+    - if you have troubles with a 2nd Meta key showing up while entering the shortcut
+      you can press <kbd>Enter</kbd> or <kbd>Escape</kbd> to finish the shortcut entering
+- added more Catalan translation (thank you MGuerra)
+
+## 20.4.0
+- you now can **show and hide the application window** with a new action `Show/Hide application`
+  in the *Window / Show* menu (for [#1324](https://github.com/pbek/QOwnNotes/issues/1324))
+    - this should work with and without enabled tray icon
+    - assign a global keyboard shortcut to the action in the *Shortcuts settings*
+      to make use of it properly
+- added more Spanish, Russian, Swedish, German, Italian, Galician, Greek, Hausa,
+  Albanian, Arabic, Basque, Bengali, Bosnian, Bulgarian, Cebuano, Chinese Simplified,
+  Dutch, Estonian, Filipino, Finnish translation (thank you richarson, unchase,
+  druus, rakekniven, tiwi90, Fabijenna)
+
+## 20.3.9
+- you can now also manage **global keyboard shortcuts** in the *Shortcuts settings*
+  (for [#44](https://github.com/pbek/QOwnNotes/issues/44))
+    - there you can set a global shortcut to every action of the main menu,
+      including custom scripting actions
+    - you can also search for global shortcuts in the `Search for shortcut` line edit
+    - by default there are no global shortcuts activated
+- there now is a new property `relativeNoteFileDirPath` for notes in the scripting engine
+  (for [#1667](https://github.com/pbek/QOwnNotes/issues/1667))
+    - for more information please take a look at the
+      [Note scripting documentation](https://docs.qownnotes.org/en/latest/scripting/classes/#note)
+- there now is a new property `createNewNoteSubFolder` for `mainWindow` in the
+  scripting engine that creates a new note subfolder in the current subfolder
+  (for [#1667](https://github.com/pbek/QOwnNotes/issues/1667))
+    - for more information please take a look at the
+      [Mainwindow scripting documentation](https://docs.qownnotes.org/en/latest/scripting/classes/#mainwindow)
+- fixed a possible crash on entering a backtick character
+  (for [#114](https://github.com/pbek/qmarkdowntextedit/pull/114), thank you @Waqar144)
+
+## 20.3.8
+- added experimental **global keyboard shortcut support** (for [#44](https://github.com/pbek/QOwnNotes/issues/44))
+    - <kbd>Meta + Shift + N</kbd> will now create a new note (for [#1048](https://github.com/pbek/QOwnNotes/issues/1048))
+- no 2nd backtick will now be entered if you enter one at the end of a word with an
+  US keyboard layout (for [#111](https://github.com/pbek/qmarkdowntextedit/pull/111), thank you @Waqar144)
+- fixed a build problem under Qt 5.15 (for [#1666](https://github.com/pbek/QOwnNotes/issues/1666), thank you @data-man)
+- added more Indonesian, Catalan, Khmer, Sinhala, Shona, Dutch, Hungarian,
+  Danish, Spanish, Brazilian Portuguese, German, Russian, Italian translation
+  (thank you zmni, MGuerra, Fabijenna, richarson, mlimacarlos, rakekniven, unchase, tiwi90)
+
+## 20.3.7
+- you now can also <kdb>Ctrl + Click</kbd> legacy attachment urls like
+  `file://attachments/1260976404.pdf` in the note editor to open them externally
+  (for [#1663](https://github.com/pbek/QOwnNotes/issues/1663))
+- added **Shona translation** (a big thank you to Fabijenna)
+    - visit [QOwnNotes Translation](http://docs.qownnotes.org/en/latest/contributing/translation/)
+      if you want to make QOwnNotes available in more languages or help with the
+      current translation
+- added more Italian, Brazilian Portuguese, Khmer, Xhosa, Sinhala, German,
+  Russian translation (thank you Fabijenna, mlocati, mlimacarlos, rakekniven,
+  unchase)
+
+## 20.3.6
+- you can now **search for a language** in the *Interface settings* to make it
+  easier to find the translation you want to use
+    - you can search for the English name, the local name or the language code
+- added **Zulu, Sinhala and Khmer translation** (a big thank you to Fabijenna)
+    - visit [QOwnNotes Translation](http://docs.qownnotes.org/en/latest/contributing/translation/)
+      if you want to make QOwnNotes available in more languages or help with the
+      current translation
+- added more Xhosa, Bengali, Spanish, Indonesian, Italian, Russian, German,
+  Catalan, Brazilian Portuguese, Arabic, Basque, Bosnian, Bulgarian, Cebuano,
+  Chinese Simplified, Chinese Traditional, Croatian, Czech, Danish, Dutch,
+  Estonian, Filipino, Finnish, Galician, Greek, Hausa, Albanian translation
+  (thank you Fabijenna, omarmear, richarson, zmni, tiwi90, unchase, rakekniven,
+  Altanzar, MGuerra, mlimacarlos, athrouss)
+
+## 20.3.5
+- you can now **import CSV** directly **from the clipboard** in the *Table dialog*
+    - you can for example copy CSV from a table in a web-browser
+- an attempt to **detect the separator** when importing CSV will now be made in the *Table dialog*
+- added more Spanish, Italian, Russian, Brazilian Portuguese, German translation
+  (thank you richarson, Fabijenna, tiwi90, unchase, fitoschido, mlimacarlos, rakekniven)
+
+## 20.3.4
+- the setting `Allow note file name to be different from headline` can now be
+  set per note folder instead of only globally
+    - this allows you to use different settings for your note file names for each note folder
+    - the currently existing setting will be used as setting for all your note folders initially
+- if you open the *Note folders settings* now the currently active note folder will be selected
+- improved html list importing of the *Paste html or media* action
+- added **Malay and Xhosa translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- added more Catalan, Chinese Traditional, Filipino, Spanish translation (thank you Fabijenna)
+
+## 20.3.3
+- the **documentation page** was **re-done in Markdown** and will be generated
+  automatically with **MkDocs** at [docs.qownnotes.org](https://docs.qownnotes.org)
+    - feel free to add or improve the information
+- improved GTK and KDE Plasma support for the snap version of QOwnNotes
+  (for [#1651](https://github.com/pbek/QOwnNotes/pull/1651))
+    - the Breeze styling will now be used by default along with the GTK file selectors 
+- the *Table dialog* now also supports importing csv files with tabulator
+  characters as separator
+- added more Catalan, Chinese Traditional, Filipino, Spanish, French, Hiligaynon,
+  Bengali, Persian, Dutch, Albanian, Arabic, Ukrainian, Italian, Russian translation
+  (thank you Fabijenna, MGuerra, mlocati, unchase, richarson, tiwi90)
+
+## 20.3.2
+- when removing single or multiple notes the note folder will now not be reloaded,
+  instead the notes will just be removed in the note list and the next existing
+  note will be selected (for [#1650](https://github.com/pbek/QOwnNotes/issues/1650))
+- added **Māori translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+
+## 20.3.1
+- fixed inline code not being highlighted if there is a link in the same line
+  (for [#1649](https://github.com/pbek/QOwnNotes/issues/1649), thank you @Waqar144)
+- added more Arabic, Vietnamese, Cebuano, Turkish, Hebrew, Galician, Hindi,
+  Kurdish, Urdu (Pakistan), Chinese Simplified, Uzbek, German, Spanish,
+  Brazilian Portuguese, Italian, Catalan, French, Filipino, Albanian, Basque,
+  Bosnian, Bulgarian, Chinese Traditional, Croatian, Czech, Danish, Dutch,
+  Estonian, Finnish, Greek, Hungarian, Icelandic, Indonesian, Irish, Japanese,
+  Korean, Latvian, Lithuanian, Macedonian, Norwegian, Polish, Portuguese,
+  Punjabi, Romanian, Serbian (Cyrillic), Slovak, Slovenian, Swedish, Russian
+  translation (thank you Fabijenna, rakekniven, fitoschido, mlimacarlos, mlocati,
+  MGuerra, primokorn, unchase)
+
+## 20.3.0
+- there now is a new predefined layout **Preview only** to choose from at the
+  initial setup and in the *Layout settings* that shows no note edit panel, but
+  the preview panel instead
+    - you could use a workspace with this layout to switch between a workspace
+      with only the note edit and a workspace with only the preview with the
+      shortcut <kbd>Alt + Shift + P</kbd>
+        - please visit [QOwnNotes shortcuts](https://www.qownnotes.org/shortcuts/QOwnNotes)
+          for a list of all shortcuts
+    - using a new layout in the *Layout settings* now creates a new workspace
+      instead of replacing the initial workspace, but keep in mind that workspaces
+      that demand that there is no central widget will not work properly if the
+      central widget is enabled
+- you can now also select text with they keyboard in the *Debug information* of
+  the *Debug settings*
+- fixed headings retaining old formatting when removing the heading marker
+  in the next line (for [#1641](https://github.com/pbek/QOwnNotes/issues/1641), thank you @Waqar144)
+- fixed strike-through highlighting being applied to links
+  (for [#1642](https://github.com/pbek/QOwnNotes/issues/1642), thank you @Waqar144)
+- fixed cpp being used for unknown code block languages in the note edit highlighter
+  (for [#1643](https://github.com/pbek/QOwnNotes/issues/1643), thank you @Waqar144)
+
+## 20.2.11
+- fixed strange line edit resizing problem in the *Nextcloud/ownCloud settings*
+  that was sighted on KDE
+    - other user interface elements were also slightly improved
+- fixed a note folder reload problem if application was built on Qt 5.14 or higher
+  (for [#1640](https://github.com/pbek/QOwnNotes/issues/1640))
+
+## 20.2.10
+- fixed a possible crash with the CSS code block highlighter
+  (for [#1638](https://github.com/pbek/QOwnNotes/issues/1638), thank you @Waqar144)
+- url-encoded links to notes will now also be correctly adapted if those notes
+  are renamed (for [#1546](https://github.com/pbek/QOwnNotes/issues/1546))
+
+## 20.2.9
+- note links generated from the *Link dialog* will now get url-encoded to be
+  better compatible with other tools that can link to files, like GitHub or
+  GitLab (for [#1546](https://github.com/pbek/QOwnNotes/issues/1546))
+    - for example `Note with one bracket].md` will now get `Note%20with%20one%20bracket%5D.md`
+    - links with just spaces still work in QOwnNotes, as well as `&#32;` as spaces
+    - the new note links are click-able in both the note edit and the preview
+      and the broken-note-link highlighter will also handle them correctly
+- the default shortcut for `Insert attachment` was changed to <kbd>Ctrl + Shift + X</kbd>
+  because of clashing with `Edit encrypted note` (for [#1637](https://github.com/pbek/QOwnNotes/issues/1637))
+    - please visit [QOwnNotes shortcuts](https://www.qownnotes.org/shortcuts/QOwnNotes)
+      for a list of all shortcuts
+- added more Indonesian, Spanish, Danish, Vietnamese, Dutch, Estonian, Filipino,
+  Finnish, Greek, Hausa, Hebrew, Hindi, Hungarian, Urdu (Pakistan), Icelandic,
+  Turkish, Irish, Japanese, Korean, Kurdish, Latvian, Lithuanian, Macedonian,
+  Norwegian, Persian, Polish, Portuguese, Punjabi, Romanian, Serbian (Cyrillic),
+  Slovak, Slovenian, Swedish, Ukrainian, Uzbek, Albanian, Arabic, Basque, Bengali,
+  Bosnian, Bulgarian, Chinese Simplified, Chinese Traditional, Croatian, Czech,
+  German, Russian translation (thank you zmni, richarson, Fabijenna, rakekniven, unchase)
+
+## 20.2.8
+- conflicted copies of the note folder database `notes.sqlite` are now
+  immediately deleted if tags and tag assignments are not different to the ones
+  from the current `notes.sqlite` (for [#1625](https://github.com/pbek/QOwnNotes/issues/1625))
+    - all other table differences can be safely ignored
+
+## 20.2.7
+- some improvements to the todo list dialog were made
+    - if the todo items in a list will be reloaded from the server the current
+      text search will be applied again
+    - if the todo list is switched the current text search will be removed to
+      not confuse the user 
+- fixed removing of the 3rd `"` from `test "test""` with <kbd>Backspace</kbd>
+  (for [#1629](https://github.com/pbek/QOwnNotes/issues/1629), thank you @Waqar144)
+
+## 20.2.6
+- more improvements to the link dialog were made
+  (for [#1632](https://github.com/pbek/QOwnNotes/issues/1632))
+    - entering of `]` characters in link name line edit is now disabled since
+      they would break the markdown link
+        - they also will be removed from the link name automatically if they
+          were part of the note file name 
+    - if one of the link characters `<>()` were found in the note url the legacy
+      way of linking will be used because otherwise the url would break the
+      markdown link
+- fixed fetching of todo calendar list in *Settings dialog* if cloud connection
+  was switched (for [#1631](https://github.com/pbek/QOwnNotes/issues/1631))
+
+## 20.2.5
+- fetching of remote note folders in the *Note folders settings* now should
+  work properly with Nextcloud (for [#1631](https://github.com/pbek/QOwnNotes/issues/1631))
+    - using different cloud connections now also works properly with the remote
+      note folder selector
+    - switching to another cloud connection in the *Note folders settings* now
+      also triggers a reload of the remote note folder selector if it is visible
+- attempted to fix random crashes while editing notes on macOS
+  (for [#1626](https://github.com/pbek/QOwnNotes/issues/1626), thank you @Waqar144)
+- attempted to fix rare QOwnNotes disk image mount problems under macOS
+  (for [#1630](https://github.com/pbek/QOwnNotes/issues/1630))
+- added repositories for **openSUSE Leap 15.2**
+    - please visit the [openSUSE installation page](https://www.qownnotes.org/installation#openSUSE)
+      for instructions
+- if you accept the *Link dialog* while on the *Note tab* now a possible URL in
+  the *URL tab* will be removed so that your selected note will be inserted
+  instead of the URL
+- automatic note file naming schema in case of duplicate note file names was
+  changed from appending a number like ` (1)` to just the number like ` 1`
+  because of problems with brackets in note links
+- added more Russian, Catalan, Brazilian Portuguese, Croatian, Czech, Danish,
+  Dutch, Estonian, Finnish, Greek, Hungarian, Irish, Japanese, Korean, Latvian,
+  Lithuanian, Macedonian, Norwegian, Persian, Polish, Portuguese, Punjabi,
+  Romanian, Serbian (Cyrillic), Slovak, Slovenian, Swedish, Turkish, Uzbek,
+  Albanian, Basque, Bosnian, Bulgarian, Chinese Simplified, Chinese Traditional,
+  Indonesian, French, German, Italian translation (thank you unchase, MGuerra,
+  mlimacarlos, Fabijenna, zmni, primokorn, rakekniven, mlocati)
+
+## 20.2.4
+- conflicted copies of the note folder database `notes.sqlite` are now
+  immediately deleted if they are not different to the current `notes.sqlite`
+  (for [#1625](https://github.com/pbek/QOwnNotes/issues/1625))
+
+## 20.2.3
+- improved Setext-style headers highlighting with leading spaces
+  (for [#101](https://github.com/pbek/qmarkdowntextedit/issues/101), thank you @Waqar144)
+- allowed CMake and Make highlighting in the preview
+  (for [#1617](https://github.com/pbek/QOwnNotes/pull/1617), thank you @Waqar144)
+- fixed tilde style code blocks in preview when the number of tildes blocks were odd
+  (for [#1620](https://github.com/pbek/QOwnNotes/pull/1620), thank you @Waqar144)
+
+## 20.2.2
+- automatic closing of brackets (and other characters) will now happen even if
+  you are in the middle of the line (for [#96](https://github.com/pbek/qmarkdowntextedit/pull/96), thank you @Waqar144)
+    - automatic removal of brackets (and other characters) for closing characters
+      for example `]` or `)` now works (previously automatic removal only
+      happened if the character was an opening character)
+- fixed Go lang highlighting and improved makefile highlighting
+  (for [#97](https://github.com/pbek/qmarkdowntextedit/pull/97), thank you @Waqar144)
+- improved comment block highlighting (for [#99](https://github.com/pbek/qmarkdowntextedit/pull/99), thank you @Waqar144)
+
+## 20.2.1
+- improved the space padding of the automatic markdown table formatter
+  (for [#1052](https://github.com/pbek/QOwnNotes/issues/1052))
+- fixed highlighting of list items that start with tabulator characters and
+  checkboxes that don't have a space in the brackets (for [#1615](https://github.com/pbek/QOwnNotes/issues/1615), thank you @Waqar144)
+
+## 20.2.0
+- remote images and Nextcloud text images are now cached after being downloaded
+  for the preview until another note was be selected (for [#1244](https://github.com/pbek/QOwnNotes/issues/1244))
+    - this improves writing speed because the images now don't need to be
+      downloaded again every time the preview is refreshed
+- remote images and Nextcloud text images are now (like local images) resized in
+  the preview if the width of the preview panel is smaller than the image width
+  (for [#1597](https://github.com/pbek/QOwnNotes/issues/1597))
+
+## 20.1.19
+- fixed a possible crash in the broken-note-link highlighter
+  (for [#1611](https://github.com/pbek/QOwnNotes/issues/1611), thank you @Waqar144)
+- enabled underline rendering in the note text edit
+  (for [#1613](https://github.com/pbek/QOwnNotes/pull/1613), thank you @Waqar144)
+- added more Russian translation (thank you mikhail-khokhlov)
+
+## 20.1.18
+- added Cmake and make languages to the code block syntax highlighter
+  (for [#93](https://github.com/pbek/qmarkdowntextedit/pull/93), thank you @Waqar144)
+- fixed checking of checkboxes in checkbox lists in the preview
+  (for [#1607](https://github.com/pbek/QOwnNotes/issues/1607), thank you @Waqar144)
+- fixed displaying of the context menu in the task list of the todo list dialog
+  if no task is present (for [#1609](https://github.com/pbek/QOwnNotes/issues/1609))
+
+## 20.1.17
+- on Windows the application will now automatically be shown if the the update
+  dialog is triggered, because otherwise Windows seems to quit the application
+  when the update dialog is closed while the application is hidden
+  (for [#1514](https://github.com/pbek/QOwnNotes/issues/1514))
+- highlighting of markdown lists (ordered/unordered/checked/unchecked) have been
+  re-written (for [#1598](https://github.com/pbek/QOwnNotes/issues/1598), thank you @Waqar144)
+    - list parsing is much faster now
+    - ordered lists can optionally have a `)` instead of a `.` as the character
+      after the number, both these lists will be completed if you press <kbd>Enter</kbd>
+- added more Russian, Bengali, Indonesian, Irish, Italian, Japanese, Korean,
+  Kurdish, Latvian, Lithuanian, Macedonian, Norwegian, Persian, Polish, Bosnian,
+  Portuguese, Bulgarian, Punjabi, Chinese Simplified, Romanian, Chinese Traditional,
+  Serbian (Cyrillic), Slovak, Slovenian, Spanish, Swedish, Croatian, Czech, Danish,
+  Dutch, Estonian, Albanian, Filipino, Arabic, Finnish, Basque, Hausa, Hindi,
+  Hungarian, Icelandic, Catalan, French, Greek, Brazilian Portuguese, German
+  translation (thank you unchase, Fabijenna, MGuerra, primokorn, athrouss,
+  mlimacarlos, rakekniven, tiwi90)
+
+## 20.1.16
+- you now can set a custom editor width in the `Window / Editor width` menu
+  (for [#1604](https://github.com/pbek/QOwnNotes/issues/1604))
+- all search results in the note text edit are now highlighted while searching
+  (for [#1512](https://github.com/pbek/QOwnNotes/issues/1512))
+    - the speed of the search was slightly improved
+    - you can now do regular expressions searches also case insensitive
+
+## 20.1.15
+- fixed stacked code block highlighting and improved non-fenced code block highlighting
+  (for [#1558](https://github.com/pbek/QOwnNotes/issues/1558), [#1602](https://github.com/pbek/QOwnNotes/issues/1602),
+  [#1601](https://github.com/pbek/QOwnNotes/pull/1601) and [#1598](https://github.com/pbek/QOwnNotes/issues/1598),
+  thank you @Waqar144)
+- there now is a new scripting command `script.noteTextEditSelectCurrentWord()`
+  to select the current word in the note text edit (for [#1603](https://github.com/pbek/QOwnNotes/pull/1603), thank you @jfx2006)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#select-the-current-word-in-the-note-text-edit)
+- added more Cebuano, Italian, Chinese Simplified, Slovak, Chinese Traditional,
+  Slovenian, Croatian, Spanish, Czech, Swedish, Danish, Ukrainian, Dutch,
+  Urdu (Pakistan), Uzbek, Estonian, Vietnamese, Finnish, French, Greek, Hausa,
+  Hindi, Hungarian, Icelandic, Indonesian, Irish, Japanese, Korean, Kurdish,
+  Latvian, Lithuanian, Macedonian, Norwegian, Persian, Albanian, Polish, Basque,
+  Portuguese, Bosnian, Punjabi, Bulgarian, Romanian, Serbian (Cyrillic), Russian,
+  German, Catalan translation (thank you Fabijenna, mlocati, unchase, rakekniven,
+  MGuerra, tiwi90)
+
+## 20.1.14
+- you can now also **create sub-tasks** in the **Todo list dialog** by right-clicking
+  on a todo-item (for [#1596](https://github.com/pbek/QOwnNotes/issues/1596))
+- more improvements for the markdown highlighting were made
+  (for [#1598](https://github.com/pbek/QOwnNotes/issues/1598), thank you @Waqar144)
+- fixed four spaces code blocks again (for [#1558](https://github.com/pbek/QOwnNotes/issues/1558), thank you @Waqar144)
+- added more Chinese Simplified, Chinese Traditional, Indonesian, Hindi, Kurdish,
+  Filipino translation (thank you Fabijenna)
+
+## 20.1.13
+- fixed not detected external note changes of the current note if the event for
+  the change in the current note comes after the event that the note folder was
+  modified (for [#1597](https://github.com/pbek/QOwnNotes/issues/1597))
+- lots of improvements for the markdown highlighting were made
+  (for [#1598](https://github.com/pbek/QOwnNotes/issues/1598), thank you @Waqar144)
+    - support for overlapping formats such as bold + italic, code + italic, etc.
+    - em and strong highlighting in complex cases
+    - inline code spans can now handle complex cases, e.g ``` ``inline  ` code`` ```
+    - strike through support
+    - Commonmark compliant indented code blocks
+- fixed broken note folder and script moving via drag and drop on macOS
+- added more Chinese Simplified, Chinese Traditional, Hindi translation (thank you Fabijenna)
+
+## 20.1.12
+- fixed a memory leak in the preview (for [#1594](https://github.com/pbek/QOwnNotes/pull/1594), thank you @Waqar144)
+- you can now browse and modify your **todo list** items in a tree instead of a list
+  if you are using **sub-tasks** (for [#1596](https://github.com/pbek/QOwnNotes/issues/1596))
+    - the creation of sub-tasks is not yet supported in the application
+    - keep in mind that sub-tasks of completed tasks or sub-tasks will not be
+      shown if you don't show completed items
+- added more Chinese Simplified, Uzbek, Dutch, German, Norwegian, Persian, Polish,
+  Portuguese, Punjabi, Romanian, Swedish, Serbian (Cyrillic), Slovak, Slovenian,
+  Turkish, Ukrainian, Urdu (Pakistan), Albanian, Arabic, Basque, Bengali, Bosnian,
+  Bulgarian, Croatian, Kurdish, Czech, Danish, Estonian, Finnish, French, Greek,
+  Hausa, Hebrew, Hungarian, Icelandic, Irish, Japanese, Korean, Latvian, Lithuanian,
+  Macedonian, Russian, Spanish, Italian translation (thank you Fabijenna, rakekniven,
+  unchase, richarson, mlocati)
+
+## 20.1.11
+- fixed an infinite loop in the preview with complex markdown tables (for [#1592](https://github.com/pbek/QOwnNotes/issues/1592), thank you @mity)
+- there now is a button to open the *App Password* page of your Nextcloud / ownCloud
+  server to create a new app password for the application in the *Nextcloud / ownCloud settings*
+- added more Catalan, Arabic, Irish, Ukrainian, Urdu (Pakistan), Uzbek, Vietnamese,
+  Portuguese, Albanian, Hebrew, Basque, Bosnian, Bulgarian, Cebuano, Croatian,
+  Czech, Danish, Dutch, Estonian, Finnish, French, Greek, Hausa, Hindi, Hungarian,
+  Icelandic, Japanese, Korean, Latvian, Lithuanian, Macedonian, Norwegian, Persian,
+  Polish, Punjabi, Romanian, Russian, Serbian (Cyrillic), Slovak, Slovenian,
+  Spanish, Swedish, Turkish, Italian, German translation (thank you MGuerra,
+  Fabijenna, mlocati, rakekniven)
+
+## 20.1.10
+- it is now possible to disable the opening of the last accessed note at startup
+  in the *General settings* (for [#1588](https://github.com/pbek/QOwnNotes/issues/1588))
+- the mechanism to remove conflicted copies of the `notes.sqlite` database is
+  now also compatible with Dropbox (for [#1589](https://github.com/pbek/QOwnNotes/issues/1589))
+- added more Arabic, Irish, Hebrew translation (thank you Fabijenna)
+
+## 20.1.9
+- added support for tilde code fence highlighting (for [#1580](https://github.com/pbek/QOwnNotes/issues/1580), thank you @Waqar144)
+    - the preview also works correctly now
+    - you can also fence triple-tick code blocks with tilde-fences and vice versa
+- fixed some small preview issues (for [#1582](https://github.com/pbek/QOwnNotes/pull/1582), thank you @Waqar144)
+- added more Hebrew, Urdu (Pakistan), Spanish translation (thank you Fabijenna, DixTheDev)
+
+## 20.1.8
+- added preview code block highlighting for INI and VEX language (for [#1529](https://github.com/pbek/QOwnNotes/issues/1529), thank you @Waqar144)
+- fixed numerical code block highlighting and preview issues (for [#1575](https://github.com/pbek/QOwnNotes/issues/1575), thank you @Waqar144)
+- enabled `Copy code block` menu entry for code blocks with language suffix (for [#1578](https://github.com/pbek/QOwnNotes/issues/1578), thank you @Waqar144)
+- added more Irish, Portuguese, Korean translation (thank you Fabijenna)
+
+## 20.1.7
+- fixed trailing spaces not being highlighted (for [#1569](https://github.com/pbek/QOwnNotes/issues/1569), thank you @Waqar144)
+- fixed numeric highlighter and added more improvements (for [#1571](https://github.com/pbek/QOwnNotes/pull/1571), thank you @Waqar144)
+- added underline option to preview for MD4C (for [#1567](https://github.com/pbek/QOwnNotes/issues/1567), thank you @Waqar144)
+- added the main menu entry `Reload note folder` also to the context menu in the
+  note subfolder panel (for [#1574](https://github.com/pbek/QOwnNotes/issues/1574)
+- fixed highlighting of ordered lists (for [#1573](https://github.com/pbek/QOwnNotes/issues/1573)
+- added more Portuguese, Filipino, Kurdish, Japanese, Urdu (Pakistan), Turkish,
+  Hebrew translation (thank you Fabijenna)
+
+## 20.1.6
+- fixed four spaces code blocks (for [#1558](https://github.com/pbek/QOwnNotes/issues/1558), thank you @Waqar144)
+- fixed a numeric literal code block highlighting problem (for [#1559](https://github.com/pbek/QOwnNotes/issues/1559), thank you @Waqar144)
+- fixed multiple multiline comments in same code block causing freezes (for [#1561](https://github.com/pbek/QOwnNotes/issues/1561), thank you @Waqar144)
+- the markdown to html library [MD4C](https://github.com/mity/md4c) was integrated
+  to be used in the preview instead of hoedown (for [#1567](https://github.com/pbek/QOwnNotes/issues/1567), thank you @Waqar144)
+- added full css highlighting and partial YAML highlighting to the preview (for [#1570](https://github.com/pbek/QOwnNotes/pull/1570), thank you @Waqar144)
+- again attempted to fix AppImage build
+- added more Hindi, Arabic, French, Estonian, Hausa, Swedish, Slovak, Slovenian,
+  Romanian, Polish, Norwegian, Serbian (Cyrillic), Russian, Irish, Latvian
+  translation (thank you Fabijenna)
+
+## 20.1.5
+- added a **new editor color schema** *Two Dark* by @ScottKillen (for [#1557](https://github.com/pbek/QOwnNotes/issues/1557))
+- attempted to fix AppImage and fixed macOS build
+- code block keyword styles now also match editor styles (for [#1462](https://github.com/pbek/QOwnNotes/issues/1462))
+
+## 20.1.4
+- fixed highlighting of comments in code blocks (for [#1547](https://github.com/pbek/QOwnNotes/issues/1547), thank you @Waqar144)
+- improved the preview highlighting (for [#1551](https://github.com/pbek/QOwnNotes/pull/1551), thank you @Waqar144)
+- fixed inline code being interpreted as code block (for [#73](https://github.com/pbek/qmarkdowntextedit/pull/73), thank you @Waqar144)
+- code blocks now can have a full-width background color in the preview (for [#1526](https://github.com/pbek/QOwnNotes/issues/1526))
+- increased performance of navigation parsing panel (for [#1553](https://github.com/pbek/QOwnNotes/pull/1553), thank you @Waqar144)
+- fixed broken two-line headline highlighting while typing (for [#1552](https://github.com/pbek/QOwnNotes/issues/1552), thank you @Waqar144)
+
+## 20.1.3
+- fixed opening of notes in external editor under macOS if non-default application
+  was chosen (for [#1543](https://github.com/pbek/QOwnNotes/issues/1543))
+- did more optimizations for note editing (for [#1545](https://github.com/pbek/QOwnNotes/pull/1545), thank you @Waqar144)
+- greatly improved syntax highlighting performance (for
+  [#70](https://github.com/pbek/qmarkdowntextedit/pull/70) and
+  [#71](https://github.com/pbek/qmarkdowntextedit/pull/71), thank you @Waqar144)
+- improved Fastmail CalDav server support (for [#1544](https://github.com/pbek/QOwnNotes/issues/1544))
+- improved note store triggering mechanism
+- added more Indonesian translation (thank you zmni)
+
+## 20.1.2
+- again attempted to add support for the Synology CalDAV server
+  (for [#1530](https://github.com/pbek/QOwnNotes/issues/1530))
+- the `Export generated raw HTML` preview context menu item now exports the html
+  generated to be viewed in the preview and not the already transformed html inside
+  the `QTextBrowser` widget (for [#1526](https://github.com/pbek/QOwnNotes/issues/1526))
+- added vex code block highlighting support (for [#1529](https://github.com/pbek/QOwnNotes/issues/1529), thank you @Waqar144)
+- added tagger script code block highlighting support (for [#68](https://github.com/pbek/qmarkdowntextedit/pull/68), thank you @Gremious)
+- added support for solving equations in lists (for [#1539](https://github.com/pbek/QOwnNotes/issues/1539))
+- fixed some `'` preview problems in code blocks (for [#1540](https://github.com/pbek/QOwnNotes/issues/1540), thank you @Waqar144)
+
+## 20.1.1
+- added more preview syntax highlighter fixes and improvements
+  (for [#1528](https://github.com/pbek/QOwnNotes/pull/1528), thank you @Waqar144)
+- attempted to add support for the Synology CalDAV server
+  (for [#1530](https://github.com/pbek/QOwnNotes/issues/1530))
+- fixed possible crash for inline code blocks in preview highlighter
+  (for [#1532](https://github.com/pbek/QOwnNotes/issues/1532), thank you @Waqar144)
+- added more Persian, Hausa, Punjabi, Uzbek, Lithuanian translation (thank you Fabijenna)
+
+## 20.1.0
+- brought more variation in the headline colors of the `Light` and `Dark` schemes
+- added missing headline 6 highlighting in the note editor
+- attempted to fix SuSE builds
+- attempted to fix builds for older Qt versions
+
+## 19.12.17
+- did some highlighting fixes and improvements (for [#1523](https://github.com/pbek/QOwnNotes/issues/1523),
+  [#64](https://github.com/pbek/qmarkdowntextedit/pull/64) and
+  [#65](https://github.com/pbek/qmarkdowntextedit/pull/65), thank you @Waqar144)
+- there now also is **syntax highlighting in the preview**
+  (for [#1526](https://github.com/pbek/QOwnNotes/issues/1526), thank you @Waqar144)
+   - most of the languages already work except YAML (doesn't work fully yet),
+     INI (doesn't work fully yet) and CSS
+- added more Hausa, Russian, Cebuano, Hungarian, Icelandic, Croatian, Czech,
+  Danish, Finnish, Galician, Greek, Dutch, Albanian, Basque, Bosnian, Bulgarian
+  translation (thank you Fabijenna, unchase)
+
+## 19.12.16
+- code block backgrounds are now rendered over the full width of the editor
+  (for [#1480](https://github.com/pbek/QOwnNotes/issues/1480), thank you @Waqar144)
+    - the *Dark* color schema now also has a background color by default
+- added a **new editor color schema** *Nord* by @salopst
+  (for [#1522](https://github.com/pbek/QOwnNotes/issues/1522))
+- added more keywords to the BASH highlighting support
+- added more Spanish, Catalan, Brazilian Portuguese, Italian, German translation
+  (thank you richarson, MGuerra, mlimacarlos, mlocati, rakekniven)
+
+## 19.12.15
+- added YAML and INI highlighting support (for [#58](https://github.com/pbek/qmarkdowntextedit/pull/58)
+  and [#59](https://github.com/pbek/qmarkdowntextedit/pull/59), thank you @Waqar144)
+- added more keywords to the BASH highlighting support
+
+## 19.12.14
+- checked and unckecked **checkboxes** are now **highlighted** in the note editor
+  (for [#1519](https://github.com/pbek/QOwnNotes/issues/1519))
+- the *Issue assistant dialog* is now scrollable to make it easier to enter issues
+  on low resolution screens (for [#1515](https://github.com/pbek/QOwnNotes/issues/1515))
+- made some performance improvements when changing the current note item
+  (for [#327](https://github.com/pbek/QOwnNotes/issues/327), thank you @Waqar144)
+- fixed total byte display while downloading dictionaries in the *Dictionary manager dialog*
+  if total byte size is not transmitted by the web server
+- you can now remove multiple indent-character inside of text when indenting with spaces
+  (for [#1455](https://github.com/pbek/QOwnNotes/issues/1455))
+- fixed a problem with showing correct notes if no subfolder was selected
+  (for [#1520](https://github.com/pbek/QOwnNotes/pull/1520), thank you @Waqar144)
+- added more German, Galician, French, Lithuanian, Serbian (Cyrillic), Czech,
+  Uzbek translation (thank you rakekniven, Fabijenna)
+
+## 19.12.13
+- fixed build error on older Qt versions
+
+## 19.12.12
+- improved text un-indentation of list elements (for [#1455](https://github.com/pbek/QOwnNotes/issues/1455))
+- improved dark mode code block highlighting in the preview if editor highlighting
+  styles are used (for [#1516](https://github.com/pbek/QOwnNotes/issues/1516))
+- fixed unnecessary note folder reload when the current note is tagged by
+  double clicking a tag or using the *Note tags panel*
+- the screen resolutions are now shown in the *Debug settings*
+- fixed a possible highlighting crash and css class and id highlighting
+  (for [#57](https://github.com/pbek/qmarkdowntextedit/pull/57), thank you @Waqar144)
+- added more Catalan, Swedish, Bosnian, Greek, Hebrew, Danish, Croatian, Romanian,
+  Finnish, Polish, Slovenian, Slovak translation (thank you MGuerra, Fabijenna)
+
+## 19.12.11
+- fixed note tagging (got broken in 19.12.9, for [#1510](https://github.com/pbek/QOwnNotes/issues/1510))
+- improved text indentation of selected text blocks (for [#1455](https://github.com/pbek/QOwnNotes/issues/1455))
+- added typescript highlighting support (for [#1513](https://github.com/pbek/QOwnNotes/pull/1513), thank you @Waqar144)
+- added more Russian, Italian, Hungarian, Dutch, Spanish translation (thank you
+  unchase, mlocati, Fabijenna, richarson)
+
+## 19.12.10
+- you now can choose if you want to use a **<kbd>Tab</kbd> or spaces** to **indent text**
+  in the *Editor settings* (for [#1455](https://github.com/pbek/QOwnNotes/issues/1455))
+    - you can also choose how many spaces should be used
+    - this also works with indenting selected text and in lists
+    - now **by default four spaces** will be used to **indent text** instead of a <kbd>Tab</kbd>
+- the num literal highlighter in CSH was re-implemented, multiline comment support was added
+  and more syntax highlighter refactoring and optimization was done
+  (for [#52](https://github.com/pbek/qmarkdowntextedit/pull/52),
+  [#53](https://github.com/pbek/qmarkdowntextedit/pull/53),
+  [#54](https://github.com/pbek/qmarkdowntextedit/pull/54) and
+  [#55](https://github.com/pbek/qmarkdowntextedit/pull/55) thank you @Waqar144)
+- added more Spanish, Italian, Catalan, Slovenian, Polish, Macedonian, Swedish,
+  Basque, Uzbek, Danish, Bulgarian, Cebuano, Croatian, Norwegian, Czech, Finnish,
+  Icelandic, Punjabi, Latvian, Romanian, Lithuanian, Dutch, Hungarian, Slovak,
+  Russian, German translation (thank you richarson, mlocati, MGuerra, Fabijenna,
+  unchase, rakekniven, tiwi90)
+
+## 19.12.9
+- you can now choose in the *Preview settings* if you want to use the internal export
+  styling for exporting (also partial) or printing of notes or if you want to use the
+  styling of your preview (for [#1469](https://github.com/pbek/QOwnNotes/issues/1469))
+    - by default the internal styling will be used
+    - this is especially useful for the dark mode
+- a lot of general performance optimizations were done (for [#1503](https://github.com/pbek/QOwnNotes/pull/1503)
+  and [#1505](https://github.com/pbek/QOwnNotes/pull/1505), thank you @Waqar144)
+- added more Uzbek translation (thank you Fabijenna)
+
+## 19.12.8
+- trailing and leading spaces will now be trimmed from pasted urls in the
+  *Image dialog* (for [#1500](https://github.com/pbek/QOwnNotes/issues/1500))
+- more general performance optimizations were done (for [#1501](https://github.com/pbek/QOwnNotes/pull/1501)
+  and [#1502](https://github.com/pbek/QOwnNotes/pull/1502), thank you @Waqar144)
+- when exporting the preview of a note (full note or just selected text in the note
+  editor) a uniform set of styles will now be used regardless of if in dark mode or not
+  (for [#1469](https://github.com/pbek/QOwnNotes/issues/1469))
+    - printing the preview of a note (full note or just selected text in the note
+      editor) still uses the styles of the preview, if you want to use your custom
+      colors you are able to print to a PDF (if your operating system supports it)
+    - the trailing newline in code blocks will now be removed when exporting so
+      that there isn't an empty line at the end of each code block
+- added more Basque, Macedonian, Ukrainian, Persian, Albanian, Kurdish, Finnish
+  translation (thank you Fabijenna)
+
+## 19.12.7
+- hid the excessive `Unable to find any suggestion for` spellchecker warnings
+- improved CSS color attribute highlighting (for [#49](https://github.com/pbek/qmarkdowntextedit/pull/49), thank you @Waqar144)
+- fixed highlighting issue for punctuation after links (for [#1498](https://github.com/pbek/QOwnNotes/issues/1498))
+- fixed inserting of images from urls in the *Image dialog* (for [#1500](https://github.com/pbek/QOwnNotes/issues/1500))
+- improved folder switching time when tags are used (for [#1499](https://github.com/pbek/QOwnNotes/pull/1499), thank you @Waqar144)
+- added more Albanian, Kurdish, Indonesian, Uzbek, Urdu (Pakistan), Bosnian,
+  Irish, Persian, Bulgarian, Serbian (Cyrillic), Norwegian, Swedish, Estonian
+  translation (thank you Fabijenna, zmni)
+
+## 19.12.6
+- fixed a problem when logging out of KDE while application is minimized to tray
+  (for [#1496](https://github.com/pbek/QOwnNotes/issues/1496))
+- fixed a problem with XML syntax highlighting (for [#47](https://github.com/pbek/qmarkdowntextedit/pull/47), thank you @Waqar144)
+- improved code block colors for the *Light editor schema*
+- improved application execution speed (for [#1497](https://github.com/pbek/QOwnNotes/issues/1497), thank you @Waqar144)
+- added CSS syntax highlighting (for [#48](https://github.com/pbek/qmarkdowntextedit/pull/48), thank you @Waqar144)
+- added more Uzbek, Urdu (Pakistan), Bosnian, Irish, Serbian (Cyrillic),
+  Norwegian, Swedish, Estonian, Lithuanian, Hebrew, Finnish, Romanian, Dutch,
+  Hungarian, Basque, Icelandic, Czech, Danish translation (thank you Fabijenna)
+
+## 19.12.5
+- fixed populating of the subfolder panel if you turn on subfolders for a note folder
+  in the settings (for [#1493](https://github.com/pbek/QOwnNotes/issues/1493))
+- lots of fixes and improvements for the code highlighting were made and support
+  for JSON and XML was added (thank you @Waqar144)
+- added more Lithuanian, Italian, German, Spanish, Slovenian, Croatian, Slovak,
+  Catalan, Russian translation (thank you Fabijenna, mlocati, rakekniven,
+  richarson, MGuerra, unchase)
+
+## 19.12.4
+- fixed a problem with loading notes if no note subfolder was selected
+  (for [#1489](https://github.com/pbek/QOwnNotes/issues/1489))
+- lots of syntax highlighting improvements were made (for [#40](https://github.com/pbek/qmarkdowntextedit/pull/40), thank you @Waqar144)
+- fixed deselection of multi folder selection again (for [#327](https://github.com/pbek/QOwnNotes/issues/327), thank you @Waqar144)
+- added more Uzbek, Lithuanian, Danish, Estonian, Albanian translation (thank you Fabijenna)
+
+## 19.12.3
+- fixed deselection of multi folder selection (for [#327](https://github.com/pbek/QOwnNotes/issues/327), thank you @Waqar144)
+- dialogs like the *Todo dialog*, the *Issue assistant dialog* or the *Action dialog*
+  will now raise across other windows if activated while already active
+  (for [#1485](https://github.com/pbek/QOwnNotes/issues/1485))
+- the Gentoo EBuilds now are using EAPI7 (for [#1484](https://github.com/pbek/QOwnNotes/issues/1484), thank you @internethering)
+- added more Danish, Finnish translation (thank you Fabijenna)
+
+## 19.12.2
+- you now can select multiple note tags to filter notes
+  (for [#327](https://github.com/pbek/QOwnNotes/issues/327), thank you @Waqar144)
+- you can now move paragraphs up/down with <kbd>Ctrl + Shift + ↑/↓</kbd>
+  (for [#569](https://github.com/pbek/QOwnNotes/issues/569), thank you @Waqar144)
+- added rust, java, csharp, go, v-lang and SQL syntax highlighting support
+  in code blocks in the note edit (for [#38](https://github.com/pbek/qmarkdowntextedit/pull/38), thank you @Waqar144)
+- fixed SLE build process (thank you @Waqar144)
+- added more German, Catalan, Hungarian, Italian, Dutch, Russian translation
+  (thank you rakekniven, MGuerra, Fabijenna, mlocati, unchase, tiwi90)
+
+## 19.12.1
+- you now can select multiple note subfolders to filter notes
+  (for [#327](https://github.com/pbek/QOwnNotes/issues/327), thank you @Waqar144)
+- attempted to switch to Core18 for the snap release on Launchpad
+  (for [#1439](https://github.com/pbek/QOwnNotes/issues/1439))
+- fixed headline background highlighting (for [#1473](https://github.com/pbek/QOwnNotes/issues/1473), thank you @Waqar144)
+- fixed notes not switching from system tray menu (for [#1467](https://github.com/pbek/QOwnNotes/issues/1467), thank you @Waqar144)
+- added basic C, C++, JS, PHP, Bash, Python and QML syntax highlighting support (thank you @Waqar144)
+- added optional aspell support (for [#1468](https://github.com/pbek/QOwnNotes/pull/1468), thank you @Waqar144)
+- added more Spanish, German, Catalan translation (thank you richarson, rakekniven, MGuerra)
+
+## 19.12.0
+- improved code block styling matching (for [#1462](https://github.com/pbek/QOwnNotes/issues/1462))
+- fixed link headline styling (for [#29](https://github.com/pbek/qmarkdowntextedit/pull/29), thank you @Waqar144)
+- improved headline highlighting parsing speed (for [#30](https://github.com/pbek/qmarkdowntextedit/pull/30), thank you @Waqar144)
+- improved broken link highlighting speed (for [#1465](https://github.com/pbek/QOwnNotes/issues/1465), thank you @Waqar144)
+- added more Albanian, Latvian, Punjabi, Hungarian, Dutch, Indonesian, Russian,
+  Spanish, German, Italian translation (thank you Fabijenna, zmni, unchase,
+  richarson, rakekniven, mlocati)
+
+## 19.11.23
+- now most of the editor styling will be also used in the preview by default
+  (for [#1462](https://github.com/pbek/QOwnNotes/issues/1462))
+    - this can be turned off in the *Preview settings*
+- you now change the current note folder in the tray icon
+  (for [#1451](https://github.com/pbek/QOwnNotes/issues/1451))
+    - the current note folder is marked with an icon (making it bold didn't seem to work)
+- added more Uzbek, Japanese translation (thank you Fabijenna, shitennouji)
+
+## 19.11.22
+- more missing locales and dictionary names were fixed (for [#1459](https://github.com/pbek/QOwnNotes/issues/1459), thank you @Waqar144)
+- fixed unable to switch back to last note subfolder after jumping to a subfolder
+  with the `Jump to the note's subfolder` note list context menu item
+  (for [#1432](https://github.com/pbek/QOwnNotes/issues/1432))
+- the return key is now ignored in the *Table dialog* so you can better edit text
+  in the table (for [#1446](https://github.com/pbek/QOwnNotes/issues/1446))
+- fixed distraction free mode not restored properly on app restart if the app
+  previously was maximized (for [#1448](https://github.com/pbek/QOwnNotes/issues/1448), thank you @Waqar144)
+- added more Indonesian, Italian, German, Russian translation (thank you zmni,
+  mlocati, tiwi90, rakekniven, unchase)
+
+## 19.11.21
+- added a note list context menu item to jump to the note subfolder of the
+  selected note (for [#1432](https://github.com/pbek/QOwnNotes/issues/1432), thank you @Waqar144)
+- did more spellchecker optimization (for [#1442](https://github.com/pbek/QOwnNotes/pull/1442), thank you @Waqar144)
+- fixed autodetection for some languages that do not have trigrams (e.g. for Malayan)
+  (for [#1443](https://github.com/pbek/QOwnNotes/pull/1443), thank you @Waqar144)
+- fixed dictionary names not being displayed correctly (for [#1450](https://github.com/pbek/QOwnNotes/pull/1450), thank you @Waqar144)
+- improved *List item* and *Trailing spaces* colors for `Mountain` highlighting color schema
+- you can now also set the horizontal pixels directly in the *Image dialog*
+  (for [#1445](https://github.com/pbek/QOwnNotes/issues/1445))
+- fixed dark mode hover color for newer Qt versions (for [#1394](https://github.com/pbek/QOwnNotes/issues/1394))
+- you can now not only select the table layout in a table widget in the *Table dialog*,
+  but also **enter text directly in the fields** which will be used as table text when
+  inserting the table (for [#1446](https://github.com/pbek/QOwnNotes/issues/1446))
+    - if you enter text then all the spinboxes to define the table specs will
+      be updated automatically
+    - if you select a table layout via mouse after text was added to the table
+      the spinboxes will now only update if you are selecting a larger range
+      than the text entered
+- added Ubuntu 20.04 (Focal Fossa) support to the Launchpad build system
+- added more Catalan, Chinese Simplified, Italian, Kurdish, Dutch, Hungarian, Uzbek,
+  Russian translation (thank you MGuerra, admiraldesvl, mlocati, Fabijenna, unchase)
+
+## 19.11.20
+- greatly improved performance of highlighting (for [#1440](https://github.com/pbek/QOwnNotes/pull/1440), thank you @Waqar144)
+- fixed highlighting for links like `<http://hostname>` (for [#1436](https://github.com/pbek/QOwnNotes/issues/1436))
+- fixed a problem with the `leave` button showing up multiple times when repeatedly
+  entering and exiting full-screen mode (for [#1438](https://github.com/pbek/QOwnNotes/issues/1438))
+- added additional information text to the *Layout settings*
+- added more German, Uzbek, Basque, Italian, Russian, Vietnamese, Hungarian, Dutch,
+  Spanish translation (thank you rakekniven, Fabijenna, mlocati, unchase, richarson)
+
+## 19.11.19
+- fixed a problem where the background of masked characters (for example `*` in italic text)
+  is overwriting parts of the neighboring characters even if the masked characters
+  have no background configured (for [#1434](https://github.com/pbek/QOwnNotes/issues/1434))
+- a lot more dictionaries have been added to the *dictionary manager* to download
+  (for [#1435](https://github.com/pbek/QOwnNotes/pull/1435), thank you @Waqar144)
+    - we now have **dictionaries for 100 languages**
+- added **Irish and Uzbek translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- added more Vietnamese, Italian translation (thank you Fabijenna, tiwi90)
+
+## 19.11.18
+- fixed possible jumping of text on Windows 10 if the interface font size was overwritten
+  (for [#1422](https://github.com/pbek/QOwnNotes/issues/1422))
+- fixed custom editor font size on Windows 10 if the interface font size was overwritten
+  (for [#1423](https://github.com/pbek/QOwnNotes/issues/1423))
+
+## 19.11.17
+- the redo shortcut <kbd>Ctrl + Shift + Z</kbd> was fixed in the note text edit
+  (for [#1433](https://github.com/pbek/QOwnNotes/issues/1433), thank you @Waqar144)
+- lots of general performance and efficiency improvements were made
+  (for [#1430](https://github.com/pbek/QOwnNotes/pull/1430), thank you @Waqar144)
+- added more Catalan, Vietnamese, Dutch, Spanish, Italian, Chinese Simplified,
+  Russian, Greek, German translation (thank you MGuerra, Fabijenna, richarson,
+  mlocati, admiraldesvl, unchase, athrouss, rakekniven)
+
+## 19.11.16
+- fixed AppVeyor Windows build (for [#1431](https://github.com/pbek/QOwnNotes/issues/1431))
+- spellchecking language autodetection in KDE was improved
+  (for [#1428](https://github.com/pbek/QOwnNotes/pull/1428), thank you @Waqar144)
+- fixed a note history memory leak (for [#1429](https://github.com/pbek/QOwnNotes/pull/1429), thank you @Waqar144)
+
+## 19.11.15
+- a new button `Copy debug information to clipboard` was added to the
+  *Debug settings* to be used when posting issues on GitHub
+    - keep in mind that the preferred way to post issues is still the
+      *Issue assistant*, it does most of the work for
+    - the other buttons were a bit rearranged and some dialogs added
+- rendering of italic or bold text and links in headings was fixed
+  (for [#742](https://github.com/pbek/QOwnNotes/issues/742), thank you @Waqar144)
+- spellchecking is now disabled in the log panel and the text edit in the
+  *Debug settings* (for [#1423](https://github.com/pbek/QOwnNotes/issues/1423), thank you @Waqar144)
+- added more Italian, Albanian, Bulgarian, Greek, Hungarian, Basque, Czech,
+  Bosnian, Finnish, Icelandic, Norwegian, Croatian, Danish, Dutch, Spanish
+  translation (thank you mlocati, Fabijenna, richarson)
+
+## 19.11.14
+- the spellchecker is now disabled if no dictionaries are available and language
+  auto-detection enabling is fixed for multiple languages
+  (for [#1418](https://github.com/pbek/QOwnNotes/issues/1418), thank you @Waqar144)
+- spellchecker information was added to the *Debug settings*
+- added more Dutch, Catalan, Russian, German translation (thank you Fabijenna,
+  MGuerra, unchase, rakekniven)
+
+## 19.11.13
+- fixed a possible crash if a spellchecker dictionary was removed but its user
+  dictionary was still present
+- trailing spaces are now highlighted in the note editor
+  (for [#1416](https://github.com/pbek/QOwnNotes/issues/1416))
+    - you can set a custom background color in the *Edit fonts & colors settings*
+- fixed multiple block undo with bracket auto close
+  (for [#1317](https://github.com/pbek/QOwnNotes/issues/1317), thank you @Waqar144)
+
+## 19.11.12
+- fixed automatic switching to the default dark editor schema when opening the settings
+  dialog in dark mode (for [#1408](https://github.com/pbek/QOwnNotes/issues/1408))
+- added all available dictionaries to the *Manage dictionaries dialog*
+  (for [#1409](https://github.com/pbek/QOwnNotes/pull/1409), thank you @Waqar144)
+- added more Bulgarian, Albanian, Slovak, Romanian, Croatian, Icelandic, Czech,
+  Danish, Dutch, Finnish, Hungarian, Greek, Norwegian, Basque, Slovenian, Bosnian,
+  German, Punjabi, Latvian, Russian translation (thank you Fabijenna, rakekniven, unchase)
+
+## 19.11.11
+- you now can disable all external dictionaries in the *Manage dictionaries dialog*
+  (for [#1399](https://github.com/pbek/QOwnNotes/issues/1399))
+    - if activated only the downloaded dictionaries will be used
+- the *Manage dictionaries dialog* now uses [QOwnNotes dictionaries](https://github.com/qownnotes/dictionaries)
+  as source to be able to quickly fix dictionary issues or add new dictionaries
+  (for [#1399](https://github.com/pbek/QOwnNotes/issues/1399), thank you @Waqar144)
+    - spellchecking for some abbreviations have been fixed
+    - more dictionaries were added to the dialog
+- added automatic spellchecking detection for British English and Austrian German
+  (for [#1402](https://github.com/pbek/QOwnNotes/pull/1402), thank you @Waqar144)
+- updated the demo notes and [Markdown Cheatsheet](https://github.com/pbek/QOwnNotes/blob/develop/src/demonotes/Markdown%20Cheatsheet.md)
+  with checkbox list and spellchecking information
+- changed the *Readonly mode* icon to `document-edit`
+- added **Latvian and Vietnamese translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- added more Punjabi, Irish, Icelandic translation (thank you Fabijenna)
+
+## 19.11.10
+- if you select `Dark mode` in the *Interface settings* now a dark color schema
+  will also be automatically selected in the *Editor fonts & colors settings*
+    - if you un-select `Dark mode` a light color schema will be selected
+- texts like `<*.txt>` or `<file.*>` with `*` will now not be converted to note
+  links in the preview (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+- improved special character detection in the Evernote import, the HTML import
+  from the clipboard and the title detection of the link dialog
+  (for [#1400](https://github.com/pbek/QOwnNotes/issues/1400))
+- did some general performance optimization (thank you @Waqar144)
+- fixed specific dictionary language not being setup at startup (thank you @Waqar144)
+- bracket auto-closing in combination with "undo" was improved
+  (for [#24](https://github.com/pbek/qmarkdowntextedit/pull/24), thank you @Waqar144)
+- added more Latvian, Punjabi, Indonesian, Macedonian, Albanian, Lithuanian,
+  Catalan, Serbian (Cyrillic), Galician, Slovak, Slovenian, Romanian,
+  Norwegian, Swedish, French, Spanish, Russian, Bulgarian, Greek, Hungarian,
+  Icelandic, Croatian, Kurdish, Czech, Danish, Basque, Estonian, Dutch, Finnish,
+  Bosnian, German translation (thank you Fabijenna, zmni, MGuerra, Jeeps,
+  richarson, unchase, rakekniven)
+
+## 19.11.9
+- did some optimization for spellchecking auto detect mode
+  (for [#1359](https://github.com/pbek/QOwnNotes/issues/1359), thank you @Waqar144)
+- fixed build process for Qt < 5.6 (for [#1379](https://github.com/pbek/QOwnNotes/issues/1379), thank you @Waqar144)
+ 
+## 19.11.8
+- there now is a new menu entry `Manage dictionaries` in the *Edit* menu to download
+  and remove spellchecker dictionaries (for [#1378](https://github.com/pbek/QOwnNotes/issues/1378))
+    - if you are missing a dictionary to download please look for it at
+      [LibreOffice dictionaries](https://github.com/LibreOffice/dictionaries) and edit
+      the [dictionary manager dialog](https://github.com/pbek/QOwnNotes/blob/develop/src/dialogs/dictionarymanagerdialog.cpp)
+    - visit [QOwnNotes Spellchecking](http://docs.qownnotes.org/en/develop/spellchecking.html)
+      for more information
+- automatic switching of note subfolders is now prevent if the setting to show notes in
+  note subfolders recursively is enabled (for [#1371](https://github.com/pbek/QOwnNotes/issues/1371))
+    - this is still experimental and might have side effects
+- personal dictionary will now be stored in the portable data path when using QOwnNotes
+  in portable mode (for [#1378](https://github.com/pbek/QOwnNotes/issues/1378), thank you @Waqar144)
+- underscores at the end of a word are now ignored for `_italic_` formatting with underscores
+  (for [#1379](https://github.com/pbek/QOwnNotes/issues/1379), thank you @Waqar144)
+- added more Spanish, Cebuano, Kurdish, Lithuanian, Ukrainian, Norwegian, Swedish,
+  Croatian, Czech, Dutch, Danish, Estonian, Hungarian, Finnish, Galician, Bosnian,
+  Bulgarian, Greek, Romanian, Serbian (Cyrillic), Slovak, Slovenian translation
+  (thank you fitoschido, Fabijenna)
+
+## 19.11.7
+- fixed a possible crash on startup if markdown highlighting is disabled
+  (for [#1367](https://github.com/pbek/QOwnNotes/issues/1367), thank you @Waqar144)
+- the macOS version of QOwnNotes now also uses the Hunspell spellchecker for more performance
+  (for [#1359](https://github.com/pbek/QOwnNotes/issues/1359), thank you @Waqar144)
+    - visit [QOwnNotes Spellchecking](http://docs.qownnotes.org/en/develop/spellchecking.html)
+      for more information
+- added more Cebuano, Kurdish, Lithuanian, Norwegian, Swedish, Ukrainian, Croatian,
+  Czech, Dutch, Danish, Estonian, Hungarian, Finnish, Galician, Bosnian, Bulgarian,
+  Greek, Romanian, Serbian (Cyrillic), Slovak, Slovenian, Italian, Indonesian,
+  Russian, Catalan translation (thank you Fabijenna, tiwi90, zmni, athrouss,
+  unchase, mlocati, MGuerra)
+
+## 19.11.6
+- attempted to fix a possible segmentation fault on startup
+  (for [#1367](https://github.com/pbek/QOwnNotes/issues/1367), thank you @Waqar144)
+- attempted to improve macOS spellchecker performance
+  (for [#1359](https://github.com/pbek/QOwnNotes/issues/1359), thank you @Waqar144)
+- added **Kurdish** and **Lithuanian translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- added more Bosnian, Estonian translation (thank you Fabijenna)
+
+## 19.11.5
+- fixed a problem with automatic setting of the dark mode color and dark mode
+  icon theme checkboxes in dark mode
+- fixed a problem where you can't see see a checked state of menu items in dark mode
+  if the menu item has an icon (for [#1221](https://github.com/pbek/QOwnNotes/issues/1221))
+- did highlighting and spellchecking speed improvements and improved initial note
+  loading performance (for [#1359](https://github.com/pbek/QOwnNotes/issues/1359), thank you @Waqar144)
+- fixed some memory leaks (for [#1360](https://github.com/pbek/QOwnNotes/pull/1360), thank you @Waqar144)
+- fixed the right click context menu in the note list if the folder has no notes
+  (for [#1361](https://github.com/pbek/QOwnNotes/issues/1361), thank you @Waqar144)
+- added more Danish, Bosnian, Icelandic translation (thank you Fabijenna)
+
+## 19.11.4
+- fixed the default text edit context menu for the spellchecker
+  (for [#1355](https://github.com/pbek/QOwnNotes/issues/1355), thank you @Waqar144)
+- fixed a possible crash when right-clicking on the note list
+  (for [#1353](https://github.com/pbek/QOwnNotes/issues/1353), thank you @Waqar144)
+- added `~/hunspell` as path for spellchecker dictionaries for Snap package
+  (for [#1348](https://github.com/pbek/QOwnNotes/issues/1348))
+- when creating a new note folder now by default the local path of the active
+  note folder will be used (for [#1354](https://github.com/pbek/QOwnNotes/issues/1354))
+- added more Cebuano, German translation (thank you Fabijenna, rakekniven)
+
+## 19.11.3
+- fixed wrong note text insertion from the web companion and other parts of the
+  application if the `=` headline markings were breaking into the next line in
+  the note text edit (for [#1351](https://github.com/pbek/QOwnNotes/issues/1351))
+- fixed many optimization regressions from [7848f4de14fd152be8a8ffc7c8d97f8f37d1a431](https://github.com/pbek/QOwnNotes/commit/7848f4de14fd152be8a8ffc7c8d97f8f37d1a431)
+- attempted to fix inclusion of spellchecker dictionaries for Snap package
+  (for [#1348](https://github.com/pbek/QOwnNotes/issues/1348), thank you @Waqar144)
+- added more Bosnian, Romanian, Norwegian, Icelandic, Macedonian, Finnish,
+  Slovenian, Czech, Croatian, Cebuano, Serbian (Cyrillic), French, Basque
+  translation (thank you Fabijenna, Jeeps)
+
+## 19.11.2
+- spellchecking is now enabled in formatted markdown (for [#125](https://github.com/pbek/QOwnNotes/issues/125), thank you @Waqar144)
+- fixed margin calculation in distraction free mode that was changed in 19.11.0
+
+## 19.11.1
+- improvements where made to the **note / subfolder tree mode**
+  (for [#790](https://github.com/pbek/QOwnNotes/issues/790))
+    - on application startup the last opened note will be loaded from the correct subfolder
+- fixed highlighting of code blocks with empty lines (for [#125](https://github.com/pbek/QOwnNotes/issues/125))
+- fixed highlighting of two-line headlines when typing them in (for [#125](https://github.com/pbek/QOwnNotes/issues/125))
+- did some minor speed improvements
+- added more Russian, Bulgarian, Croatian, Basque, Swedish, Slovak translation
+  (thank you data-man, Fabijenna)
+
+## 19.11.0
+- improvements where made to the **note / subfolder tree mode**
+  (for [#790](https://github.com/pbek/QOwnNotes/issues/790))
+    - note search by text and filtering by tag is now working
+    - if you right click on an item you will now either get the context menu
+      for a note or a subfolder depending what item you have clicked
+        - you can create a new note or subfolder via context menu
+        - you can show a subfolder in file manager via context menu
+        - you can remove selected subfolder via context menu
+        - you can rename the current subfolder via context menu, by clicking it
+          twice or by pressing <kbd>F2</kbd>
+    - if you click a subfolder the current note subfolder will be changed to it
+- attempted to fix building the application on Qt 5.3, add more dictionary paths
+  for Linux and skipping highlighting and spell checking if a text block is empty
+  or just has spaces (for [#125](https://github.com/pbek/QOwnNotes/issues/125), thank you @Waqar144)
+    - if you need to add additional language files on Linux you can do so in `~/.local/share/hunspell`
+- fixed a note naming problem with the scripting function `createNote` if it was
+  called multiple times in the same second (for [#1345](https://github.com/pbek/QOwnNotes/issues/1345))
+- added more Basque, German translation (thank you Fabijenna, rakekniven)
+
+## 19.10.13
+- fixed spellchecking for notes with certain types of code blocks
+  (for [#125](https://github.com/pbek/QOwnNotes/issues/125), thank you @Waqar144)
+- attempted to fix building the application on Qt <= 5.5
+  (for [#125](https://github.com/pbek/QOwnNotes/issues/125), thank you @Waqar144)
+- added more Dutch, Finnish, Hungarian, Czech, Croatian, Danish, Indonesian,
+  Catalan, Spanish, Brazilian Portuguese, Russian, German, Polish translation
+  (thank you Fabijenna, zmni, MGuerra, richarson, mlimacarlos, unchase, rakekniven, lucjan)
+
+## 19.10.12
+- there now is a **spellchecker** integrated into QOwnNotes
+  (for [#125](https://github.com/pbek/QOwnNotes/issues/125), a big thank you to @Waqar144)
+    - [Sonnet](https://github.com/KDE/sonnet) with [Hunspell](https://hunspell.github.io/) is used for spellchecking
+    - under **Linux** you need to install the Hunspell dictionaries for your language
+    - under **Windows** you need to copy Hunspell dictionaries for your language
+      to a folder `dicts` in your QOwnNotes application folder or in `C:\Users\[username]\dicts`
+        - you can download dictionaries from [LibreOffice dictionaries](https://github.com/LibreOffice/dictionaries)
+    - under **macOS** the native spellchecker will be used
+        - you can download more dictionaries from [LibreOffice dictionaries](https://github.com/LibreOffice/dictionaries)
+          and copy them to `~/Library/Spelling`, if the directory doesn't exist
+          you need to create it
+    - dictionary files are `*.dic` or `*.aff` files, visit
+      [QOwnNotes Spellchecking](http://docs.qownnotes.org/en/develop/spellchecking.html)
+      for more information
+- you now can **disable todo lists** completely in the *Todo settings*
+    - no todo calendar items will be loaded in the background
+    - if you open the todo dialog you will get a message that todo lists are disabled
+- added more Brazilian Portuguese, Catalan, Russian, German, Polish, Greek,
+  Italian translation (thank you mlimacarlos, MGuerra, unchase, rakekniven,
+  lucjan, athrouss, tiwi90)
+
+## 19.10.11
+- you now can choose to **show your notes together with your subfolders in a tree**
+  (for [#790](https://github.com/pbek/QOwnNotes/issues/790))
+    - you can enable this in the *Panels settings*
+    - this is work in progress and by far not fully implemented yet!
+    - the note tree will only be shown if subfolders are enabled for your current note folder
+- there now is a **new scripting hook** `preNoteToMarkdownHtmlHook(note, markdown)`
+  that is **called before the markdown html of a note is generated**
+  (for [#1328](https://github.com/pbek/QOwnNotes/issues/1328))
+    - it allows you to modify the markdown before it is converted to html
+    - it can for example be used in multiple scripts to render code (like LaTeX math or mermaid)
+      to its graphical representation for the preview
+    - there is an example call in
+      [preview-styling.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/preview-styling.qml)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#prenotetomarkdownhtmlhook)
+- fixed a highlighting problem for checkbox link lists like `- [ ] [QOwnNotes](https://www.qownnotes.org)`
+- fixed a possible crash when logging occurs on application exit
+- added **Macedonian** and **Bosnian translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- added more Dutch, Polish, Russian, German, Estonian, Brazilian Portuguese,
+  Catalan, Urdu (Pakistan) translation (thank you Fabijenna, lucjan, unchase,
+  rakekniven, mlimacarlos, MGuerra)
+
+## 19.10.10
+- if a **frontmatter** was detected at the beginning of a note the **filename of the note**
+  now will be the **first non-empty line after the frontmatter** instead of the
+  first line of the note (for [#1031](https://github.com/pbek/QOwnNotes/issues/1031))
+- another attempt was made to make the Botan 2.12 library work on non-x86 platforms
+  (for [#1263](https://github.com/pbek/QOwnNotes/issues/1263), thank you @Waqar144)
+
+## 19.10.9
+- an attempt was made to make the Botan 2.12 library work on non-x86 platforms
+  (for [#1263](https://github.com/pbek/QOwnNotes/issues/1263))
+- [scribble script](https://github.com/qownnotes/scripts/tree/master/scribble)
+  was updated for relative media links (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+
+## 19.10.8
+- **frontmatter blocks** are now **highlighted** as masked syntax and are also
+  **ignored in the preview** (for [#1031](https://github.com/pbek/QOwnNotes/issues/1031))
+    - the frontmatter block has to start and end with a `---` line, it has to
+      be at the beginning of the note and only one block can exist per note
+    - don't forget that you have to enable `Allow note file name to be different from headline`
+      in the *General settings* if you want to use a frontmatter block
+- if now you press <kbd>Return</kbd> after a `- []` in a checkbox list the
+  current line will be removed just like with `- [x]` and `- [ ]`
+- there now is a new method `getFileURLFromFileName()` for `NoteApi` to get the
+  absolute file url from a relative file name (for [script issue #71](https://github.com/qownnotes/scripts/issues/71))
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#note)
+- there now is a new property `fullNoteFileDirPath` for `NoteApi` to get the
+  absolute directory path of the a note file (for [script issue #71](https://github.com/qownnotes/scripts/issues/71))
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#note)
+- added more Russian, Polish, German, Italian, Punjabi, Estonian, Bengali,
+  Icelandic, Ukrainian, Korean, Norwegian, Persian, Romanian, Slovak, Slovenian,
+  Swedish, Dutch, Croatian, Serbian (Cyrillic), Czech, Danish, Finnish, Galician,
+  Greek, Hausa, Hungarian, Spanish translation (thank you unchase, lucjan,
+  rakekniven, mlocati, Fabijenna, DixTheDev)
+
+## 19.10.7
+- now **all supported image formats** can be **selected with the file picker**
+  of the **Image dialog** (for [#1314](https://github.com/pbek/QOwnNotes/issues/1314))
+    - in addition you can now also choose `Any file` in the file picker
+- if you press <kbd>Return</kbd> in a **checkbox list** the **next line** will
+  now be **started with an unchecked checkbox**, regardless of if the checkbox
+  in the current line was checked or not
+- added **Korean translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- an attempt was made to make the Botan 2.12 library work on non-SSE platforms
+  (for [#1263](https://github.com/pbek/QOwnNotes/issues/1263), thank you @Waqar144)
+- added more Punjabi, Estonian, Bengali, Serbian (Cyrillic), Persian, Ukrainian,
+  Russian, Czech, Icelandic, Croatian, Galician, Bulgarian, Romanian, Danish,
+  Slovak, Finnish, Dutch, Slovenian, Greek, Hausa, Hungarian, Swedish, Hebrew,
+  Spanish, German, Italian translation (thank you Fabijenna, unchase, richarson,
+  rakekniven, tiwi90)
+
+## 19.10.6
+- it is now also possible to **link to directories** in the *Link dialog*
+  (for [#1308](https://github.com/pbek/QOwnNotes/issues/1308))
+    - your local file manager should open if you click on those links
+- the Botan library for encrypting notes was updated to **Botan 2.12**
+  (for [#1263](https://github.com/pbek/QOwnNotes/issues/1263), thank you @Waqar144)
+- added more Indonesian, Punjabi, Spanish, Catalan, Polish, Russian, Brazilian Portuguese,
+  Greek, Italian, German translation (thank you zmni, Fabijenna, DixTheDev,
+  MGuerra, lucjan, unchase, mlimacarlos, athrouss, tiwi90, rakekniven)
+
+## 19.10.5
+- if you start the application but your **note folder wasn't found** you now are
+  able to **select a new note folder** (for [#1307](https://github.com/pbek/QOwnNotes/issues/1307))
+    - you will not get into the *Welcome dialog* any more where your settings
+      will be removed if you cancel it
+- a setting to disable the search result count calculation was added to improve search speed
+  in note folders with a lot of notes (for [#1248](https://github.com/pbek/QOwnNotes/issues/1248), thank you @smokris)
+- added more German, Spanish, Estonian, Korean, Icelandic, Bulgarian, Catalan,
+  Russian, Italian translation (thank you rakekniven, richarson, Fabijenna,
+  MGuerra, unchase, tiwi90)
+
+## 19.10.4
+- attempted to fix occasional desktop environment session logout interruptions
+  (for [#1269](https://github.com/pbek/QOwnNotes/issues/1269))
+- added **Estonian translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- fixed deprecation warnings of Botan library for encrypting notes
+  (for [#1304](https://github.com/pbek/QOwnNotes/issues/1304))
+
+## 19.10.3
+- fixed a Fedora 28 build problem on the Open Build Service
+- fixed several more deprecation warnings to further advance the Qt 6 compatibility
+  of QOwnNotes in the future (for [#1304](https://github.com/pbek/QOwnNotes/issues/1304))
+- added more Russian, Icelandic, Albanian, Punjabi, Hebrew translation
+  (thank you unchase, Fabijenna)
+
+## 19.10.2
+- fixed a crash when leaving the full-screen mode if the app was restarted while in
+  full-screen mode and distraction free mode (for [#1302](https://github.com/pbek/QOwnNotes/issues/1302))
+- fixed a crash when opening the settings dialog in the welcome dialog
+  (for [#1303](https://github.com/pbek/QOwnNotes/issues/1303))
+- the parameter `--clear-settings` now also removes the settings database if not in portable mode
+- fixed several deprecation warnings to further advance the Qt 6 compatibility
+  of QOwnNotes (for [#1304](https://github.com/pbek/QOwnNotes/issues/1304))
+- added more Icelandic, Albanian, Punjabi, Hebrew, Brazilian Portuguese, Dutch,
+  Hungarian, Danish, Finnish, Norwegian, Catalan, Spanish, Italian, German
+  translation (thank you Fabijenna, mlimacarlos, MGuerra, richarson, tiwi90, rakekniven)
+
+## 19.10.1
+- you now can **search for note names** in the dialogs for the **remote trash**
+  and **local trash**
+- added **Albanian, Hebrew, Icelandic and Punjabi translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+- added more Persian, Dutch, Hungarian, Brazilian Portuguese, Bulgarian, Catalan,
+  German, Italian, Polish, Russian translation (thank you Fabijenna, mlimacarlos,
+  MGuerra, rakekniven, mlocati, tiwi90, lucjan, mikhail-khokhlov)
+
+## 19.10.0
+- after turning on the **typewriter mode** the cursor will now immediately
+  be centered (for [#1296](https://github.com/pbek/QOwnNotes/issues/1296))
+- if you select a text before using the **link dialog** to insert a link
+  the **selected text will now be used as link text** by default
+- added **Bulgarian translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current
+      translation
+
+## 19.9.20
+- the **typewriter mode** was improved (for [#1296](https://github.com/pbek/QOwnNotes/issues/1296))
+    - in most cases the text will now also be centered if the cursor is at the
+      bottom of the note
+- if you install a script from the **script repository** now the installed script
+  will be immediately selected and the **script settings** of that script will be
+  **shown** if you close the script repository dialog (for [#1298](https://github.com/pbek/QOwnNotes/issues/1298))
+- the **highlighting of the current line** now also works in **read-only mode**
+- added more Spanish, Filipino, Turkish, Ukrainian, Urdu (Pakistan), Norwegian,
+  Basque, Serbian (Cyrillic), Russian, Slovenian, Polish, Romanian, Dutch,
+  Croatian, Finnish, Czech, Hungarian, Slovak, Danish, Swedish, Catalan, German
+  translation (thank you richarson, Fabijenna, mikhail-khokhlov, MGuerra, rakekniven)
+
+## 19.9.19
+- there now is a **typewriter mode** that you can turn on in the *Window menu*
+  (for [#1296](https://github.com/pbek/QOwnNotes/issues/1296))
+- fixed a problem with entering a `/` in the server url in the cloud connection settings
+- added more Italian, French translation (thank you tiwi90, Botigli)
+
+## 19.9.18
+- **cloud connection editing** was **improved** in the *Settings dialog*
+    - parameters are now instantly stored
+    - the cloud connection comboboxes are now updated instantly if the
+      connection name was changed
+- the user interface of the **cloud connection selection** in the
+  **Todo list settings** was improved
+    - the combobox now got its own groupbox that will be hidden if you are
+      using a custom CalDAV server
+- if you have an image in the clipboard while opening the *Image dialog* the
+  checkbox `Don't copy image to media folder` will now be automatically disabled
+- the **title detection** in the **Link dialog** was **improved**
+- added more Catalan, Swedish, Italian translation (thank you MGuerra, druus, tiwi90)
+
+## 19.9.17
+- you can now **choose different cloud connections** for your **note folders**
+    - this way you can use the **correct remote note versioning and trash** and
+      **share your notes** with the correct account if you are using
+      **multiple Nextcloud / ownCloud instances or accounts**
+    - some previous connection problems when changing connection parameters were
+      now also fixed
+    - the cloud connections are now also represented in the debug settings
+- you can now **select a cloud connection** for your **Todo list calendars**
+- fixed the Nextcloud tooltip texts in window title of the *Version dialog* and
+  in an error message in the *Settings dialog*
+- fixed a build error on the Open Build System (OBS)
+- added more Catalan, Italian, Spanish translation (thank you MGuerra, tiwi90, richarson)
+
+## 19.9.16
+- you now can **manage multiple cloud connections** in the *Nextcloud / ownCloud settings*
+    - in a future release these cloud connections can be bound to different note folders  
+- some **improvements** with **encrypted notes** were made
+    - if an encrypted note will be edited now the note file will **not be stored immediately**
+      after the password is entered
+    - the note will now **jump to the top** in the **note list** (if the note list is sorted
+      that way) if the text of an encrypted note was changed
+        - also the tooltip of the note in the note list will be updated
+- media files are now only copied if the destination path is a note folder when
+  copying or moving notes to an other note folder (for [#1294](https://github.com/pbek/QOwnNotes/issues/1294))
+- fixed the Nextcloud tooltip texts in the buttons on the *Nextcloud / ownCloud settings page*
+- added more Greek, Dutch, Hungarian, Catalan, Indonesian, Russian, German translation
+  (thank you athrouss, Fabijenna, MGuerra, zmni, mikhail-khokhlov, rakekniven)
+
+## 19.9.15
+- the **attachment dialog** was **improved**
+    - you are now able to **download files** directly in the dialog
+        - there also is a progress bar, along with status information on how
+          much data you already have downloaded and a cancel button
+        - if you enter an url and press `Ok` the file will also automatically
+          gets downloaded
+    - you are now able to enter a **title** that will be used in the attachment link
+    - the dialog will now **detect** if you have a **local file path** of a file
+      that exists on your computer in the **clipboard** when it is opened and use it
+    - **`file://` urls** will now automatically be **converted to local file paths**
+- you now can **move and copy notes** also to **subfolders of note folders** if you have
+  enabled subfolders for the note folder (for [#1294](https://github.com/pbek/QOwnNotes/issues/1294))
+    - keep in mind that only the note files will be copied/moved
+    - note tags, links to other notes, images and attachments will not be transferred/adapted
+- the **tab order** in the **image, attachment and link dialog** was **improved**
+    - the first item with focus will now be the link/url edit field also on Windows
+- added more Italian, Spanish translation (thank you tiwi90, richarson)
+
+## 19.9.14
+- the **link dialog** was **improved**
+    - there now a tabs for entering an URL and selecting a note to make the
+      dialog less cluttered
+    - if you have a **url in the clipboard** it will automatically be entered
+    - if the entered url is a webpage the **title will be fetched automatically**
+        - this will now happen inside the dialog and not like previously outside
+          of it where you had to wait for the result
+    - the automatic **title fetching** now **detects more titles** and is in many
+      cases **much faster**
+    - if you now double-click on a note while there still is text in the
+      url line edit the note will be linked and not the url in the line edit
+- there now is a new **Insert attachment dialog**
+    - the dialog will **detect** if you have a **file path or url** in the
+      **clipboard** when it is opened and use it
+    - **file size and type** are **displayed** when selecting a file
+
+## 19.9.13
+- if you **move notes to another subfolder** you now will also be able to automatically
+  **adapt** the new **relative note file links** to that notes like `[note](note.md)` or
+  `<note.md>` in all other notes (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - furthermore **relative links of images and attachments** in the moved notes will be
+      **automatically adapted** to the new subfolder
+- if you **copy notes to another subfolder relative links of images and attachments**
+  in the copied notes will be **automatically adapted** to the new subfolder
+  (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+- above changes conclude the monstrous effort of the migration to more portable relative
+  file links for notes, images and attachments in [#266](https://github.com/pbek/QOwnNotes/issues/266)
+- **QOwnNotesAPI** is now ready for **Nextcloud 17**
+    - see [QOwnNotesAPI for Nextcloud](https://apps.nextcloud.com/apps/qownnotesapi)
+- added more Basque, Spanish translation (thank you izendegi, richarson)
+
+## 19.9.12
+- if you **rename a note** you now will also be able to automatically **rename** new
+  **relative note file links** like `[note](note.md)` or `<note.md>` in all other
+  notes if they are found (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - this also works with links from other note subfolders
+- if you are using legacy links and are linking to notes that have utf8 characters and
+  numbers in it now a `@` sign will be added (e.g. `note://zx000ūaųškj@`) to prevent
+  faulty urls (for [#1292](https://github.com/pbek/QOwnNotes/issues/1292))
+- added more Greek translation (thank you athrouss)
+
+## 19.9.11
+- adapted the offset when the selection-rubberband is created while cropping in
+  the image dialog for all user interfaces (for [#1288](https://github.com/pbek/QOwnNotes/issues/1288))
+- faulty `QFileSystemWatcher::removePaths` warnings are now ignored, they seem to have caused
+  troubles on openSUSE Tumbleweed (for [#1290](https://github.com/pbek/QOwnNotes/issues/1290))
+- added more Italian, Korean, Greek translation (thank you tiwi90, pgrules7, athrouss)
+
+## 19.9.10
+- added support for **note links from one subfolder tree to another** like
+  `../../folder1/folder2/note.md` (for [#1287](https://github.com/pbek/QOwnNotes/issues/1287))
+- removed the 2px offset when the selection-rubberband is created while cropping in
+  the image dialog (for [#1288](https://github.com/pbek/QOwnNotes/issues/1288))
+- added more Basque, German, Italian, Spanish translation (thank you izendegi,
+  rakekniven, tiwi90, richarson)
+
+## 19.9.9
+- you can now **crop images** in the **Insert image dialog** by selecting the area
+  to crop to and pressing the `Crop` button (for [#1288](https://github.com/pbek/QOwnNotes/issues/1288))
+- added more Brazilian Portuguese translation (thank you mlimacarlos)
+
+## 19.9.8
+- **highlighting** of **broken note links** now also works with relative note links like
+  `<note file.md>` and `[note](note file.md)` (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - links to note files like `../note file.md` and `sub folder/note file.md` also work
+- the button to create a new issue in the issue assistant by clearing the dialog
+  was renamed to `Clear` because it could mislead users to think it creates a new
+  issue on GitHub (for [#1289](https://github.com/pbek/QOwnNotes/issues/1289))
+- added more Catalan, Spanish, Italian translation (thank you MGuerra, richarson, tiwi90)
+
+## 19.9.7
+- the **Insert image dialog** was further improved (for [#1285](https://github.com/pbek/QOwnNotes/issues/1285))
+    - you can now paste **remote urls** that will be **automatically downloaded**
+      and previewed in the dialog
+        - local `file://` urls are also supported
+    - the dialog will **detect** if you have **file paths or urls** in the
+      **clipboard** when it is opened
+    - there now is a new checkbox `Don't copy image to media folder` that allows to
+      **directly insert urls or local paths**
+        - paths to files will be made relative to the current note
+        - the state of the checkbox will be persisted for more convenience
+    - the maximal scaling in the slider was set to 2 for more usability
+- the **Orphaned image files dialog** now detects relative image tags like `![imagename](media/30933630.jpeg)`
+  (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - the dialog is now also able to insert relative image tags
+- the **Orphaned attachments dialog** now detects relative attachment tags like `[956321614](attachments/956321614.pdf)`
+  (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - the dialog is now also able to insert relative attachment tags
+- disabled QML caching (for the scripts of the scripting engine) in portable mode because
+  the QML cache path cannot be configured (for [#1284](https://github.com/pbek/QOwnNotes/issues/1284))
+- fixed preview of remote images (for [#1286](https://github.com/pbek/QOwnNotes/issues/1286))
+- added more Italian, Indonesian, Catalan, Brazilian Portuguese translation
+  (thank you tiwi90, zmni, fitoschido, mlimacarlos)
+
+## 19.9.6
+- there now is a new **Insert image dialog** with **preview, scaling and clipboard**
+  support (for [#1285](https://github.com/pbek/QOwnNotes/issues/1285))
+    - if an image was in the clipboard it will be automatically loaded and previewed
+    - you can also select an image from your file system
+    - you can scale the image by setting the width or a scale factor, the preview
+      will be updated accordingly
+- when **inserting images into your media folder** like with the **Insert image dialog**,
+  the **Evernote import**, via drag and drop or from the clipboard now markdown tags
+  like `![imagename](media/30933630.jpeg)` are created (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - this also works if you are inserting images in notes in subfolders, then the
+      image would look for example like `![imagename](../media/30933630.jpeg)` if
+      the depth of the subfolder is one
+    - the scripting functions `downloadUrlToMedia` and `insertMediaFile` will now
+      also generate a markdown image relative to the path of the current note
+    - you can still use the old `file://media/30933630.jpeg` links if you enable
+      legacy links in the *General settings*
+- when **inserting files into your attachments folder** like with the **Insert attachment dialog**,
+  the **Evernote import** or via drag and drop now markdown tags like `[filename](attachments/45412706.pdf)`
+  are created (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - this also works if you are inserting attachments in notes in subfolders, then the
+      file would look for example like `[filename](../attachments/45412706.pdf)` if
+      the depth of the subfolder is one
+    - you can still use the old `file://attachments/45412706.pdf` links if you enable
+      legacy links in the *General settings*
+- when **linking to notes** like with the **Insert link dialog** or when splitting notes
+  now markdown tags like `[note](other note.md)` are created (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - this also works if the linked note is in another subfolders, then the
+      link would look for example like `[note](../other note.md)` or `[note](sub folder/other note.md)`
+    - you can still use the old `note://other_note` links if you enable legacy links
+      in the *General settings*
+- added more Hungarian, Dutch, Italian, Spanish, French, Greek, German, Catalan,
+  Urdu (Pakistan) translation (thank you Fabijenna, tiwi90, richarson, Botigli,
+  athrouss, rakekniven, MGuerra)
+
+## 19.9.5
+- added **Hausa translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes/)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- the **preview of html tags** now works again (for [#1283](https://github.com/pbek/QOwnNotes/issues/1283))
+    - html tags are now also not highlighted as link
+- fixed incorrect note share status update (for [#1280](https://github.com/pbek/QOwnNotes/issues/1280))
+- added more Greek, Dutch, Urdu (Pakistan), Spanish, German, French, Italian,
+  Basque, Catalan translation (thank you athrouss, Fabijenna, richarson,
+  rakekniven, Botigli, tiwi90, izendegi, MGuerra)
+
+## 19.9.4
+- you can now **allow note editing** when **sharing notes** on your **Nextcloud**
+  server with the share dialog (for [#1280](https://github.com/pbek/QOwnNotes/issues/1280))
+    - the person who receives the share link will then be able to edit your note
+      with [Nextcloud Text](https://github.com/nextcloud/text)
+- fixed the real time preview of [Nextcloud Text](https://github.com/nextcloud/text)
+  images (for a regression in [#266](https://github.com/pbek/QOwnNotes/issues/266))
+- added more Urdu (Pakistan) translation (thank you Fabijenna)
+
+## 19.9.3
+- **relative links to notes in subfolders** like `<My subfolder/My note.md>` or
+  `[Text](My subfolder/My note.md)` will now be **rendered correctly** in the **preview**
+  and are also **clickable** (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+- you now can **open files** from markdown links like `<My folder/My document.pdf>` or
+  `[Document](My folder/My document.pdf)` by <kbd>Ctrl</kbd> + Click on the link in the **note text edit**
+  or clicking the link in the **preview** (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - the links are resolved relative to the current note
+- you can now also <kbd>Ctrl</kbd> + Click on **markdown images** like `![Image](My image.jpg)`
+  in the **note text edit** to open it in an external image application
+  (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - the image links are resolved relative to the current note
+- you now can press <kbd>Ctrl</kbd> + <kbd>Backspace</kbd> to **remove the current word**
+  and <kbd>Alt</kbd> + <kbd>Backspace</kbd> to **remove the whole text** in **line edits**
+  like the note text search (for [#1278](https://github.com/pbek/QOwnNotes/issues/1278))
+- you can now also move **back and forward** in the **note history** with the
+  **back button and forward button** on your mouse in the **note preview**
+- added more Urdu (Pakistan) translation (thank you Fabijenna)
+
+## 19.9.2
+- you can now use **relative links to markdown files** to switch to notes
+  (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - clicking `<My note.md>` or `[Text](My note.md)` jumps to the note `My note`
+    - clicking `<My subfolder/My note.md>` or `[Text](My subfolder/My note.md)` jumps
+      to the note `My note` in the note subfolder `My-subfolder` relative to the
+      note subfolder of your current note
+      - there still are a cases where links would not work in the preview (or even be shown)
+        when subfolders are involved
+    - this should not only work in the preview but also when you <kbd>Ctrl</kbd> + Click
+      on the link in the note text edit
+- the **note subfolder** will now be **correctly set when switching to notes**
+  that are not in the current note subfolder
+- when you **search for notes** in the note search line edit the **note list**
+  will be now **scrolled to the top** so you can see the first search results
+  (for [#1279](https://github.com/pbek/QOwnNotes/issues/1279))
+- added more Bengali, Arabic, Portuguese, Turkish, Persian, Hindi translation (thank you Fabijenna)
+
+## 19.9.1
+- fixed a problem with **updating the current note even if it didn't change** after the
+  settings of the note text edit were updated (for [#1275](https://github.com/pbek/QOwnNotes/issues/1275))
+    - this happened for example after the settings dialog was closed and could have
+      led to overwriting of notes
+- fixed a problem with **un-selecting the current note in the note list** after the
+  note list was reloaded (for [#1275](https://github.com/pbek/QOwnNotes/issues/1275))
+    - this happened for example after the settings dialog was closed
+- when inserting a markdown table with the table dialog now two newline characters
+  will be added in front of the table to make sure that a proper table is inserted
+  (for [#78](https://github.com/pbek/QOwnNotes/issues/78))
+
+## 19.9.0
+- added support for **relative image tags** like `![photo](path/to/my/photo.jpg)`
+  in the preview and the PDF export (for [#266](https://github.com/pbek/QOwnNotes/issues/266))
+    - if the note is in a subfolder the path counts as relative path in relation
+      to the subfolder
+- pressing <kbd>Escape</kbd> twice in the note text edit will now first disable the
+  search widget and then enable the read-only mode instead of the other way around
+- added more Croatian, Cebuano, Polish, Persian, Spanish, Serbian (Cyrillic),
+  Swedish, Czech, Hungarian, Dutch, Danish, Finnish, Galician, Greek, Norwegian,
+  Basque, Romanian, Slovak, Slovenian translation (thank you Fabijenna, ericjeppesen)
+
+## 19.8.8
+- there now is a **full-screen mode** that can be toggled with <kbd>F11</kbd>
+  (for [#1271](https://github.com/pbek/QOwnNotes/issues/1271))
+    - the shortcut is <kbd>⌘</kbd> + <kbd>F11</kbd> on macOS
+- added support for **automatic numbering and indentation of ordered lists**
+  (for [#1148](https://github.com/pbek/QOwnNotes/issues/1148))
+    - if you press <kbd>Enter</kbd> after `1. a list item` you will get a `2. ` in the next line 
+    - if you press <kbd>Enter</kbd> after `1. ` it will remove the current line 
+    - if you press <kbd>Tab</kbd> after `1. ` it will indent the current line 
+    - if you press <kbd>Shift</kbd> + <kbd>Tab</kbd> after `1. ` it will un-indent the current line 
+- added more Spanish, Catalan, German, Serbian (Cyrillic), Persian translation
+  (thank you richarson, MGuerra, rakekniven, Fabijenna)
+
+## 19.8.7
+- fixed a menu bar problem when exiting the application in distraction free mode
+  (for [#1267](https://github.com/pbek/QOwnNotes/issues/1267))
+- attempted to fix an occasional operating system shutdown process interruption
+  (for [#1269](https://github.com/pbek/QOwnNotes/issues/1269))
+- added more Persian, Serbian (Cyrillic) translation (thank you Fabijenna)
+
+## 19.8.6
+- fixed a possible segmentation fault on macOS (Qt 5.12.2) with todo lists
+  (for [#1266](https://github.com/pbek/QOwnNotes/issues/1266))
+    - this was a regression from 19.8.5
+- added more Persian, Dutch, Hungarian translation (thank you Fabijenna)
+
+## 19.8.5
+- fixed many **memory leaks** when **receiving network data**
+  (for [#1264](https://github.com/pbek/QOwnNotes/issues/1264))
+- the amount of calendar items will now be showed in the output of the *Debug settings*
+  (for [#1264](https://github.com/pbek/QOwnNotes/issues/1264))
+- added integration test to test https download (for [#1260](https://github.com/pbek/QOwnNotes/issues/1260))
+- added more Italian, Spanish translation (thank you tiwi90, richarson)
+
+## 19.8.4
+- added **Persian translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- updated OpenSSL to 1.1.1c for the Qt 5.13 release of QOwnNotes for Windows to
+  prevent network problems with https on some computer (for [#1260](https://github.com/pbek/QOwnNotes/issues/1260))
+    - if you had troubles with the latest few releases for Windows you need to
+      download the latest release manually once or download the files from
+      [OpenSSL](https://github.com/pbek/QOwnNotes/tree/develop/appveyor/OpenSSL)
+      and put them into your QOwnNotes folder 
+- added more German translation
+
+## 19.8.3
+- added support for a real time preview of remote images (for [#1244](https://github.com/pbek/QOwnNotes/issues/1244))
+    - the image links in the image tags will be transformed to inline images
+    - no caching of the image can currently be done
+- added more Serbian (Cyrillic), Portuguese, Catalan, Danish, Finnish, Greek,
+  Norwegian, Romanian, Slovak, Slovenian, Russian, Polish, Spanish, Dutch,
+  Hungarian, Czech, German, Italian translation (thank you Fabijenna, tiwi90,
+  manuelarodsilva, MGuerra, mikhail-khokhlov, lucjan, richarson, rakekniven)
+
+## 19.8.2
+- the cursor will now be positioned in the 4th line again after creating a new
+  note with the note search panel (for [#1255](https://github.com/pbek/QOwnNotes/issues/1255))
+- made confirmation message for conflicted database copies more affirmative
+  (for [#1111](https://github.com/pbek/QOwnNotes/issues/1111))
+- now it shows `-` instead of 0 in the in-note search count (for [#1247](https://github.com/pbek/QOwnNotes/issues/1247))
+- added more German, Spanish, Serbian (Cyrillic), Hungarian, Romanian, Dutch,
+  Basque, Cebuano, Czech, Danish, Finnish, Greek, Norwegian, Slovak,
+  Slovenian translation (thank you rakekniven, richarson, Fabijenna)
+
+## 19.8.1
+- you will now see how many **search results** there are when **searching in a note**
+  and at **what search result** you **currently** are
+    - the search will now start from top when search parameters are changed 
+    - regular expression search restart at top was fixed
+    - the text cases in the note text edit search bar are now fixed and more
+      tooltips are added
+- when a **note** is about to get the **same filename** as an existing note now
+  a **number** is **added** instead of the current date and time to prevent name
+  clashes when multiple notes are created in the same second
+  (for [#1252](https://github.com/pbek/QOwnNotes/issues/1252))
+- in the **note list** now the **note filename with extension** is displayed in the
+  **tooltips** instead of just the note name (for [#1157](https://github.com/pbek/QOwnNotes/issues/1157))
+- when a note was created via shortcut or via the note search the search bar in
+  the note edit will now be reset to default properties and hidden
+  (for [#1255](https://github.com/pbek/QOwnNotes/issues/1255))
+- when conflicted database copies were removed a status bar message is now shown
+  (for [#1111](https://github.com/pbek/QOwnNotes/issues/1111))
+- improved tab order in main window for panels
+- added more Italian, Brazilian Portuguese, German, Serbian (Cyrillic), Dutch,
+  Hungarian, Catalan, Greek, Persian, Polish translation (thank you tiwi90,
+  mlimacarlos, mlocati, 2fake1987, Fabijenna, MGuerra, rakekniven, athrouss, lucjan)
+
+## 19.8.0
+- added **Serbian translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- added more Italian, Basque, Czech, Danish, Finnish, Brazilian Portuguese,
+  German translation (thank you Fabijenna, tiwi90, mlimacarlos, rakekniven)
+
+## 19.7.11
+- **whitespaces** at the **beginning of the current line** are now **reproduced**
+  in the next line too when pressing <kbd>Return</kbd> in the note editor
+  (for [#1249](https://github.com/pbek/QOwnNotes/issues/1249))
+- there now is a **progress dialog** to see the progress of **loading notes** on
+  slow systems with a lot of notes
+- the column size of the search count in the note list was reduced
+  (for [#1248](https://github.com/pbek/QOwnNotes/issues/1248))
+- `"` characters will be now cut out of the search text in the local search text
+  when searching for text globally (for [#1247](https://github.com/pbek/QOwnNotes/issues/1247))
+- added more Spanish, Russian, Basque, Czech, Danish, Finnish, Brazilian
+  Portuguese, German, Romanian, Slovak, Slovenian, Dutch, Norwegian, Hungarian,
+  Italian translation (thank you richarson, mikhail-khokhlov, Fabijenna,
+  mlimacarlos, rakekniven, tiwi90)
+
+## 19.7.10
+- the search result count ([#1248](https://github.com/pbek/QOwnNotes/issues/1248))
+  and the automatic search inside the current note ([#1247](https://github.com/pbek/QOwnNotes/issues/1247))
+  will now also support exact searches like `"exact phrase"`
+- added more German, Spanish, Brazilian Portuguese, Italian translation (thank
+  you rakekniven, richarson, mlimacarlos, mlocati)
+
+## 19.7.9
+- there now is a menu entry *Riot* in the *Help / Open chat* menu to open
+  a browser window with the **[QOwnNotes Riot room](https://riot.im/app/#/room/!rUzrRvrnrOsLasDdbp:matrix.org?via=matrix.org)**
+- if you are **searching for text in all notes** you will now **see how many times**
+  any of the words of your **search term occurred** in each note in a new column
+  in the note list (for [#1248](https://github.com/pbek/QOwnNotes/issues/1248))
+    - the new column will automatically be resized to be visible next to the
+      note name without horizontal scrolling
+- if you are browsing notes while there are **words in the note search panel**
+  the **search dialog in the note** will now be **opened automatically** and
+  **search for the words** entered in the note search panel for
+  [#1247](https://github.com/pbek/QOwnNotes/issues/1247))
+- every time the note folder is reloaded it will now be **checked** for
+  **conflicting copies** of the **`notes.sqlite` database** that will block your
+  Nextcloud/ownCloud sync process (for [#1111](https://github.com/pbek/QOwnNotes/issues/1111))
+    - you will be asked if you want to remove the conflicting copies
+- fixed some ownCloud/Nextcloud wordings and reversed the words
+- added more Indonesian, Dutch, Hungarian, Czech, Danish, Finnish, Galician,
+  Chinese Simplified, Spanish, Catalan, German translation (thank you zmni,
+  Fabijenna, Libnux, richarson, MGuerra, rakekniven)
+
+## 19.7.8
+- you can now **turn off cursor blinking** in the *Editor settings*
+  (for [#1246](https://github.com/pbek/QOwnNotes/issues/1246))
+- added a package for Ubuntu 19.10 (Eoan Ermine) to the Launchpad build process
+- added more Spanish, Greek, German translation (thank you richarson, athrouss, rakekniven)
+
+## 19.7.7
+- some strange cursor behavior on macOS when leaving or entering read-only mode	was fixed
+    - also fixed some ui inconsistency with read-only note files
+- the ready-only state of the text edits are now better checked on automatic
+  bracket-closing and similar operations
+- more keys were added to trigger read-only mode notification
+
+## 19.7.6
+- the **immediate focus** on the `Don't ask again!` **checkbox** for
+  **message dialogs** was now **disabled**, because this would lead to
+  accidentally checking the checkbox (for [#1234](https://github.com/pbek/QOwnNotes/issues/1234))
+
+## 19.7.5
+- if you are now pressing **<kbd>Escape</kbd>** in the note text edit the
+  **read-only mode** will be **activated**
+- added more Italian, Indonesian, Brazilian Portuguese translation (thank you
+  tiwi90, zmni, mlimacarlos)
+
+## 19.7.4
+- the text in the **note text edit** is now also **selectable by keyboard** in
+  **read-only mode**
+- the text in the **note preview** is now also **selectable by keyboard**
+- if you now edit text in read-only mode you will get a **dialog** that allows
+  you to **disable** the **read-only mode** again
+- you can now (beside exporting a note as HTML file) **export** the content of
+  the **note preview as raw html file** in the context menu of the note preview
+- added **Basque translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- added more Cebuano and Swedish translation (thank you Fabijenna)
+
+## 19.7.3
+- support for **strike out highlighting** was added (for [#1240](https://github.com/pbek/QOwnNotes/issues/1240))
+    `~~this is striked out~~` will now be shown as masked text
+- fixed a crash when navigating between notes with the <kbd>Alt + Up</kbd> and
+  <kbd>Alt + Down</kbd> shortcut keys (for [#1238](https://github.com/pbek/QOwnNotes/issues/1238))
+- disabled shortcuts for the *Note folders* menu in the *Shortcuts settings*
+  because shortcuts for them are not supported (for [#1235](https://github.com/pbek/QOwnNotes/issues/1235))
+- fixed wrongly detected tray icon context menu items in toolbar settings
+  (for [#1239](https://github.com/pbek/QOwnNotes/issues/1239))
+- there now is a software repository for **Debian Linux 10.0**
+    - please visit the [Debian installation page](https://www.qownnotes.org/installation#Debian)
+      for instructions
+- added more Slovenian, Greek, Slovak, Galician, Finnish, Romanian translation
+  (thank you Fabijenna)
+
+## 19.7.2
+- added a **new editor color schema** *MountainDebo* by @Deboart
+  (for [#1232](https://github.com/pbek/QOwnNotes/issues/1232))
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.7.0
+    - you can now **substring search** for **all parts of your search text**,
+      for example `qo sto` will find `Firefox Store Page QOwnNotes`
+    - added more German, Indonesian and Czech translation
+- added Flatpak installation notes to the [Flatpak installation page](https://www.qownnotes.org/installation#flatpak)
+
+## 19.7.1
+- added a lot fixes for possible memory leaks
+- added more Romanian, Slovak, Slovenian translation (thank you Fabijenna)
+
+## 19.7.0
+- added support for a real time preview of [Nextcloud Text](https://github.com/nextcloud/text)
+  images (for [#1226](https://github.com/pbek/QOwnNotes/issues/1226))
+    - the preview image tags from Nextcloud Text will be transformed to inline images
+    - no caching can currently be done because images could be modified on the Nextcloud server
+ 
+## 19.6.6
+- the default shortcuts were changed from the Opt-key to the Ctrl-key on macOS to prevent
+  blocking of accent characters when writing text (for [#1222](https://github.com/pbek/QOwnNotes/issues/1222))
+- the storing of the main window position was re-enabled after being disabled in
+  [#1015](https://github.com/pbek/QOwnNotes/issues/1015) (for [#1225](https://github.com/pbek/QOwnNotes/issues/1225))
+- the QOwnNotesAPI url was updated and the Firefox Add-on link was added to the
+  `Welcome to QOwnNotes.md` note file
+- added more Chinese Simplified, Brazilian Portuguese, Dutch, Hungarian, Croatian,
+  Czech, Danish, Finnish, Norwegian, Polish, Russian, Catalan, Spanish, German,
+  Italian translation (thank you KeRouDing, mlimacarlos, Fabijenna, mikhail-khokhlov,
+  MGuerra, richarson, rakekniven, tiwi90)
+
+## 19.6.5
+- fixed icon-text-overlap for checkboxes and radio groups in the main menu in dark mode
+  (for [#1221](https://github.com/pbek/QOwnNotes/issues/1221))
+- there now is a new checkbox `Ignore code font size to allow zooming` in the
+  *Preview settings* to allow zooming of code fonts (for [#1202](https://github.com/pbek/QOwnNotes/issues/1202))
+    - this checkbox is checked by default
+- fixed search widget colors in the log widget in dark mode
+- added more German, Indonesian translation (thank you rakekniven, zmni)
+
+## 19.6.4
+- if you right-click on a link in the preview you now can select `Copy link location`
+  to copy the location of the link (for [#800](https://github.com/pbek/QOwnNotes/issues/800))
+- added more Italian, Dutch, Hungarian, Indonesian, Brazilian Portuguese translation
+  (thank you tiwi90, Fabijenna, zmni, mlimacarlos)
+
+## 19.6.3
+- fixed syntax highlighting of non-formatted urls
+- added more Spanish, German translation (thank you richarson, rakekniven)
+
+## 19.6.2
+- fixed Debian 8.0 build problem on Qt 5.3
+- updated application description
+- added more Italian and German translation (thank you mlocati)
+
+## 19.6.1
+- fixed openSUSE, Fedora and Debian build problem
+- added more Catalan, Dutch, Hungarian, Russian, Italian, German, Spanish translation
+  (thank you MGuerra, Fabijenna, mikhail-khokhlov, mlocati, rakekniven, soysexy03)
+
+## 19.6.0
+- You are now able to distinctively tell QOwnNotes to use the **dark mode icon theme**
+  without using the *dark mode* in the *Interface settings*
+  (for [#1209](https://github.com/pbek/QOwnNotes/issues/1209)) and
+  [#1177](https://github.com/pbek/QOwnNotes/issues/1177))
+- added more Danish, Czech, Finnish, Greek, Spanish, Hungarian, Dutch translation
+  (thank you Fabijenna, richarson)
+
+## 19.5.7
+- fixed unnecessary scrolling and dark mode link colors in the *Browser extension*
+  settings (for [#1213](https://github.com/pbek/QOwnNotes/issues/1213))
+- if the current note has a certain tag it will be now highlighted as bold in
+  the tags panel (for [#1210](https://github.com/pbek/QOwnNotes/issues/1210))
+- did general performance and memory consumption improvements
+- added more Russian translation (thank you mikhail-khokhlov)
+
+## 19.5.6
+- fixed creation of empty notes at the note root folder when importing Evernote enex
+  files into a note subfolder and improved overall import speed
+  (for [#1212](https://github.com/pbek/QOwnNotes/issues/1212))
+- added a more descriptive text in the browser extension security token dialog
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.5.5
+    - the **security token** will now be sent correctly to QOwnNotes for context menu operations
+      (for [#10](https://github.com/qownnotes/web-companion/issues/10))
+- added more Russian, Italian, Indonesian translation (thank you mikhail-khokhlov, mlocati, zmni)
+
+## 19.5.5
+- you are now able to **manually edit the security token** for your
+  [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  to be able to use the same token across different devices in case you are
+  syncing your browser settings
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.5.4
+    - you are now also able to enter the **security token** in the browser extension options
+    - added more translation
+- added more Catalan, Spanish, Italian translation (thank you MGuerra, richarson, mlocati)
+
+## 19.5.4
+- when using the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  you now need to enter a **security token** to communicate with QOwnNotes to
+  ensure no other website or application can access your bookmarks
+    - you will get a new dialog that shows the token as soon as the browser
+      extension accesses QOwnNotes
+    - you can also change the security token later in the *Browser extension* settings
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.5.3
+    - you are now able to enter a **security token** to communicate with QOwnNotes 
+    - added a lot of translation
+    - you now can **import all browser bookmarks** (for [#8](https://github.com/qownnotes/web-companion/issues/8))
+    - fixed a bookmark filtering problem
+- added a new editor color schema *Solarized Light* by @fairplay
+  (for [#1208](https://github.com/pbek/QOwnNotes/issues/1208))
+- improved Mojave dark mode support for macOS 
+  (for [#1209](https://github.com/pbek/QOwnNotes/issues/1209))
+- added more Indonesian, Slovenian, Swedish, Romanian, Slovak, Russian, Italian,
+  Spanish, Brazilian Portuguese, Finnish, Norwegian, Danish, Greek, Polish,
+  Cebuano, Hungarian, Dutch, Czech, Croatian translation (thank you zmni,
+  Fabijenna, mikhail-khokhlov, mlocati, richarson, mlimacarlos, tiwi90)
+
+## 19.5.3
+- if the setting `Show all notes in a folder including their subfolders` is
+  activated now the note-subfolder list will show the note count recursively for
+  all children note-subfolders (for [#1206](https://github.com/pbek/QOwnNotes/issues/1206))
+- added `aarch64` architecture to AUR build process
+- added more Czech, Finnish, Croatian, Romanian, Slovak, Slovenian, Brazilian
+  Portuguese, Russian, German, Spanish, Hungarian, Dutch, Italian translation
+  (thank you Fabijenna, mlimacarlos, mikhail-khokhlov, rakekniven, richarson,
+  tiwi90, mlocati)
+
+## 19.5.2
+- now more than 10 bookmarks can be imported from [Nextcloud bookmarks](https://github.com/nextcloud/bookmarks)
+  in the *Notes / Import* menu (for [#1198](https://github.com/pbek/QOwnNotes/issues/1198))
+- added more Romanian translation (thank you Fabijenna)
+
+## 19.5.1
+- added feedback if the note folder was switched via the websocket to the websocket api
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.5.0
+    - you can now also **search** for the **description of bookmarks**
+    - a **loading progressbar** will now be shown while bookmarks are loaded
+      when the **note folder is switched** by the user 
+- there now is a software repository for **Fedora 30** (for [#1199](https://github.com/pbek/QOwnNotes/issues/1199))
+    - please visit the [Fedora installation page](https://www.qownnotes.org/installation#Fedora)
+      for instructions
+- added more Spanish, Catalan, Romanian, Dutch, Hungarian, Norwegian, Danish,
+  Czech, Italian translation (thank you richarson, MGuerra, Fabijenna, mlocati)
+
+## 19.5.0
+- you are now able to **import bookmarks** from [Nextcloud bookmarks](https://github.com/nextcloud/bookmarks)
+  in the *Notes / Import* menu (for [#1198](https://github.com/pbek/QOwnNotes/issues/1198))
+    - the bookmarks will be imported to your bookmarks note 
+    - for more information about the **bookmarks feature** please visit
+      [Web Companion browser extension](https://www.qownnotes.org/Knowledge-base/QOwnNotes-Web-Companion-browser-extension)
+- **QOwnNotesAPI** is now ready for **Nextcloud 16**
+    - see [QOwnNotesAPI for Nextcloud](https://apps.nextcloud.com/apps/qownnotesapi)
+- added more Italian, German, Russian, Dutch, Norwegian, Danish, Hungarian,
+  Spanish, Catalan, Romanian, Brazilian Portuguese translation (thank you
+  mlocati, rakekniven, mikhail-khokhlov, Fabijenna, richarson, MGuerra, mlimacarlos)
+
+## 19.4.5
+- you now will get a warning dialog if your git client couldn't be executed when
+  a git command is issued (for [#1192](https://github.com/pbek/QOwnNotes/issues/1192))
+    - you will be able to turn off that dialog
+- more checksum generation improvements for the AUR and added checksum support
+  to the build processes of Launchpad Snap, Slackware and Gentoo
+  (for [#1175](https://github.com/pbek/QOwnNotes/issues/1175))
+- added more German translation
+
+## 19.4.4
+- fixed renaming issue on case-insensitive file-systems
+  (for [#1190](https://github.com/pbek/QOwnNotes/issues/1190))
+- another attempt to build the Windows version of QOwnNotes with Qt 5.12.2
+  (for AppVeyor [#2871](https://github.com/appveyor/ci/issues/2871))
+- added more Spanish translation (thank you richarson)
+
+## 19.4.3
+- you can now reorder your note folders in the *Note folders settings* via drag and drop
+  (for [#1181](https://github.com/pbek/QOwnNotes/issues/1181))
+- more checksum generation improvements for the AUR
+  (for [#1175](https://github.com/pbek/QOwnNotes/issues/1175))
+- added more Romanian, Slovenian, Slovak, Dutch, Hungarian, Indonesian,
+  Brazilian Portuguese, Italian, German, Russian translation (thank you
+  Fabijenna, zmni, mlimacarlos, mlocati, rakekniven, mikhail-khokhlov)
+
+## 19.4.2
+- for Linux there there now is a setting in the *Interface settings* to enforce
+  the system icon theme in case your desktop environment doesn't report the icon
+  theme correctly (for [#1177](https://github.com/pbek/QOwnNotes/issues/1177))
+    - KDE currently seems to have this problem on Qt 5.12
+    - in addition if built on Qt 5.12 or newer there now also will be tried to
+      check if there is a fallback icon theme in case there is no icon theme reported
+- checksum generation improvement for the AUR (for [#1175](https://github.com/pbek/QOwnNotes/issues/1175))
+- added more German, Russian, Catalan, Brazilian Portuguese, Dutch, Italian,
+  Slovak, Slovenian, Danish, Hungarian, Norwegian, Czech, Greek, Spanish translation
+  (thank you MGuerra, mlimacarlos, vistausss, tiwi90, Fabijenna, richarson, pu.sash)
+
+## 19.4.1
+- added support for **listing** the **note folders** and **changing** the
+  **current note folder** to the websocket api
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.4.0
+    - you can now **change** the **current note folder** in a select box in the
+      toolbar of the **bookmarks popup**
+- added more Slovak, Slovenian, Danish, Hungarian, Dutch, Norwegian, Czech, Greek,
+  Russian, German translation (thank you Fabijenna, mikhail-khokhlov, rakekniven)
+
+## 19.4.0
+- added **Romanian**, **Slovak** and **Slovenian translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- added a package for Ubuntu 19.04 (Disco Dingo) to the Launchpad build process
+  (for [#1169](https://github.com/pbek/QOwnNotes/issues/1169))
+- added more Indonesian, Danish translation (thank you zmni, flywheel)
+
+## 19.3.4
+- fixed layout damaging when in dark mode closing the app with the `x` button or
+  if getting a HUP signal (for [#1015](https://github.com/pbek/QOwnNotes/issues/1015))
+- made an attempt to remedy `notes.sqlite` sync issues with Nextcloud
+  (for [#1111](https://github.com/pbek/QOwnNotes/issues/1111))
+- added more Slovak, Slovenian, Hungarian, German, Catalan, Spanish, Brazilian
+  Portuguese, Romanian, Italian, Dutch, Russian translation (thank you Fabijenna,
+  rakekniven, MGuerra, richarson, mlimacarlos, mlocati, mikhail-khokhlov)
+
+## 19.3.3
+- there now are new scripting commands `script.noteTextEditSetSelection()`,
+  `script.noteTextEditSelectionStart()` and `script.noteTextEditSelectionEnd()`
+  to set and get the currently selected text in the note text edit
+  (for [#1167](https://github.com/pbek/QOwnNotes/issues/1167))
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#set-the-currently-selected-text-in-the-note-text-edit)
+- you now can activate the context menu of the current widget with the shortcut <kbd>F10</kbd>
+  (for [#1154](https://github.com/pbek/QOwnNotes/issues/1154))
+    - please visit [QOwnNotes shortcuts](https://www.qownnotes.org/shortcuts/QOwnNotes)
+      for a list of all shortcuts
+- added more Chinese Traditional, German translation (thank you abev66, rakekniven)
+
+## 19.3.2
+- there now is a new *script settings variable* for select-boxes (for [#1167](https://github.com/pbek/QOwnNotes/issues/1167))
+    - you can define items with an index and a text
+    - you will receive the selected index
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#registering-script-settings-variables)
+- there are now shortcuts to jump to the *note list* (<kbd>F5</kbd>), the
+  *note subfolder panel* (<kbd>F6</kbd>) and the *tags panel* (<kbd>F7</kbd>)
+  (for [#1153](https://github.com/pbek/QOwnNotes/issues/1153))
+    - please visit [QOwnNotes shortcuts](https://www.qownnotes.org/shortcuts/QOwnNotes)
+      for a list of all shortcuts
+- there now is a new scripting command `script.noteTextEditSelectCurrentLine()`
+  to select the current line in the note text edit (for [#1167](https://github.com/pbek/QOwnNotes/issues/1167))
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#select-the-current-line-in-the-note-text-edit)
+- added more Spanish, Italian, Russian, Cebuano, Hiligaynon, Dutch, Hungarian,
+  Swedish, Greek translation (thank you richarson, mlocati, mikhail-khokhlov,
+  Fabijenna, druus, tiwi90)
+
+## 19.3.1
+- added **Danish translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- implemented preserving of note tag links when renaming note subfolders
+  (for [#1166](https://github.com/pbek/QOwnNotes/issues/1166))
+- added some markdown text edit fixes and changes
+  (for [QMarkdownTextEdit #21](https://github.com/pbek/qmarkdowntextedit/pull/21), thank you @sandsmark)
+- added more Czech, Polish, Swedish, Greek, Catalan, Galician, Indonesian,
+  Norwegian, Dutch, Hungarian, German, Italian, Portuguese, Brazilian, Spanish
+  translation (thank you Fabijenna, zmni, rakekniven, mlocati, jan_sh,
+  mlimacarlos, richarson)
+
+## 19.3.0
+- added **Galician translation** and **Norwegian translation** (a big thank you
+  to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes/)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- added an option to disable underline rendering in the preview to the *Preview settings*
+  (for [#1160](https://github.com/pbek/QOwnNotes/issues/1160))
+- added more Chinese Simplified, Indonesian, Danish, Cebuano, Hungarian, German
+  translation (thank you cptbl00dra1n, Fabijenna, zmni)
+
+## 19.2.5
+- fixed numpad 0 being recognized as tick character in the note text edit
+  (for [#1152](https://github.com/pbek/QOwnNotes/issues/1152), thank you @liulex)
+- added checkboxes support to the preview pdf export
+  (for [#235](https://github.com/pbek/QOwnNotes/issues/235), thank you @liulex)
+- added more Chinese Traditional translation (thank you abev66)
+
+## 19.2.4
+- you can now click checkboxes like `- []` in the preview
+  (for [#235](https://github.com/pbek/QOwnNotes/issues/235), thank you @liulex)
+- fixed single-line paste behavior when there is already text selection
+  (for [qmarkdowntextedit #19](https://github.com/pbek/qmarkdowntextedit/pull/19), thank you @liulex)
+- fixed settings lost after canceling the welcome dialog
+  (for [#1040](https://github.com/pbek/QOwnNotes/issues/1040), thank you @liulex)
+
+## 19.2.3
+- fixed a crash on first start introduced with feature [#1135](https://github.com/pbek/QOwnNotes/issues/1135)
+  (for [#1146](https://github.com/pbek/QOwnNotes/issues/1146))
+- fixed a problem with pasting text with newline characters at the end introduced
+  with [qmarkdowntextedit #15](https://github.com/pbek/qmarkdowntextedit/pull/15)
+  (for [qmarkdowntextedit #18](https://github.com/pbek/qmarkdowntextedit/pull/18), thank you @liulex)
+- fixed a problem with resetting layout settings if the note folder was not found
+  (for [#1140](https://github.com/pbek/QOwnNotes/issues/1140), thank you @liulex)
+- fixed some possible problems with finding existing note folders 
+  (for [#1144](https://github.com/pbek/QOwnNotes/issues/1144), thank you @liulex)
+    - this also fixes some problems upon first start in portable mode
+
+## 19.2.2
+- fixed lost note after changing its title and switching to another note
+  (for [#522](https://github.com/pbek/QOwnNotes/issues/522) and
+  [#1142](https://github.com/pbek/QOwnNotes/issues/1142), a big thank you to @liulex)
+- added more Portuguese, Brazilian translation (thank you mlimacarlos)
+
+## 19.2.1
+- the diff colors for added and removed text in the note versioning dialog is
+  now adapted for the dark mode (for [#1139](https://github.com/pbek/QOwnNotes/issues/1139))
+- you can now use <kbd>Ctrl + Enter</kbd> in the note text edit to create a new
+  line and jump to it even if the caret is in the middle of the line
+  (for [qmarkdowntextedit #14](https://github.com/pbek/qmarkdowntextedit/pull/14), thank you @liulex)
+- added auto completion for tick characters for code blocks
+  (for [qmarkdowntextedit #15](https://github.com/pbek/qmarkdowntextedit/pull/15), thank you @liulex)
+- you can now copy/cut the whole paragraph if no text is selected
+  (for [qmarkdowntextedit #16](https://github.com/pbek/qmarkdowntextedit/pull/16), thank you @liulex)
+- added more Ukrainian translation (thank you prolinuxua)
+
+## 19.2.0
+- in **portable mode** now **relative links** will be inserted by the *Link dialog*
+  (for [#1136](https://github.com/pbek/QOwnNotes/issues/1136))
+    - also an attempt will be made to select the selected relative file again
+      when the dialog is opened next time 
+- the *Custom action toolbar* can now be hidden even if scripts with custom
+  actions are enabled (for [#1135](https://github.com/pbek/QOwnNotes/issues/1135))
+- enabled scrolling to top and bottom in the note text edit on macOS
+  (for [#1131](https://github.com/pbek/QOwnNotes/issues/1131))
+- attempted to fix the brace character if automatic bracket closing is enabled
+  on macOS with an US keyboard (for [#1132](https://github.com/pbek/QOwnNotes/issues/1132))
+- added more German translation (thank you rakekniven)
+
+## 19.1.11
+- fixed gif animations in the preview (for [#1104](https://github.com/pbek/QOwnNotes/issues/1104), thank you @liulex)
+- fixed checked state detection for scripting function `triggerMenuAction`
+  (for [#1127](https://github.com/pbek/QOwnNotes/issues/1127), thank you @smokris)
+- improved styling for note html export (for [#1130](https://github.com/pbek/QOwnNotes/issues/1130))
+    - adapted background colors for dark mode
+- the note preview is now regenerated after the settings dialog is closed or the
+  scripting engine is manually reloaded in the main menu, so that you immediately
+  will see effects by scripts
+- the `<body>` tag of the generated html of a note will now have a css class
+  `preview` for the preview and and `export` for the export, so that you can more
+  easily append different styles for the preview and export
+- the checking for too large images in the preview will now be done after
+  scripts are modifying the html, allowing images to correctly be resized even
+  if the preview html is generated by scripts like `markdown-it`
+- added more Spanish, Italian, Galician, Catalan, Greek, Swedish, Russian,
+  Czech, Dutch and Hungarian translation (thank you richarson, mlocati, MGuerra,
+  mikhail-khokhlov and Fabijenna)
+
+## 19.1.10
+- the issue assistant will now use `<details>` tags to make the GitHub issues
+  look less cluttered
+- animations of embedded gif images should now animate in the preview (at least on Windows)
+  (for [#1104](https://github.com/pbek/QOwnNotes/issues/1104), a big thank you to @liulex)
+- disabled the application hiding of [#1098](https://github.com/pbek/QOwnNotes/issues/1098),
+  because the close event is also fired when the application will be quit in
+  the dock menu on macOS (for [#1113](https://github.com/pbek/QOwnNotes/issues/1113))
+- added more German, Spanish, Italian, Galician, Polish, Dutch and Hungarian
+  translation (thank you rakekniven, richarson, mlocati and Fabijenna)
+
+## 19.1.9
+- the websocket api for **listing bookmarks** will now try to **merge bookmarks**
+  if they were found multiple times in your bookmark notes for the
+  [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+    - creating new bookmarks will trigger a reply to the browser extension with a
+      success message 
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.1.11
+    - added support to show a success message from QOwnNotes if bookmarks were created
+    - fixed restoring of previously selected tags
+    - added a lot of translation
+    - fixed `tabs` permissions
+- the note text edit context menu can now also create block quotes
+- if a tag in the *Tags panel* is double-clicked the current tag will not only
+  be tagged with the clicked tag, but the tag will also be removed if the note
+  was already tagged with it (for [#1116](https://github.com/pbek/QOwnNotes/issues/1116))
+    - the tag tree will now also be correctly reloaded
+- added more German, Spanish, Ukrainian, Chinese Traditional, Italian, Russian,
+  Indonesian, Galician, Finnish, Dutch, Greek and Hungarian translation
+  (thank you prolinuxua, rakekniven, richarson, tiwi90, abev66, mlocati, zmni,
+  mikhail-khokhlov and Fabijenna)
+
+## 19.1.8
+- added **Greek translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- the websocket api for **adding bookmarks** can now add multiple bookmarks at
+  the same time for the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.1.8
+    - you can now **filter bookmarks by tags**
+        - use access key <kbd>T</kbd> to jump to the tag selector
+        - the selected tags will be persisted and restored the next time the
+          bookmarks popup is opened
+    - you can now **bookmark all tabs** with a button in the **bookmark popup**
+        - use access key <kbd>B</kbd> to press the button
+    - changed the **default shortcut** for the **bookmarks popup** in **Firefox**
+      to <kbd>Alt + Shift + B</kbd>, because <kbd>Ctrl + B</kbd> is blocked
+        - these shortcuts will only work in Firefox 66 and newer 
+- added more Russian translation (thank you mikhail-khokhlov)
+
+## 19.1.7
+- when **adding bookmarks** from the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  the bookmarks tag will be applied to the bookmarks note automatically if that
+  note wasn't created yet
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.1.7
+    - added **access keys** to some **bookmark popup** actions
+        - access key <kbd>A</kbd> to add a new bookmarks (for example press <kbd>Alt + A</kbd> in Chrome)
+        - access key <kbd>S</kbd> to search for bookmarks
+        - access key <kbd>O</kbd> to open all visible bookmarks
+- added more German, Catalan, Spanish, Brazilian Portuguese, Italian, Galician,
+  Finnish, Dutch, Greek, Hungarian, Swedish, Czech and Swedish translation
+  (thank you rakekniven, richarson, tiwi90, MGuerra, mlocati and Fabijenna)
+
+## 19.1.6
+- bookmark links with `chrome-extension://` or `chrome://` are now also detected
+  as bookmarks for the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+    - also more general link detection improvements were made
+- added fields to add a link name and description for inserting links to the
+  *Link dialog*
+- added support for **adding bookmarks** to a note `Bookmarks` from the
+  [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+    - you can change the note name in the *Browser extension* settings
+    - if the note doesn't exist it will be created the first time a bookmark is added
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.1.6
+    - you can now **add new bookmarks** with a button in the **bookmark popup**
+    - you can now **open all visible bookmarks** in new tabs with a button in
+      the **bookmark popup**
+- added more Indonesian, Catalan, Greek, Brazilian Portuguese, Hungarian and
+  Dutch translation (thank you zmni, MGuerra, mlimacarlos and Fabijenna)
+
+## 19.1.5
+- improved detection of multiple links in a text-block in the current note for
+  the **bookmark feature** of the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+    - added support for showing the current note folder name
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.1.5
+    - the previously entered **search text** in the **bookmark popup** is now
+      **automatically selected and focused**, so that you can overwrite it and
+      start to search immediately
+    - the tab-order was now adapted, so that you can **navigate the links** with <kbd>Tab</kbd> easily
+    - there now is a **default shortcut** <kbd>Ctrl + B</kbd> for**opening the bookmarks popup**
+    - the name of the **current note folder** will now be displayed in the top toolbar of the **bookmark popup**
+- added more German, Catalan, Spanish, Chinese Traditional, Italian, Czech,
+  Finnish and Greek translation (thank you rakekniven, richarson, abev66,
+  MGuerra, mlocati and Fabijenna)
+
+## 19.1.4
+- added support for showing **bookmark links of all notes tagged** with `bookmarks`
+  for the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+    - you can change that tag name in the *Browser extension* settings
+    - detection of tags and description of such links is also improved
+    - links in the current note will now have the tag `current`
+    - for more information about the **bookmarks feature** please visit
+      [Web Companion browser extension](https://www.qownnotes.org/Knowledge-base/QOwnNotes-Web-Companion-browser-extension)
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  was updated to version 19.1.4
+    - bookmarks styling changes and the **search field** can now be **reset**
+    - the content of the bookmarks **search field** will now be **persisted**
+- added **Finnish translation** (a big thank you to Fabijenna)
+    - join us at [QOwnNotes on Crowdin](https://crowdin.com/project/qownnotes)
+      to make QOwnNotes available in more languages or help with the current 
+      translation
+- added more Brazilian Portuguese translation (thank you mlimacarlos)
+
 ## 19.1.3
 - improved detection of links in encrypted notes for the **bookmark feature**
-  of the [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
-- the [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  of the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   was updated to version 19.1.3
     - preventing opening of two new tabs when clicking a bookmark
     - added support for the new **tag** and **description** attributes in **bookmarks**
@@ -15,8 +2561,8 @@
   richarson, abev66, prolinuxua, mlocati and Fabijenna)
 
 ## 19.1.2
-- added support for the new **bookmark feature** of the [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
-- the [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+- added support for the new **bookmark feature** of the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   was updated to version 19.1.2
     - you can now browse a **list of all links in the current note** if you click
       on the QOwnNotes icon in the browser toolbar
@@ -33,7 +2579,7 @@
 - the *Chrome extension settings* got renamed to *Browser extension*
 - added [Firefox Add-ons page](https://addons.mozilla.org/firefox/addon/qownnotes-web-companion)
   to the *Browser extension* settings page (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
-- the [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   was updated to version 19.1.1
     - the extension now also works with Firefox (for [#1](https://github.com/qownnotes/web-companion/issues/1),
       thank you @Offerel for your Firefox changes)
@@ -45,7 +2591,7 @@
     - the text of the extension can now be translated
         - visit [QOwnNotes translations](https://crowdin.com/project/qownnotes)
           if you want to help to translate the interface to your language
-    - download the latest version on [QOwnNotes Web Companion releases](https://github.com/qownnotes/web-companion/releases)
+    - download the latest version on [Web Companion releases](https://github.com/qownnotes/web-companion/releases)
 - changed the tooltip text for the `Allow note file name to be different from headline`
   setting to be more clear (for [#1110](https://github.com/pbek/QOwnNotes/issues/1110))
 - fixed some typos in the *Trash dialog* (for [#1107](https://github.com/pbek/QOwnNotes/issues/1107), thank you @smokris)
@@ -58,13 +2604,13 @@
 
 ## 19.1.0
 - you can now change the socket server port for connecting with the
-  [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   in the new *Chrome extension settings* (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
     - the Chrome extension is now also available in the
       [Chrome Web Store](https://chrome.google.com/webstore/detail/qownnotes-web-companion/pkgkfnampapjbopomdpnkckbjdnpkbkp)
 - fixed some possible crashes if a socket client disconnects from the socket server
   (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
-- you can now enable note sub-folders in the welcome dialog if you are running
+- you can now enable note subfolders in the welcome dialog if you are running
   QOwnNotes for the first time
 - fixed some typos in dialogs
 - added more German, Italian, Czech, Swedish, Croatian, French, Hungarian and
@@ -79,41 +2625,41 @@
   filenames and headlines to prevent underline formatting in headlines if two `_`
   characters are present (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
 - added support for converting html to markdown when a page is created as new
-  note for the [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  note for the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
 - inline images will now be automatically transformed to real images if html is
   converted to markdown (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
-- the [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+- the [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   was updated to version 18.12.2
     - added support to import pages as new note
         - the html will be converted to markdown and images of the page will be
           downloaded (might take a while)
     - added support to add a screenshot of the visible area as new note
     - selected text will now be created as new note with newlines if possible
-    - download the latest version on [QOwnNotes Web Companion releases](https://github.com/qownnotes/web-companion/releases)
+    - download the latest version on [Web Companion releases](https://github.com/qownnotes/web-companion/releases)
 - added more Hungarian and Dutch translation (thank you Fabijenna)
 
 ## 18.12.8
 - improved note name filtering to prevent troubles on Windows for the
-  [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+  [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
     - the name and note text will be trimmed to prevent wrong newlines
-    - the QOwnNotes Web Companion browser extension was updated to version 18.12.1
+    - the Web Companion browser extension was updated to version 18.12.1
         - fixed the default port
         - the url of the page will now also be written to the note
         - restructured the context menu
         - added an context menu entry to reset the settings
-        - download the latest version on [QOwnNotes Web Companion releases](https://github.com/qownnotes/web-companion/releases)
+        - download the latest version on [Web Companion releases](https://github.com/qownnotes/web-companion/releases)
 - the amount of `=` characters added for the headlines of new notes are now
   limited to 40 to prevent too long headline lines
     - the name will be trimmed to prevent wrong newlines in the headline
 - added more Spanish translation (thank you richarson)
 
 ## 18.12.7
-- added support for the new [QOwnNotes Web Companion browser extension](https://github.com/qownnotes/web-companion)
+- added support for the new [Web Companion browser extension](https://github.com/qownnotes/web-companion)
   to add selected text as new note (for [#330](https://github.com/pbek/QOwnNotes/issues/330))
     - you can download the current release of the extension at
-      [QOwnNotes Web Companion 18.12.0](https://github.com/qownnotes/web-companion/releases/tag/18.12.0)
+      [Web Companion 18.12.0](https://github.com/qownnotes/web-companion/releases/tag/18.12.0)
     - then visit `chrome://extensions` and drop the extension file into Chrome to install the extension
 - added more Polish, German, Chinese Traditional and Italian (thank you lucjan,
   rakekniven, abev66 and mlocati)
@@ -124,7 +2670,7 @@
     - you should already be able to "talk" to your QOwnNotes application by
       connecting to `ws://127.0.0.1:22222`, for example with [Echo Test](https://www.websocket.org/echo.html?location=ws://127.0.0.1:22222)
 - the automatically generated context menus for floating panels are now disabled
-  to prevent enabling of the note sub-folder toolbar if sub-folders are disabled
+  to prevent enabling of the note subfolder toolbar if subfolders are disabled
   for the current note folder (for [#1093](https://github.com/pbek/QOwnNotes/issues/1093))
 - the binary **Arch Linux** repository on the *openSUSE Build Service* is working
   again (for OBS issue [#6692](https://github.com/openSUSE/open-build-service/issues/6692))
@@ -143,10 +2689,10 @@
   optionally supports *definition lists* (for script issue [#48](https://github.com/qownnotes/scripts/issues/48))
 - added `qt5-xmlpatterns` to the Arch Linux build depend list
 - the automatically generated toolbar context menus are now disabled to prevent 
-  enabling of the note sub-folder toolbar if sub-folders are disabled for the
+  enabling of the note subfolder toolbar if subfolders are disabled for the
   current note folder (for [#1093](https://github.com/pbek/QOwnNotes/issues/1093))
-    - the *note sub-folder* menu entry is now disabled in the *Panels menu*
-      instead of hidden if sub-folders are not enabled for current note folder
+    - the *note subfolder* menu entry is now disabled in the *Panels menu*
+      instead of hidden if subfolders are not enabled for current note folder
 - added more German, Catalan, Spanish, Portuguese, Chinese Traditional,
   Ukrainian, Italian, Hungarian and Dutch translation (thank you jan_sh,
   MGuerra, richarson, manuelarodsilva, abev66, prolinuxua, mlocati, tiwi90 
@@ -265,7 +2811,7 @@
 ## 18.11.1
 - the **auto formatter** of **markdown tables** will now also automatically increase
   the size of the headline separator (for [#1052](https://github.com/pbek/QOwnNotes/issues/1052))
-- you can now **ignore certain note sub-folders** by defining them as list of 
+- you can now **ignore certain note subfolders** by defining them as list of
   regular expressions (separated by `;`) in the *Panels settings*
   (for [#1054](https://github.com/pbek/QOwnNotes/issues/1054))
     - by default folders starting with a `.` now will be ignored (this was
@@ -401,20 +2947,20 @@
 - you can now **import text files as notes** from the *Note / Import* menu
     - if no markdown headline was found in the file the basename of the file 
       will be used as headline
-- the list of note sub-folders in the note list when moving notes to note 
-  sub-folders is now sorted alphabetically (for [#1022](https://github.com/pbek/QOwnNotes/issues/1022))
+- the list of note subfolders in the note list when moving notes to note
+  subfolders is now sorted alphabetically (for [#1022](https://github.com/pbek/QOwnNotes/issues/1022))
 
 ## 18.09.1
 - prevented possible misbehavior when moving multiple tags to another tag
   (for [#1014](https://github.com/pbek/QOwnNotes/issues/1014))
-- **note links** will now also jump to notes in **other note sub-folders**
+- **note links** will now also jump to notes in **other note subfolders**
   (for [#478](https://github.com/pbek/QOwnNotes/issues/478))
-    - first only the current note sub-folder will be searched, if the note 
-      wasn't found there all note sub-folders will be searched
-    - if the linked note was in another note sub-folder the current note 
-      sub-folder will be changed to that note sub-folder
-    - the note link dialog now shows notes of all note sub-folders
-    - highlighting of note links if they are broken also works over all note sub-folders
+    - first only the current note subfolder will be searched, if the note
+      wasn't found there all note subfolders will be searched
+    - if the linked note was in another note subfolder the current note
+      subfolder will be changed to that note subfolder
+    - the note link dialog now shows notes of all note subfolders
+    - highlighting of note links if they are broken also works over all note subfolders
     - automatically updating links when notes are renamed should now also work
       across note-subfolders 
 - fixed possibly duplicate entries in the script list of the *Script repository*
@@ -564,7 +3110,7 @@
   be entered, but the cursor will be moved to the right (for [#982](https://github.com/pbek/QOwnNotes/issues/982))
 - there now is a new scripting function `script.triggerMenuAction()` to trigger
   a menu action
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#triggering-a-menu-action)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#triggering-a-menu-action)
 - you can now focus the note text edit in a script with `mainWindow.focusNoteTextEdit()`
 - there now is a new script `Disable read-only mode` in the *Scripting repository*
   to disable the read-only mode if a note is double clicked
@@ -720,7 +3266,7 @@
   note name is determined for a note
   (for [#929](https://github.com/pbek/QOwnNotes/issues/929))
     - take a look at the
-      [handleNoteNameHook documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#handlenotenamehook)
+      [handleNoteNameHook documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#handlenotenamehook)
       for more information
     - the user interface will currently not be updated when the note text (that 
       could result in a note name change with the new hook) is stored
@@ -766,17 +3312,17 @@
 
 ## 18.05.4
 - you are now able to jump to the conflicting keyboard shortcut if you assign a
-  shortcut that is already used by an other menu item in the *Shortcuts settings*
+  shortcut that is already used by another menu item in the *Shortcuts settings*
   (for [#912](https://github.com/pbek/QOwnNotes/issues/912))
     - the duplicate dialog if assigning a conflicting shortcut if no shortcut
       was defined before was fixed
 - added a new scripting hook `noteDoubleClickedHook(note)` that is called every
   time a note is double clicked in the note list (for [#913](https://github.com/pbek/QOwnNotes/issues/913))
     - take a look at the
-      [noteDoubleClickedHook documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#noteDoubleClickedHook)
+      [noteDoubleClickedHook documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#noteDoubleClickedHook)
       for more information
     - there is an example script at
-      [external-note-open.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/external-note-open.qml)
+      [external-note-open.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/external-note-open.qml)
     - you will also find a script `External note open` in the script repository
       that uses the new hook
 - added more Brazilian Portuguese, Italian, Dutch and Hungarian translation
@@ -784,7 +3330,7 @@
 
 ## 18.05.3
 - you will now get a notification if you assign a shortcut that is already 
-  used by an other menu item in the *Shortcuts settings*
+  used by another menu item in the *Shortcuts settings*
   (for [#912](https://github.com/pbek/QOwnNotes/issues/912))
 - added more Catalan and German translation (thank you MGuerra and rakekniven)
 
@@ -799,7 +3345,7 @@
 - there now is a new scripting command `script.fetchNoteIdsByNoteTextPart()` to 
   fetch the ids of all notes with a certain text in the note text
   (for [#904](https://github.com/pbek/QOwnNotes/issues/904))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#search-for-notes-by-note-text)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#search-for-notes-by-note-text)
     - there now is a new script `Unique note id` in the *Script repository*
       that generates a 10 character alphanumeric id for the current note and
       also allows to jump to the note by it
@@ -815,7 +3361,7 @@
   select all text in the note text edit (for [#902](https://github.com/pbek/QOwnNotes/issues/902))
     - you can use this together with `script.noteTextEditWrite()` to overwrite
       the whole text of the current note
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#select-all-text-in-the-note-text-edit)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#select-all-text-in-the-note-text-edit)
 - the dialog to delete orphaned images isn't modal any more and you can now 
   also use it to insert those images into the current note
 - added more Indonesian, Catalan and German translation (thank you zmni, MGuerra
@@ -911,7 +3457,7 @@
 - the scripting command `script.writeToFile()` now writes text to a file
   in the UTF-8 character set (for [script issue #25](https://github.com/qownnotes/scripts/issues/25))
     - for more information about the command please take a look at
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#writing-text-to-a-file)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#writing-text-to-a-file)
 - added the plug `opengl` to the snapped version of QOwnNotes to prevent 
   OpenGL AppArmor errors (for [#875](https://github.com/pbek/QOwnNotes/issues/875))
 - added the plug `removable-media` to the snapped version of QOwnNotes to
@@ -921,23 +3467,23 @@
 ## 18.03.7
 - there now is a new scripting command `script.fetchNoteById()` to fetch a note
   by its id (for [#871](https://github.com/pbek/QOwnNotes/issues/871))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#fetching-a-note-by-its-id)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#fetching-a-note-by-its-id)
 - there now is a new scripting command `script.getSaveFileName()` to show a 
   save file dialog (for [#871](https://github.com/pbek/QOwnNotes/issues/871))
-    - for more information please take a look at
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#showing-a-save-file-dialog)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#showing-a-save-file-dialog)
 - there now is a new scripting command `script.selectedNotesIds()` to return a
   list of the ids of all selected notes (for [#871](https://github.com/pbek/QOwnNotes/issues/871))
-    - for more information please take a look at
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#getting-a-list-of-the-ids-of-all-selected-notes)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#getting-a-list-of-the-ids-of-all-selected-notes)
 - there now is a new scripting command `script.writeToFile()` to write text 
   to a file (for [#871](https://github.com/pbek/QOwnNotes/issues/871))
-    - for more information please take a look at
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#writing-text-to-a-file)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#writing-text-to-a-file)
 - there now is a new method `toMarkdownHtml()` for `NoteApi` to get the
   generated html of a note (for [#871](https://github.com/pbek/QOwnNotes/issues/871))
     - for more information please take a look at
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#note)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#note)
 - there now is a new script `Export notes as one HTML file` in the
   *Script repository* to export multiple notes as one HTML file (for [#871](https://github.com/pbek/QOwnNotes/issues/871))
 - the text case toggling feature now automatically selects the word under the 
@@ -987,14 +3533,14 @@
 ## 18.03.2
 - there now is a new scripting function `script.insertMediaFile()` to insert a
   media file into the media folder (for [#869](https://github.com/pbek/QOwnNotes/issues/869))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#inserting-a-media-file-into-the-media-folder)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#inserting-a-media-file-into-the-media-folder)
 - there now is a new scripting function `script.regenerateNotePreview()` to
   regenerate the note preview (for [#869](https://github.com/pbek/QOwnNotes/issues/869))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#regenerating-the-note-preview)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#regenerating-the-note-preview)
 - the *checkbox* properties for the *script settings variables* did get a `text`
   attribute for the checkbox text along with the `description` now used for the
   description text (for [#869](https://github.com/pbek/QOwnNotes/issues/869))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#registering-script-settings-variables)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#registering-script-settings-variables)
 - there now is a new script `Scribble` in the *Scripting repository* to insert a
   scribble image to the media-folder, that will be edited by an external image
   editor (for [#869](https://github.com/pbek/QOwnNotes/issues/869))
@@ -1058,7 +3604,7 @@
 - there now is a new **scripting command** to show a **question message box**
   `script.questionMessageBox()` (for [#847](https://github.com/pbek/QOwnNotes/issues/847))
     - for more information please take a look at
-      [Showing a question message box](https://docs.qownnotes.org/en/develop/scripting/README.html#showing-a-question-message-box)
+      [Showing a question message box](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#showing-a-question-message-box)
 - added more local trash features (for [#674](https://github.com/pbek/QOwnNotes/issues/674))
     - files that are missing in the local trash-folder will be now be marked in
       the *Local trash* dialog so that you know that they can't be restored
@@ -1097,14 +3643,14 @@
   strings to be added to the autocompletion list when the autocompletion is
   invoked by pressing <kbd>Ctrl</kbd> + <kbd>Space</kbd>
   (for [#842](https://github.com/pbek/QOwnNotes/issues/842))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#autocompletionhook)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#autocompletionhook)
 - there now is a new scripting function `script.noteTextEditCurrentWord()` to 
   read the current word in the note text edit (for [#842](https://github.com/pbek/QOwnNotes/issues/842))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#read-the-current-word-from-the-note-text-edit)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#read-the-current-word-from-the-note-text-edit)
 - there now is a new scripting function `script.searchTagsByName()` to 
   fetches all tags by doing a substring search on the name field
   (for [#842](https://github.com/pbek/QOwnNotes/issues/842))
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#search-for-tags-by-name)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#search-for-tags-by-name)
 - the script `@tag tagging in note text` was updated to use autocompletion
   (for [#842](https://github.com/pbek/QOwnNotes/issues/842))
 - the Windows version of QOwnNotes is now built with Qt 5.10.0
@@ -1236,8 +3782,8 @@
 - for headlines a whitespace after the last `#` is now mandatory
 - you can now use the new scripting function `script.jumpToNoteSubFolder()`
   to jump to a note-subfolder in scripts (for [#792](https://github.com/pbek/QOwnNotes/issues/792))
-  - for more information please take a look at the
-    [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#jumping-to-a-note-subfolder)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#jumping-to-a-note-subfolder)
 - added more Catalan, Italian, Spanish, Brazilian Portuguese and French translation
   (thank you MGuerra, mlocati, richarson, mlimacarlos and bepolymathe)
 
@@ -1328,8 +3874,8 @@
 - added some more information to the *External git log command* settings
 - you can now use the new scripting function `script.getApplicationSettingsVariable()`
   to load application settings variables in scripts
-  - for more information please take a look at the
-    [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#loading-application-settings-variables)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#loading-application-settings-variables)
 - added more French, Catalan, Portuguese, Hungarian and Dutch translation
   (thank you bepolymathe, MGuerra, manuelarodsilva and Fabijenna)
 
@@ -1404,7 +3950,7 @@
 - there now is a new scripting command `script.inputDialogGetText` to open an
   input dialog with a line edit (for [#740](https://github.com/pbek/QOwnNotes/issues/740))
     - for more information please take a look at
-      [Opening an input dialog with a line edit](https://docs.qownnotes.org/en/develop/scripting/README.html#opening-an-input-dialog-with-a-line-edit)
+      [Opening an input dialog with a line edit](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#opening-an-input-dialog-with-a-line-edit)
 - added more French and German translation (thank you bepolymathe and rakekniven)
 
 ## 17.10.2
@@ -1485,7 +4031,7 @@
   [#603](https://github.com/pbek/QOwnNotes/issues/603))
     - as soon as a script is activated that implements the new function
       `noteTaggingHook` note tagging will be handled by that function
-    - please install the script [note-tagging.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/note-tagging.qml)
+    - please install the script [note-tagging.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/note-tagging.qml)
       to test the basic functionality and report in [#530](https://github.com/pbek/QOwnNotes/issues/530).
         - your internal tag database and your notes might get modified 
         - don't use this script on your production note folder, please make a 
@@ -1504,7 +4050,7 @@
         - bulk tagging of notes in the note list will add those tags to your notes
         - bulk removing of tags from notes in the note list will remove those 
           tags from your notes
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#notetagginghook)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#notetagginghook)
 
 ## 17.09.5
 - added support for entering a bracket-character that surrounds the currently 
@@ -1514,7 +4060,7 @@
   add and remove tags from notes (for [#530](https://github.com/pbek/QOwnNotes/issues/530))
     - custom tagging could now be implemented by parsing the note text for 
       custom tag handlers and adding/removing tags from the note
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#note)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#note)
 
 ## 17.09.4
 - fixed a possible crash when selecting a lot of notes quickly in succession 
@@ -1554,7 +4100,7 @@
       dialog, todo dialog, settings dialog, note dialog and note history dialog
 - you can now choose different **interface styles** in the *Interface settings* 
   to change the look of the application's interface and its controls
-    - the style will be previewed instantly if you select an other style
+    - the style will be previewed instantly if you select another style
     - if you select `Automatic` you will be prompted to restart the application
 - the snap-packaged version of QOwnNotes will now automatically use the `Fusion`
   interface style, which dramatically improves the styling of the user interface
@@ -1640,7 +4186,7 @@
 
 ## 17.08.6
 - if you want to remote control QOwnNotes with sockets you can use `WebSocketServer` in a script
-    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#working-with-websockets)
+    - for more information please take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#working-with-websockets)
 - you can now also search for filenames of notes in the note search line-edit, 
   instead of just for note-text (for [#678](https://github.com/pbek/QOwnNotes/issues/678))
 - you now can search for notes in all tags / subfolders with the new main menu 
@@ -1662,8 +4208,8 @@
 - you can now use the new scripting functions `script.setPersistentVariable()`
   and `script.getPersistentVariable()` to store and load persistent variables in 
   scripts (for [#677](https://github.com/pbek/QOwnNotes/issues/677))
-  - for more information please take a look at the
-    [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#storing-and-loading-persistent-variables)
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#storing-and-loading-persistent-variables)
 - added more French and Swedish translation (thank you bepolymathe and druus)
 
 ## 17.08.4
@@ -1723,7 +4269,7 @@
 - there now is a new scripting command `script.inputDialogGetItem` to open an
   input dialog with a select box (for [#490](https://github.com/pbek/QOwnNotes/issues/490))
     - for more information please take a look at
-      [Opening an input dialog with a select box](https://docs.qownnotes.org/en/develop/scripting/README.html#opening-an-input-dialog-with-a-select-box)
+      [Opening an input dialog with a select box](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#opening-an-input-dialog-with-a-select-box)
 - when entering an url in the link-dialog with <kbd>Ctrl + L</kbd> that is 
   missing a`://` then `http://` will automatically added in front of the url
   (for [#646](https://github.com/pbek/QOwnNotes/issues/646))
@@ -1734,11 +4280,11 @@
   list of the paths of all selected notes 
   (for [#490](https://github.com/pbek/QOwnNotes/issues/490))
     - for more information please take a look at
-      [Getting a list of the paths of all selected notes](https://docs.qownnotes.org/en/develop/scripting/README.html#getting-a-list-of-the-paths-of-all-selected-notes)
+      [Getting a list of the paths of all selected notes](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#getting-a-list-of-the-paths-of-all-selected-notes)
 - scripting function `registerCustomAction` now has a new parameter to add 
   a menu entry to the note list context menu
     - for more information please take a look at the 
-      [registerCustomAction documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#registering-a-custom-action)
+      [registerCustomAction documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#registering-a-custom-action)
 - there is a new script *External note diff* in the script repository, that 
   uses above new features and adds adds a menu entry to the context menu of the
   note list to **diff selected notes** in an external diff program 
@@ -1864,7 +4410,7 @@
       be different from the headline in the *General settings*)
     - if you want more control over your note file name you can achieve that 
       by writing a script, please take a look at
-      [handleNoteTextFileNameHook](https://docs.qownnotes.org/en/develop/scripting/README.html#handlenotetextfilenamehook)
+      [handleNoteTextFileNameHook](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#handlenotetextfilenamehook)
 - added more Polish, Spanish and German translation (thank you lucjan,
   richarson and rakekniven)
 
@@ -1873,7 +4419,7 @@
   the dialog to select the script
 - there now is a new script variables datatype `boolean`
     - to get information about how to use it please take a look at the example
-      [variables.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/variables.qml)
+      [variables.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/variables.qml)
     - there is a new script `Weather stats` in the *Script repository* that 
       is using this new setting
 - added more French translation (thank you lepascalou)
@@ -1890,19 +4436,19 @@
   fixed (for [#605](https://github.com/pbek/QOwnNotes/issues/605))
 - the MainWindow is now exposed for scripting as variable `mainWindow`
   (for [#604](https://github.com/pbek/QOwnNotes/issues/604))
-  - you can use `mainWindow.buildNotesIndexAndLoadNoteDirectoryList(true, true)`
-    to force a reload of the note list
-  - for more information please take a look at the
-    [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#mainwindow)
+    - you can use `mainWindow.buildNotesIndexAndLoadNoteDirectoryList(true, true)`
+      to force a reload of the note list
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#mainwindow)
 - added more Italian translation (thank you mlocati)
 
 ## 17.06.2
 - there are now new properties for notes in the scripting engine `fileCreated`
   and `fileLastModified` (for [#599](https://github.com/pbek/QOwnNotes/issues/599))
-  - you can use the methods from [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
-    to work with these date properties
-  - for more information please take a look at the
-    [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#note)
+    - you can use the methods from [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+      to work with these date properties
+    - for more information please take a look at the
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#note)
 - when posting a script to the *Script repository* you can now define which 
   platforms are supported by the script with the new `platforms` parameter
   (for [Script repository issue #3](https://github.com/qownnotes/scripts/issues/3))
@@ -1934,7 +4480,7 @@
   mlocati, mlimacarlos and lepascalou)
     
 ## 17.05.14
-- when moving or copying notes to an other note subfolder tagging information
+- when moving or copying notes to another note subfolder tagging information
   will now be restored (for [#595](https://github.com/pbek/QOwnNotes/issues/595))
 - you can now use the shortcut <kbd>Ctrl</kbd> + <kbd>⇧</kbd> + <kbd>E</kbd> to 
   insert a file attachment into the current note
@@ -2005,7 +4551,7 @@
 - there now are new scripting functions `fromNativeDirSeparators`,
   `toNativeDirSeparators` and `dirSeparator` to work with native file paths
     - for more information please take a look at the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/)
 - you can now use the property list `resources` in your `info.json` in the
   *Script repository* to specify further files that are present in your script's
   directory and that should be downloaded to be used by your script
@@ -2029,7 +4575,7 @@
     - currently there are settings types for `string`, `text`, `integer` and 
       `file`
     - take a look at the example at
-      [variables.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/variables.qml)
+      [variables.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/variables.qml)
       to understand how this all will work
     - a lot of new useful scripts were added to the script repository, which 
       now can be configured with the script settings variables
@@ -2068,7 +4614,7 @@
 - scripting function `registerCustomAction` now got a new parameter to hide 
   the button of the custom action in the toolbar
     - for more information please take a look at the 
-      [registerCustomAction documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#registering-a-custom-action)
+      [registerCustomAction documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#registering-a-custom-action)
 - fixed a problem with tag cases for cyrillic tags
   (for [#579](https://github.com/pbek/QOwnNotes/issues/579))
 - fixed a warning when tagging a note with the same tag twice
@@ -2089,7 +4635,7 @@
 - there now is a new scripting command to show an open file dialog
   `script.getOpenFileName()` (for [#536](https://github.com/pbek/QOwnNotes/issues/536))
     - for more information please take a look at
-      [Showing an open file dialog](https://docs.qownnotes.org/en/develop/scripting/README.html#showing-an-open-file-dialog)
+      [Showing an open file dialog](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#showing-an-open-file-dialog)
 - there now are new scripting commands to register labels with
   `script.registerLabel("my-label")` and write to them with
   `script.setLabelText("my-label", "my custom text")`
@@ -2098,8 +4644,8 @@
     - you can use both plain text or html in the labels
     - the text will be selectable and links can be clicked
     - for more information please take a look at
-      [Registering a label](https://docs.qownnotes.org/en/develop/scripting/README.html#registering-a-label)
-      and [Setting the text of a registered label](https://docs.qownnotes.org/en/develop/scripting/README.html#setting-the-text-of-a-registered-label)
+      [Registering a label](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#registering-a-label)
+      and [Setting the text of a registered label](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#setting-the-text-of-a-registered-label)
 
 ## 17.05.1
 - the restoring of the expanded state of the items in the tag tree widget now
@@ -2110,7 +4656,7 @@
 - there now is a new scripting command to show an information message box
   `script.informationMessageBox()` (for [#536](https://github.com/pbek/QOwnNotes/issues/536))
     - for more information please take a look at
-      [Showing an information message box](https://docs.qownnotes.org/en/develop/scripting/README.html#showing-an-information-message-box)
+      [Showing an information message box](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#showing-an-information-message-box)
 - added more Italian, French, Polish and Spanish translation (thank you mlocati,
   lepascalou, lucjan and richarson)
 
@@ -2247,7 +4793,7 @@
 
 ## 17.03.0
 - you can now assign different tag colors in dark mode
-    - this is handy because the colors you may have defined on an other, synced
+    - this is handy because the colors you may have defined on another, synced
       computer, that did not use dark mode may not look good on this computer
       in dark mode
     - with this update the currently set non-dark mode colors will be used as
@@ -2265,7 +4811,7 @@
 ## 17.02.5
 - you can now show a custom action in the note text edit context menu
     - for more information please take a look at the
-      [custom action documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#registering-a-custom-action)
+      [custom action documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#registering-a-custom-action)
 - the last directory path will now be selected if you select a script file in 
   the *Scripting settings* or select an external editor in the *General settings*
 - the script name will now be set from the file name if no script name was set
@@ -2276,17 +4822,17 @@
 - you can now copy text to the clipboard in a script with the new scripting
   method `script.setClipboardText()`
     - there is an example at
-      [selected-markdown-to-bbcode.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/selected-markdown-to-bbcode.qml)
+      [selected-markdown-to-bbcode.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/selected-markdown-to-bbcode.qml)
     - for more information please take a look at the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#copying-text-into-the-clipboard)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#copying-text-into-the-clipboard)
 - the unicode line endings from the result of the scripting method
   `script.noteTextEditSelectedText()` will now be converted to `\n` 
 - you can now jump to a note with the new scripting method `script.setCurrentNote()`
   if it is visible in the note list (for [#510](https://github.com/pbek/QOwnNotes/issues/510))
     - there is an example at
-      [journal-entry.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/journal-entry.qml)
+      [journal-entry.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/journal-entry.qml)
     - for more information please take a look at the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#jumping-to-a-note)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#jumping-to-a-note)
 
 ## 17.02.3
 - the bracket closing feature now also just moves the cursor to the right if a
@@ -2297,12 +4843,12 @@
   method `script.fetchNoteByFileName(fileName)`
   (for [#510](https://github.com/pbek/QOwnNotes/issues/510))
     - for more information please take a look at the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#fetching-a-note-by-its-file-name)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#fetching-a-note-by-its-file-name)
 - you can now check if a note exists by its file name in a script with the 
   new scripting method `script.noteExistsByFileName(fileName)`
   (for [#510](https://github.com/pbek/QOwnNotes/issues/510))
     - for more information please take a look at the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#checking-if-a-note-exists-by-its-file-name)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#checking-if-a-note-exists-by-its-file-name)
 
 ## 17.02.2
 - the restoring of the cursor position in notes is now disabled by default 
@@ -2358,9 +4904,9 @@
   to allow you to download an url to the media folder and return the media url
   or the markdown image text (for [#499](https://github.com/pbek/QOwnNotes/issues/499))
     - there is an example at
-      [paste-latex-image.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/paste-latex-image.qml)
+      [paste-latex-image.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/paste-latex-image.qml)
     - for more information please take a look at the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#downloading-an-url-to-the-media-folder)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#downloading-an-url-to-the-media-folder)
 - added more fixes for a warning that might trigger when notes are moved to an
   other note subfolder in macOS
   (for [#498](https://github.com/pbek/QOwnNotes/issues/498))
@@ -2369,7 +4915,7 @@
 
 ## 17.01.11
 - added Czech translation (a big thank you to jkalousek!)
-- fixed a warning that might trigger when notes are moved to an other note subfolder
+- fixed a warning that might trigger when notes are moved to another note subfolder
   (for [#498](https://github.com/pbek/QOwnNotes/issues/498))
 - you now can disable the restoring of the cursor position in the *General settings*
   (for [#500](https://github.com/pbek/QOwnNotes/issues/500))
@@ -2428,7 +4974,7 @@
 - you can now use the shortcut <kbd>Alt</kbd> + <kbd>⇧</kbd> + <kbd>O</kbd> 
   to open the current note in a readonly view
     - you can use that view to leave a note open to look at while writing on 
-      an other note
+      another note
     - markdown highlighting will be used in that view and you also can search
       for text in it
 - added more Dutch, Chinese and German translation (thank you Leime, chonghua
@@ -2478,15 +5024,15 @@
   a note in the *Editor settings*
     - take a look at the [time format documentation](https://docs.qownnotes.org/en/develop/time-formats.html)
       for more information about the available time formats
-- the menu entry for showing the note sub-folder panel is now invisible if 
-  note sub-folders are not enabled for the current note folder
+- the menu entry for showing the note subfolder panel is now invisible if
+  note subfolders are not enabled for the current note folder
 
 ## 17.01.0
 - notes in the note list are now resorted if they were sorted alphabetically 
   and a note was manually renamed in the note list
   (for [#450](https://github.com/pbek/QOwnNotes/issues/450), thank you @dwu)
 - improved on setting the note text edit to be readonly if the last note from a 
-  note folder or note sub-folder was removed or moved somewhere else or when
+  note folder or note subfolder was removed or moved somewhere else or when
   there is no visible note to view
   (for [#446](https://github.com/pbek/QOwnNotes/issues/446))
 - the *Delete word* functionality now matches that of other editors more closely
@@ -2496,7 +5042,7 @@
 - added more Spanish and Polish translation (thank you richarson and lucjan)
 
 ## 16.12.16
-- when the current note is moved to a different note sub-folder the current note
+- when the current note is moved to a different note subfolder the current note
   will now be unset, like when it is moved to a different note folder
   (for [#446](https://github.com/pbek/QOwnNotes/issues/446))
 - added more French, Dutch, Hungarian and Italian translation (thank you
@@ -2556,7 +5102,7 @@
 - the problem with accessing your todo lists on **Nextcloud 11** will be 
   fixed in Nextcloud 11.0.1
   (see [Nextcloud Issue #2552](https://github.com/nextcloud/server/issues/2552))
-- added a warning that the ownCloud notes app doesn't support sub-folders in 
+- added a warning that the ownCloud notes app doesn't support subfolders in
   the note folder settings
 - there now is a repository for **Fedora 25**
     - please visit the [QOwnNotes installation page](https://www.qownnotes.org/installation#Fedora)
@@ -2801,12 +5347,12 @@
   time a note is opened
   (for [#389](https://github.com/pbek/QOwnNotes/issues/389))
     - take a look at the
-      [noteOpenedHook documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#noteopenedhook)
+      [noteOpenedHook documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#noteopenedhook)
       for more information
     - there is an example script at
-      [on-note-opened.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/on-note-opened.qml)
+      [on-note-opened.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/on-note-opened.qml)
 - added some documentation for all scripting hooks to the
-  [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html)
+  [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/)
 - the closing of brackets and markdown formatting characters is now only
   allowed if the cursor was at the end of a block
   (for [#386](https://github.com/pbek/QOwnNotes/issues/386))
@@ -2863,9 +5409,9 @@
   with the help of the new scripting method `script.addStyleSheet()`
   (for [#381](https://github.com/pbek/QOwnNotes/issues/381))
     - there is an example for adding custom stylesheets at
-      [custom-stylesheet.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/custom-stylesheet.qml)
+      [custom-stylesheet.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/custom-stylesheet.qml)
     - take a look at the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#add-a-custom-stylesheet)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#add-a-custom-stylesheet)
       for more information
     - you can get the object names from the `*.ui` files, for example
       [mainwindow.ui](https://github.com/pbek/QOwnNotes/blob/develop/src/mainwindow.ui)
@@ -3070,7 +5616,7 @@
   (for [#351](https://github.com/pbek/QOwnNotes/issues/351))
     - there is an example for creating a custom action to add a tag
       `favorite` to the current note at
-      [favorite-note.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/favorite-note.qml)
+      [favorite-note.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/favorite-note.qml)
 - the status messages now all start with an uppercase letter
 - there now is a checkbox for ignoring of non-VTODO calendars in the
   todo settings that is turned on by default (for @binerf on GitHub)
@@ -3083,7 +5629,7 @@
 - fixed the restoring of the focus after switching workspaces
   (for [#343](https://github.com/pbek/QOwnNotes/issues/343))
 - added an example for custom styling of html in the note preview at
-  [preview-styling.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/preview-styling.qml)
+  [preview-styling.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/preview-styling.qml)
   (for [#356](https://github.com/pbek/QOwnNotes/issues/356))
 - the log dialog is now a dockable panel that can be placed everywhere
 - fixed a problem with showing the title bar of floating panels after
@@ -3169,20 +5715,20 @@
     - you can use the new scripting hook `encryptionHook()` do implement
       your own encryption
     - there are examples to encrypt notes with **[Keybase.io](https://keybase.io)**
-      ([encryption-keybase.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/encryption-keybase.qml)),
-      **PGP** ([encryption-pgp.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/encryption-pgp.qml)) or
+      ([encryption-keybase.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/encryption-keybase.qml)),
+      **PGP** ([encryption-pgp.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/encryption-pgp.qml)) or
       do a trivial "encryption" with ROT13
-      ([encryption-rot13.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/encryption-rot13.qml))
+      ([encryption-rot13.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/encryption-rot13.qml))
     - you can disable the password dialog with `script.encryptionDisablePassword()`
     - to start an external synchronous process you can use `script.startSynchronousProcess()`
     - to check on which platform the script is running you can use
       `script.platformIsLinux()`, `script.platformIsOSX()` and `script.platformIsWindows()` 
     - for more information on the new commands please take a look at the 
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/)
 - added some fixes to the demo script
-  [insert-headline-with-link-from-github-url.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/insert-headline-with-link-from-github-url.qml)
+  [insert-headline-with-link-from-github-url.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/insert-headline-with-link-from-github-url.qml)
 - the menu entry `Show tag pane under navigation pane` was replaced by
-  `Show note list under tag pane` where note list and tag pane are swapped
+  `Show note list under tag panel` where note list and tag pane are swapped
   (for [#340](https://github.com/pbek/QOwnNotes/issues/340))
 - added more Portuguese, Russian, Japanese, Spanish, Italian, French and
   German translation (thank you mlimacarlos, Maboroshy, piyo,
@@ -3197,12 +5743,12 @@
   to write text to the note text edit
   (for [#339](https://github.com/pbek/QOwnNotes/issues/339))
     - for more information please take a look at the 
-      [noteTextEditWrite documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#write-text-to-the-note-text-edit)
+      [noteTextEditWrite documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#write-text-to-the-note-text-edit)
 - there a now is a new scripting method `script.noteTextEditSelectedText()`
   to read the selected text from the note text edit
   (for [#339](https://github.com/pbek/QOwnNotes/issues/339))
     - for more information please take a look at the 
-      [noteTextEditSelectedText documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#read-the-selected-text-in-the-note-text-edit)
+      [noteTextEditSelectedText documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#read-the-selected-text-in-the-note-text-edit)
 - added more Portuguese, Polish, Italian and Russian translation (thank
   you mlimacarlos, lucjan, mlocati and frostyland)
 
@@ -3406,15 +5952,15 @@
   richarson and Fabijenna)
 
 ## 16.09.3
-- the tag tree will now be reloaded if a tag is moved to an other location
+- the tag tree will now be reloaded if a tag is moved to another location
   (for [#311](https://github.com/pbek/QOwnNotes/issues/311))
 - when renaming a note in QOwnNotes and a link to that note was found in
   other notes there now a dialog will be opened to ask if you want to
   rename the urls to the note in all found notes
   (for [#313](https://github.com/pbek/QOwnNotes/issues/313))
-  - this works if the note was renamed by modifying the first line of
-    the note or (if you turned that on) by changing the note name in
-    the note list
+    - this works if the note was renamed by modifying the first line of
+      the note or (if you turned that on) by changing the note name in
+      the note list
 - added more Spanish translation (thank you richarson)
 
 ## 16.09.2
@@ -3504,7 +6050,7 @@
   from your freedesktop theme icons or a local file
   (for [#297](https://github.com/pbek/QOwnNotes/issues/297))
     - for more information please take a look at the 
-      [registerCustomAction documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#register-a-custom-action)
+      [registerCustomAction documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#register-a-custom-action)
     - you will find a list of icons at
       [freedesktop icons](https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html)
 - fixed a problem with selecting text
@@ -3527,10 +6073,10 @@
   and for [#297](https://github.com/pbek/QOwnNotes/issues/297))
     - there is an example for opening the current note with KWrite
       and to create a new note with a custom text at
-      [custom-actions.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/custom-actions.qml)
+      [custom-actions.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/custom-actions.qml)
     - there is a small documentation about the function
       `registerCustomAction` and other functions in the
-      [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html#register-a-custom-action)
+      [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/#register-a-custom-action)
     - you can also assign shortcuts for your custom actions in the 
       shortcut settings
 - added new methods to the scripting engine
@@ -3539,11 +6085,11 @@
     - you can now register a custom action with `script.registerCustomAction()`
     - you can now create a new note with `script.createNote()`
     - you can now access the clipboard with `script.clipboard()`
-    - take a look at the [scripting documentation](https://docs.qownnotes.org/en/develop/scripting/README.html)
+    - take a look at the [scripting documentation](https://docs.qownnotes.org/en/latest/scripting/methods-and-objects/)
       for more information
 - there now is a new example to create a note from a 5pm email with a 
   custom action at
-  [note-from-5pm-mail.qml](https://github.com/pbek/QOwnNotes/tree/develop/doc/scripting/note-from-5pm-mail.qml)
+  [note-from-5pm-mail.qml](https://github.com/pbek/QOwnNotes/tree/develop/docs/content/scripting/examples/note-from-5pm-mail.qml)
 - the warning about tags when copying or moving notes to a note
   subfolder will now be only displayed if one of the selected notes has
   a tag assigned (for [#289](https://github.com/pbek/QOwnNotes/issues/289))
@@ -3614,9 +6160,9 @@
 - there now is a new shortcut <kbd>Alt</kbd> + <kbd>⇧</kbd> + <kbd>X</kbd>
   to **split the current note** into two notes at the current cursor position
   (for [#290](https://github.com/pbek/QOwnNotes/issues/290))
-  - the name of the current note plus the current timestamp will be
-    used as name for the new note
-  - the new note will be tagged with the same tags as the old note
+    - the name of the current note plus the current timestamp will be
+      used as name for the new note
+        - the new note will be tagged with the same tags as the old note
 - note subfolders are now turned off by default when a new note folder 
   is created
 - fixed a build problem with MSVC19 (thank you @rwiesenfarth)
@@ -3640,8 +6186,8 @@
 - there now is a new shortcut <kbd>Ctrl</kbd> + <kbd>⇧</kbd> + 
   <kbd>M</kbd> to **hide the main menu bar** 
   (for [#287](https://github.com/pbek/QOwnNotes/issues/287))
-  - if the menu bar is hidden a new button will be added to the window 
-    toolbar to show the main menu bar again
+    - if the menu bar is hidden a new button will be added to the window 
+      toolbar to show the main menu bar again
 - fixed an UI glitch under OS X where the `add tag` button stuck to 
   the right corner
 - added more Spanish and Hungarian translation (thank you richarson 
@@ -3677,8 +6223,8 @@
 - some dynamically set shortcuts are now set at the right time
   so they don't show up as custom shortcuts
   (for [#194](https://github.com/pbek/QOwnNotes/issues/194))
-  - the note edit context menu shortcuts now also load the custom
-    shortcut settings
+    - the note edit context menu shortcuts now also load the custom
+      shortcut settings
 - changed some icons in the font settings
 - the `Add tag` button now sicks to the right of the note edit pane
   (for jd6661 on the IRC channel) 
@@ -3752,7 +6298,7 @@
       characters `===` will be added automatically, you have to do that
       in your script
     - take a look at the updated example at
-      [custom-new-note-headline.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/custom-new-note-headline.qml)
+      [custom-new-note-headline.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/custom-new-note-headline.qml)
     - you now can use the hook to create your own headline styles, 
       for example using `# headline` instead of `headline`, followed by
       `==========`
@@ -3848,7 +6394,7 @@
   mlimacarlos and Maboroshy)
 
 ## 16.07.8
-- added an other fix to a duplicate note subfolder listing problem
+- added another fix to a duplicate note subfolder listing problem
   (for [#243](https://github.com/pbek/QOwnNotes/issues/243))
 - you can now also create a note subfolder by typing it into the search field 
   and pressing <kbd>Return</kbd>
@@ -3985,7 +6531,7 @@
 	- please visit the 
 	  [QOwnNotes installation](https://www.qownnotes.org/installation#Ubuntu) 
 	  page for more information
-- first pre-alpha release of the **note sub-folder tree integration**
+- first pre-alpha release of the **note subfolder tree integration**
   (for [#183](https://github.com/pbek/QOwnNotes/issues/183))
 	- per default notes will be shown as a list in a new note tree widget
 	- all functionality of the old note list was integrated into the new note 
@@ -4026,7 +6572,7 @@
     - note that you have to take care about a unique note name, otherwise
       the new note will not be created, it will just be found in the note list
     - there is an example at
-      [custom-new-note-headline.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/custom-new-note-headline.qml)
+      [custom-new-note-headline.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/custom-new-note-headline.qml)
 - added more Hungarian and Russian translation (thank you Fabijenna and 
   frostyland)
 
@@ -4283,7 +6829,7 @@
     - it allows you to modify this html
     - this is for example called before by the note preview
     - there is an example call in
-      [example.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/example.qml)
+      [example.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/example.qml)
 - added more Japanese and Portuguese translation (thank you piyo and mlimacarlos)
 
 ## 16.05.14
@@ -4326,14 +6872,14 @@
 - there now is a new script function `script.downloadUrlToString("http://the-webpage");`
     - it allows you to download an url to a string
     - there is an example at
-      [insert-headline-with-link-from-github-url.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/insert-headline-with-link-from-github-url.qml)
+      [insert-headline-with-link-from-github-url.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/insert-headline-with-link-from-github-url.qml)
 - added more German and Russian translation (thank you bigant and frostyland)
 
 ## 16.05.12
 - tags and notes can now be exposed to the QML scripting engine
 - beside the note name, the file name and the note text you can also get a 
   list of all assigned tag names for notes or a list of assigned tag objects
-    - see [examples](https://github.com/pbek/QOwnNotes/tree/develop/doc/scripting)
+    - see [examples](https://github.com/pbek/QOwnNotes/tree/develop/docs/content/scripting/examples)
       for a full list of all note properties and functions 
 - you can get the current note with `script.currentNote()` from QML
 - `function onNoteStored(note)` now gets a note object as parameter instead of 
@@ -4344,7 +6890,7 @@
   (for [#166](https://github.com/pbek/QOwnNotes/issues/166))
     - it allows you to modify the name of the note file
     - there is an example at
-      [use-tag-names-in-filename.qml](https://github.com/pbek/QOwnNotes/blob/develop/doc/scripting/use-tag-names-in-filename.qml)
+      [use-tag-names-in-filename.qml](https://github.com/pbek/QOwnNotes/blob/develop/docs/content/scripting/examples/use-tag-names-in-filename.qml)
 - added more Japanese, Portuguese, German and Dutch translation (thank you 
   piyo, mlimacarlos, bigant and Telesight)
 
@@ -4363,7 +6909,7 @@
       with `Ctrl + Shift + V`
     - you can intercept the media paste mechanism with it
     - there is an example at
-      [note-text-from-5pm-mail.qml](https://github.com/pbek/QOwnNotes/tree/develop/doc/scripting/note-text-from-5pm-mail.qml)
+      [note-text-from-5pm-mail.qml](https://github.com/pbek/QOwnNotes/tree/develop/docs/content/scripting/examples/note-text-from-5pm-mail.qml)
 - the script function `modifyMediaMarkdown` was be renamed to `insertMediaHook`
   for more consistency
 - added a `Paste HTML or media` context menu entry for notes
@@ -4378,7 +6924,7 @@
     - it is possible to disable or remove scripts
     - you may need to restart QOwnNotes to let changes in a script take action 
     - I prepared some
-      [examples](https://github.com/pbek/QOwnNotes/tree/develop/doc/scripting)
+      [examples](https://github.com/pbek/QOwnNotes/tree/develop/docs/content/scripting/examples)
       to play around with
     - if you need access to a certain functionality in QOwnNotes or have 
       questions or ideas please open an issue on the 
@@ -4445,8 +6991,8 @@
 ## 16.05.3
 - QOwnNotes will now be built from a **source archive** (like it should be) in 
   the AUR and in the Gentoo overlay (and not from git repositories)
-  - visit [Building QOwnNotes](https://www.qownnotes.org/installation#building) 
-  for more information on building QOwnNotes and source archives
+    - visit [Building QOwnNotes](https://www.qownnotes.org/installation#building) 
+    for more information on building QOwnNotes and source archives
 - the text is now also selected in the text replace dialog
 - added more Japanese translation (thank you piyo)
 
@@ -4468,7 +7014,7 @@
   like `(4+5)*3=` in the current line in front of the cursor 
   (for [#152](https://github.com/pbek/QOwnNotes/issues/152))
     - the result will be put into the note if the cursor is after the `=` 
-- fixed a problem where opening the settings dialog from an other dialog 
+- fixed a problem where opening the settings dialog from another dialog 
   would remove some settings
 
 ## 16.05.1
@@ -4524,7 +7070,7 @@
   (for [#136](https://github.com/pbek/QOwnNotes/issues/136))
 - the tag tree will now be expanded automatically when the tags are loaded 
   and the columns are sized to the contained content
-- you can now add a new tag beneath an other tag by right-clicking on it and 
+- you can now add a new tag beneath another tag by right-clicking on it and 
   select *Add tag*
 - added a new QOwnNotes desktop icon (a big thank you to Alex L from the KDE 
   V Design Group)
@@ -4541,7 +7087,7 @@
 	  tag` line edit by typing in it
 		- if you press enter a new tag with the content of the line edit is 
 		  created at the root level
-	- you are able to move selected tags to an other tag by right-clicking on 
+	- you are able to move selected tags to another tag by right-clicking on 
 	  them and select *Move tags to...*
 	- you are able to remove selected tags by right-clicking on them and select
 	  *Remove tags*
@@ -4553,7 +7099,7 @@
 	  notes and select *Remove tag from selected notes...*
 	- the name of a tag has to be unique for its parent
 		- so you can create tags with the same name under different tags
-		- you cannot move a tag to an other tag if a tag with the same name 
+		- you cannot move a tag to another tag if a tag with the same name 
 		  already exists there
 - improved the code background color in the markdown view in dark mode
 - when in single application mode the app will now come up again if it was 
@@ -4698,7 +7244,7 @@
 	  individually in a SQLite database
 	- if notes are renamed by QOwnNotes the tags will be moved to the renamed
 	  notes
-	- if notes are move to an other folder their associated tags are lost 
+	- if notes are move to another folder their associated tags are lost 
 	- <kbd>Alt</kbd> + <kbd>⇧</kbd> + <kbd>A</kbd> adds a new tag to a note
 
 ## 1.3.6
@@ -4780,7 +7326,7 @@
 - added more Polish translation (thank you @Olhur)
 
 ## 1.2.7
-- fixed a problem after moving notes to an other folder
+- fixed a problem after moving notes to another folder
   (for [#117](https://github.com/pbek/QOwnNotes/issues/117))
 - added more Portuguese translation (thank you mlimacarlos)
 
@@ -4903,9 +7449,9 @@
 - added more Hungarian translation (thank you Fabijenna)
 - you can now **paste html** in notes with <kbd>Ctrl</kbd> + <kbd>⇧</kbd> + 
   <kbd>V</kbd> (for [#112](https://github.com/pbek/QOwnNotes/issues/112))
-  - html tags like `strong`, `b`, `em`, `i`, `a`, `h1`, `h2`, `h3`, `h4`, 
-    `h5`, `br` will be translated to markdown
-  - images from `img` tags will be downloaded and inserted as markdown images
+    - html tags like `strong`, `b`, `em`, `i`, `a`, `h1`, `h2`, `h3`, `h4`, 
+      `h5`, `br` will be translated to markdown
+    - images from `img` tags will be downloaded and inserted as markdown images
 
 ## 1.1.5
 - added more German, Hungarian and Dutch translation (thank you Fabijenna)
@@ -5022,7 +7568,7 @@
 ## 1.0.4
 - added a button to insert a markdown code block at the current cursor position
   (for [#82](https://github.com/pbek/QOwnNotes/issues/82))
-  - you can use 'Ctrl + Shift + C` as shortcut
+    - you can use 'Ctrl + Shift + C` as shortcut
 - fixed a display problem with the update notification button under Windows
   (for [#90](https://github.com/pbek/QOwnNotes/issues/90))
 - added more German translation
@@ -5039,7 +7585,7 @@
 
 ## 1.0.2
 - you can now set a note bookmark with `Ctrl + ⇧ + 0..9` on slot 0..9
-  - use `Ctrl + 0..9` jump to the bookmark on slot 0..9
+    - use `Ctrl + 0..9` jump to the bookmark on slot 0..9
 - fixed a markdown highlighting problem with certain characters like `»` and `·`
   (for [#73](https://github.com/pbek/QOwnNotes/issues/73))
 - added more German and Russian translation (thank you @calis2002 and @elnull)
@@ -5087,9 +7633,9 @@
   managing `qownnotes` until now)
 - QOwnNotes now uses default **freedesktop theme icons**
   (for [#39](https://github.com/pbek/QOwnNotes/issues/39))
-  - if the operating system hasn't a theme set (like for Windows and OS X)
-    there is a bundled fallback theme with Breeze icons that will be used 
-  - this allows the usage of QOwnNotes with **dark system themes**
+    - if the operating system hasn't a theme set (like for Windows and OS X)
+      there is a bundled fallback theme with Breeze icons that will be used 
+    - this allows the usage of QOwnNotes with **dark system themes**
 
 ## 0.96
 - fixed the debug output in the *Debug* settings tab
@@ -5153,7 +7699,7 @@
     - by default the system language will be used
     - the fallback language is English
 - added **German translation** from @calis2002, thanks a lot for the great job!
-- if you feel like translating QOwnNotes to an other language please read
+- if you feel like translating QOwnNotes to another language please read
  [How can I help to translate QOwnNotes?](https://www.qownnotes.org/Knowledge-base/How-can-I-help-to-translate-QOwnNotes)
 - fixed a character in link titles that was disorienting the markdown 
   highlighter
@@ -5302,7 +7848,7 @@
 ## 0.68
 - fixed a problem with creating new todo items after changing the enabled todo lists
 - fixed a problem with newly created todo items that are set to completed
-- fixed an other problem with storing todo items with a reminder and an empty description
+- fixed another problem with storing todo items with a reminder and an empty description
 - fixed some design glitches in the todo list
 - if a todo item has no priority it now counts as medium priority
 - added a button to reload the todo list from the server to the todo list dialog
@@ -5385,7 +7931,7 @@
 
 ## 0.54
 - fixed a problem with canceling the notes folder selection dialog
-- the note history is now cleared when switching to an other notes directory
+- the note history is now cleared when switching to another notes directory
 - when moving forward and back in the note history the search field will be cleared so that all notes are visible
 
 ## 0.53
@@ -5456,7 +8002,7 @@
 - improvements and fixes in the settings connection troubleshooter
 - minimum QOwnNotesAPI version is now detected
 - detection for ownCloud core apps "Versions" and "Deleted files" (needs QOwnNotesAPI v0.3.1)
-- you can open your ownCLoud server Apps page from the settings dialog
+- you can open your ownCloud server Apps page from the settings dialog
 
 ## 0.41
 - added an interactive ownCloud server connection troubleshooting helper and other improvements to the settings page

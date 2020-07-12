@@ -1,11 +1,12 @@
 #include "filedialog.h"
+
 #include <QDebug>
 #include <QSettings>
 
-FileDialog::FileDialog(QString name) {
+FileDialog::FileDialog(const QString& name) {
     if (!name.isEmpty()) {
-        setObjectName("FileDialog-" + name);
-        _generalSettingsKey = "FileDialog/LastPath";
+        setObjectName(QStringLiteral("FileDialog-") + name);
+        _generalSettingsKey = QStringLiteral("FileDialog/LastPath");
         _settingsKey = _generalSettingsKey + "-" + name;
 
         QSettings settings;
@@ -20,7 +21,7 @@ FileDialog::FileDialog(QString name) {
 
         fileInfo = QFileInfo(path);
 
-//        qDebug() << __func__ << " - 'path': " << path;
+        //        qDebug() << __func__ << " - 'path': " << path;
 
         // if there are still problems with the directory path use the home
         // directory
@@ -31,10 +32,10 @@ FileDialog::FileDialog(QString name) {
         setDirectory(path);
 
         // store the directory for the next time the dialog opens
-        connect(this, SIGNAL(fileSelected(QString)),
-                this, SLOT(storeDirectory(QString)));
-        connect(this, SIGNAL(filesSelected(QStringList)),
-                this, SLOT(storeDirectory(QStringList)));
+        connect(this, SIGNAL(fileSelected(QString)), this,
+                SLOT(storeDirectory(QString)));
+        connect(this, SIGNAL(filesSelected(QStringList)), this,
+                SLOT(storeDirectory(QStringList)));
     }
 }
 
@@ -61,7 +62,7 @@ void FileDialog::storeDirectory(QString path) {
     settings.setValue(_generalSettingsKey, path);
 }
 
-void FileDialog::storeDirectory(QStringList files) {
+void FileDialog::storeDirectory(const QStringList& files) {
     if (files.count() > 0) {
         storeDirectory(files.at(0));
     }
@@ -72,5 +73,5 @@ void FileDialog::storeDirectory(QStringList files) {
  */
 QString FileDialog::selectedFile() {
     QStringList fileNames = selectedFiles();
-    return fileNames.count() > 0 ? fileNames.at(0) : "";
+    return fileNames.count() > 0 ? fileNames.at(0) : QString();
 }

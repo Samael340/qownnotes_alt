@@ -4,14 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets sql svg network xml xmlpatterns printsupport qml websockets
+QT       += core gui widgets sql svg network xml xmlpatterns printsupport qml websockets concurrent
 
 # quick is enabled for more scripting options
 # Windows and macOS seem to ignore that
 #QT       += quick
 
-# Sonnet support if we can get it to run in the future
-#QT += SonnetCore SonnetUi
+CONFIG += with_aspell
 
 TARGET = QOwnNotes
 TEMPLATE = app
@@ -45,27 +44,60 @@ TRANSLATIONS = languages/QOwnNotes_en.ts \
     languages/QOwnNotes_ceb.ts \
     languages/QOwnNotes_hi.ts \
     languages/QOwnNotes_hil.ts \
-    languages/QOwnNotes_ur.ts
+    languages/QOwnNotes_ur.ts \
+    languages/QOwnNotes_fi.ts \
+    languages/QOwnNotes_el.ts \
+    languages/QOwnNotes_gl.ts \
+    languages/QOwnNotes_no.ts \
+    languages/QOwnNotes_da.ts \
+    languages/QOwnNotes_ro.ts \
+    languages/QOwnNotes_sl.ts \
+    languages/QOwnNotes_sk.ts \
+    languages/QOwnNotes_eu.ts \
+    languages/QOwnNotes_sr.ts \
+    languages/QOwnNotes_fa.ts \
+    languages/QOwnNotes_ha.ts \
+    languages/QOwnNotes_bg.ts \
+    languages/QOwnNotes_is.ts \
+    languages/QOwnNotes_pa.ts \
+    languages/QOwnNotes_he.ts \
+    languages/QOwnNotes_sn.ts \
+    languages/QOwnNotes_km.ts \
+    languages/QOwnNotes_si.ts \
+    languages/QOwnNotes_zu.ts \
+    languages/QOwnNotes_xh.ts \
+    languages/QOwnNotes_ms.ts \
+    languages/QOwnNotes_mi.ts \
+    languages/QOwnNotes_ga.ts \
+    languages/QOwnNotes_uz.ts \
+    languages/QOwnNotes_vi.ts \
+    languages/QOwnNotes_lv.ts \
+    languages/QOwnNotes_ku.ts \
+    languages/QOwnNotes_lt.ts \
+    languages/QOwnNotes_bs.ts \
+    languages/QOwnNotes_mk.ts \
+    languages/QOwnNotes_ko.ts \
+    languages/QOwnNotes_et.ts \
+    languages/QOwnNotes_sq.ts
 
 CODECFORTR = UTF-8
 CONFIG += c++11
 
-INCLUDEPATH += $$PWD/libraries
+INCLUDEPATH += $$PWD/libraries $$PWD/libraries/diff_match_patch
 
 SOURCES += main.cpp\
+    dialogs/attachmentdialog.cpp \
+    entities/cloudconnection.cpp \
+    helpers/codetohtmlconverter.cpp \
+    helpers/qownspellchecker.cpp \
         mainwindow.cpp \
     libraries/diff_match_patch/diff_match_patch.cpp \
-    libraries/hoedown/html.c \
-    libraries/hoedown/autolink.c \
-    libraries/hoedown/buffer.c \
-    libraries/hoedown/document.c \
-    libraries/hoedown/escape.c \
-    libraries/hoedown/html_blocks.c \
-    libraries/hoedown/stack.c \
-    libraries/hoedown/version.c \
     libraries/simplecrypt/simplecrypt.cpp \
     libraries/versionnumber/versionnumber.cpp \
     libraries/botan/botanwrapper.cpp \
+    libraries/md4c/md4c/md4c.c \
+    libraries/md4c/md2html/render_html.c \
+    libraries/md4c/md2html/entity.c \
     dialogs/aboutdialog.cpp \
     dialogs/linkdialog.cpp \
     dialogs/notediffdialog.cpp \
@@ -91,7 +123,10 @@ SOURCES += main.cpp\
     helpers/toolbarcontainer.cpp \
     helpers/qownnotesmarkdownhighlighter.cpp \
     helpers/fakevimproxy.cpp \
+    helpers/flowlayout.cpp \
     services/databaseservice.cpp \
+    threads/scriptthread.cpp \
+    widgets/graphicsview.cpp \
     widgets/qownnotesmarkdowntextedit.cpp \
     dialogs/passworddialog.cpp \
     services/metricsservice.cpp \
@@ -123,29 +158,36 @@ SOURCES += main.cpp\
     dialogs/notedialog.cpp \
     dialogs/filedialog.cpp \
     dialogs/scriptrepositorydialog.cpp \
+    dialogs/dictionarymanagerdialog.cpp \
     widgets/scriptsettingwidget.cpp \
     api/scriptapi.cpp \
     widgets/label.cpp \
     widgets/lineedit.cpp \
     widgets/qtexteditsearchwidget.cpp \
     widgets/scriptlistwidget.cpp \
+    widgets/notefolderlistwidget.cpp \
     widgets/notetreewidgetitem.cpp \
-    widgets/layoutwidget.cpp
+    widgets/layoutwidget.cpp \
+    dialogs/serverbookmarksimportdialog.cpp \
+    dialogs/websockettokendialog.cpp \
+    dialogs/imagedialog.cpp
 
 HEADERS  += mainwindow.h \
     build_number.h \
+    dialogs/attachmentdialog.h \
+    entities/cloudconnection.h \
+    helpers/LanguageCache.h \
+    helpers/codetohtmlconverter.h \
+    helpers/qownspellchecker.h \
+    threads/scriptthread.h \
     version.h \
     libraries/diff_match_patch/diff_match_patch.h \
-    libraries/hoedown/html.h \
-    libraries/hoedown/autolink.h \
-    libraries/hoedown/buffer.h \
-    libraries/hoedown/document.h \
-    libraries/hoedown/escape.h \
-    libraries/hoedown/stack.h \
-    libraries/hoedown/version.h \
     libraries/simplecrypt/simplecrypt.h \
     libraries/versionnumber/versionnumber.h \
     libraries/botan/botanwrapper.h \
+    libraries/md4c/md4c/md4c.h \
+    libraries/md4c/md2html/render_html.h \
+    libraries/md4c/md2html/entity.h \
     entities/notehistory.h \
     entities/note.h \
     entities/trashitem.h \
@@ -173,8 +215,10 @@ HEADERS  += mainwindow.h \
     helpers/toolbarcontainer.h \
     helpers/qownnotesmarkdownhighlighter.h \
     helpers/fakevimproxy.h \
+    helpers/flowlayout.h \
     services/databaseservice.h \
     release.h \
+    widgets/graphicsview.h \
     widgets/qownnotesmarkdowntextedit.h \
     dialogs/passworddialog.h \
     services/metricsservice.h \
@@ -208,16 +252,23 @@ HEADERS  += mainwindow.h \
     dialogs/notedialog.h \
     dialogs/filedialog.h \
     dialogs/scriptrepositorydialog.h \
+    dialogs/dictionarymanagerdialog.h \
     widgets/scriptsettingwidget.h \
     api/scriptapi.h \
     widgets/label.h \
     widgets/lineedit.h \
     widgets/qtexteditsearchwidget.h \
     widgets/scriptlistwidget.h \
+    widgets/notefolderlistwidget.h \
     widgets/notetreewidgetitem.h \
-    widgets/layoutwidget.h
+    widgets/layoutwidget.h \
+    dialogs/serverbookmarksimportdialog.h \
+    dialogs/websockettokendialog.h \
+    dialogs/imagedialog.h
 
 FORMS    += mainwindow.ui \
+    dialogs/attachmentdialog.ui \
+    dialogs/imagedialog.ui \
     dialogs/notediffdialog.ui \
     dialogs/aboutdialog.ui \
     dialogs/updatedialog.ui \
@@ -241,10 +292,13 @@ FORMS    += mainwindow.ui \
     dialogs/tabledialog.ui \
     dialogs/notedialog.ui \
     dialogs/scriptrepositorydialog.ui \
+    dialogs/dictionarymanagerdialog.ui \
     widgets/qtexteditsearchwidget.ui \
     widgets/scriptsettingwidget.ui \
     widgets/notetreewidgetitem.ui \
-    widgets/layoutwidget.ui
+    widgets/layoutwidget.ui \
+    dialogs/serverbookmarksimportdialog.ui \
+    dialogs/websockettokendialog.ui
 
 RESOURCES += \
     images.qrc \
@@ -263,9 +317,10 @@ include(libraries/qkeysequencewidget/qkeysequencewidget/qkeysequencewidget.pri)
 include(libraries/qttoolbareditor/toolbar_editor.pri)
 include(libraries/fakevim/fakevim/fakevim.pri)
 include(libraries/singleapplication/singleapplication.pri)
+include(libraries/sonnet/src/core/sonnet-core.pri)
+include(libraries/qhotkey/qhotkey.pri)
 
 unix {
-
   isEmpty(PREFIX) {
     PREFIX = /usr
   }
@@ -286,7 +341,7 @@ unix {
   desktop.path = $$DATADIR/applications
   desktop.files += PBE.QOwnNotes.desktop
 
-  i18n.path = $$DATADIR/QOwnNotes/languages
+  i18n.path = $$DATADIR/qt5/translations
   i18n.files += languages/*.qm
 
   icons.path = $$DATADIR/icons/hicolor
@@ -305,3 +360,7 @@ CONFIG(debug, debug|release) {
 }
 
 DEFINES += QAPPLICATION_CLASS=QApplication
+
+DISTFILES += \
+    ../README.md \
+    ../CHANGELOG.md

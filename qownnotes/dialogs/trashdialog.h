@@ -1,34 +1,34 @@
 #ifndef TRASHDIALOG_H
 #define TRASHDIALOG_H
 
-#include "mainwindow.h"
 #include "masterdialog.h"
-
-#include <QAbstractButton>
-#include <QDialog>
-#include <QSplitter>
-#include <QJSValue>
 
 namespace Ui {
 class TrashDialog;
 }
 
-class TrashDialog : public MasterDialog
-{
+class MainWindow;
+class QAbstractButton;
+class QJSValue;
+class QSplitter;
+
+class TrashDialog : public MasterDialog {
     Q_OBJECT
 
-public:
-    explicit TrashDialog(QJSValue notes, MainWindow *mainWindow,
+   public:
+    explicit TrashDialog(const QJSValue &notes, MainWindow *mainWindow,
                          QWidget *parent = 0);
     ~TrashDialog();
 
-private slots:
+   private slots:
     void storeSettings();
     void on_trashListWidget_currentRowChanged(int currentRow);
     void dialogButtonClicked(QAbstractButton *button);
-private:
+    void on_searchLineEdit_textChanged(const QString &arg1);
+
+   private:
     enum ButtonRole {
-        Unset,  // nothing was selected
+        Unset,    // nothing was selected
         Download,
         RestoreOnServer,
         Cancel
@@ -42,4 +42,4 @@ private:
     void setupMainSplitter();
 };
 
-#endif // TRASHDIALOG_H
+#endif    // TRASHDIALOG_H

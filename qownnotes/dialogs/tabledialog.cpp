@@ -1,41 +1,69 @@
 #include "tabledialog.h"
-#include "ui_tabledialog.h"
-#include <QDebug>
+
 #include <mainwindow.h>
-#include "libraries/qtcsv/src/include/reader.h"
+
+#include <QDebug>
+#include <QClipboard>
+
 #include "filedialog.h"
+#include "libraries/qtcsv/src/include/reader.h"
+#include "ui_tabledialog.h"
+#include "widgets/qownnotesmarkdowntextedit.h"
 
-
-TableDialog::TableDialog(QWidget *parent) :
-        MasterDialog(parent),
-    ui(new Ui::TableDialog) {
+TableDialog::TableDialog(QWidget *parent)
+    : MasterDialog(parent), ui(new Ui::TableDialog) {
     ui->setupUi(this);
+
+    // ignore the return key so we can better edit text in the table
+    setIgnoreReturnKey(true);
 
     ui->tabWidget->setCurrentIndex(Tab::CreateTab);
     ui->createTableWidget->setColumnCount(50);
     ui->createTableWidget->setRowCount(100);
     ui->csvFileTextEdit->setVisible(false);
+    _tempFile = nullptr;
 }
 
-TableDialog::~TableDialog() {
-    delete ui;
-}
+TableDialog::~TableDialog() { delete ui; }
 
 /**
  * Updates the row and column spin boxes with the selection
  */
 void TableDialog::on_createTableWidget_itemSelectionChanged() {
+    /*
     // clear the spin boxes and return if nothing was selected
     if (ui->createTableWidget->selectedRanges().count() == 0) {
         ui->rowSpinBox->clear();
         ui->columnSpinBox->clear();
         return;
     }
+    */
 
-    QTableWidgetSelectionRange range = ui->createTableWidget->
-            selectedRanges().first();
-    ui->rowSpinBox->setValue(range.rowCount());
-    ui->columnSpinBox->setValue(range.columnCount());
+    updateMaxItems();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    QTableWidgetSelectionRange range =
+        ui->createTableWidget->selectedRanges().constFirst();
+#else
+    QTableWidgetSelectionRange range =
+        ui->createTableWidget->selectedRanges().first();
+#endif
+
+    ui->rowSpinBox->setValue(std::max(_maxRows, range.rowCount()));
+    ui->columnSpinBox->setValue(std::max(_maxColumns, range.columnCount()));
+}
+
+void TableDialog::updateMaxItems() {
+    for (int row = 0; row < ui->createTableWidget->rowCount(); row++) {
+        for (int col = 0; col < ui->createTableWidget->columnCount(); col++) {
+            auto item = ui->createTableWidget->item(row, col);
+            bool hasText = item != nullptr ? !item->text().isEmpty() : false;
+
+            if (hasText) {
+                _maxRows = std::max(_maxRows, row + 1);
+                _maxColumns = std::max(_maxColumns, col + 1);
+            }
+        }
+    }
 }
 
 /**
@@ -60,32 +88,37 @@ void TableDialog::on_buttonBox_accepted() {
  * Imports the CSV file
  */
 void TableDialog::importCSV() {
-    QString filePath = ui->fileLineEdit->text();
+    QString filePath = _tempFile != nullptr ?
+                _tempFile->fileName() : ui->fileLineEdit->text();
+
     if (filePath.isEmpty()) {
         return;
     }
 
-    QString text;
+    // start with two newlines to make sure that a proper table is inserted
+    QString text = QStringLiteral("\n\n");
+    QString separator = ui->separatorComboBox->currentText();
+    separator.replace("\\t", "\t");
 
     // read data from file
     QList<QStringList> readData = QtCSV::Reader::readToList(
-            filePath, ui->separatorComboBox->currentText(),
-            ui->textDelimiterComboBox->currentText());
+        filePath, separator,
+        ui->textDelimiterComboBox->currentText());
 
     // loop through all rows
     for (int row = 0; row < readData.size(); ++row) {
         QStringList data = readData.at(row);
 
         // add a table row
-        text += "| " + data.join(" | ") + " |\n";
+        text += "| " + data.join(QStringLiteral(" | ")) + " |\n";
 
         // add the headline separator if needed
         if ((row == 0) && ui->firstLineHeadlineCheckBox->isChecked()) {
             for (int col = 0; col < data.count(); col++) {
-                text += "| --- ";
+                text += QLatin1String("| --- ");
             }
 
-            text += "|\n";
+            text += QLatin1String("|\n");
         }
     }
 
@@ -97,32 +130,37 @@ void TableDialog::importCSV() {
  * Creates the markdown table
  */
 void TableDialog::createMarkdownTable() {
-    if ((ui->rowSpinBox->value() == 0) ||
-        (ui->columnSpinBox->value() == 0)) {
+    if ((ui->rowSpinBox->value() == 0) || (ui->columnSpinBox->value() == 0)) {
         return;
     }
 
-    QString text;
-    QString space = QString(" ").repeated(
-            ui->columnWidthSpinBox->value());
-    QString headline = QString("-").repeated(
-            ui->separatorColumnWidthSpinBox->value());
+    // start with two newlines to make sure that a proper table is inserted
+    QString text = QStringLiteral("\n\n");
+    int colWidth = ui->columnWidthSpinBox->value();
+    QString space = QStringLiteral(" ").repeated(colWidth);
+    QString headline =
+        QStringLiteral("-").repeated(ui->separatorColumnWidthSpinBox->value());
 
     for (int row = 0; row < ui->rowSpinBox->value(); row++) {
         // add all columns of the row
         for (int col = 0; col < ui->columnSpinBox->value(); col++) {
-            text += "|" + space;
+            auto item = ui->createTableWidget->item(row, col);
+            QString itemText = item != nullptr ? item->text() : QString();
+            text +=
+                QStringLiteral("|") +
+                (itemText.isEmpty() ? space
+                                    : itemText.leftJustified(colWidth, ' '));
         }
 
-        text += "|\n";
+        text += QStringLiteral("|\n");
 
         // add the headline separator row
         if ((row == 0) && ui->headlineCheckBox->isChecked()) {
             for (int col = 0; col < ui->columnSpinBox->value(); col++) {
-                text += "|" + headline;
+                text += QStringLiteral("|") + headline;
             }
 
-            text += "|\n";
+            text += QStringLiteral("|\n");
         }
     }
 
@@ -147,7 +185,7 @@ void TableDialog::on_fileButton_clicked() {
     ui->csvFileTextEdit->clear();
     QStringList filters = QStringList() << tr("CSV files") + " (*.csv)"
                                         << tr("All files") + " (*)";
-    FileDialog dialog("CSVTableImport");
+    FileDialog dialog(QStringLiteral("CSVTableImport"));
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setNameFilters(filters);
@@ -169,7 +207,78 @@ void TableDialog::on_fileButton_clicked() {
 
             // load the file into the file text edit
             ui->csvFileTextEdit->show();
-            ui->csvFileTextEdit->setPlainText(file.readAll());
+            const QByteArray &text = file.readAll();
+            ui->csvFileTextEdit->setPlainText(text);
+
+            updateSeparator(text);
+
+            _tempFile = nullptr;
+        }
+    }
+}
+
+void TableDialog::on_createTableWidget_itemChanged(QTableWidgetItem *item) {
+    if (item == nullptr) {
+        return;
+    }
+
+    int columns = item->column() + 1;
+    if (columns > ui->columnSpinBox->value()) {
+        ui->columnSpinBox->setValue(columns);
+    }
+
+    int rows = item->row() + 1;
+    if (rows > ui->rowSpinBox->value()) {
+        ui->rowSpinBox->setValue(rows);
+    }
+
+    int length = item->text().length();
+    if (length > ui->columnWidthSpinBox->value()) {
+        ui->columnWidthSpinBox->setValue(length);
+        ui->separatorColumnWidthSpinBox->setValue(length);
+    }
+}
+
+void TableDialog::on_clipboardButton_clicked() {
+    QClipboard *clipboard = QApplication::clipboard();
+    QString text = clipboard->text().trimmed();
+
+    // set text from clipboard
+    if (!text.isEmpty()) {
+        ui->fileLineEdit->clear();
+        ui->csvFileTextEdit->show();
+        ui->csvFileTextEdit->setPlainText(text);
+
+        _tempFile = new QTemporaryFile(QDir::tempPath() + QDir::separator() +
+                               QStringLiteral("table-XXXXXX.csv"));
+
+        if (!_tempFile->open()) {
+            _tempFile = nullptr;
+
+            return;
+        }
+
+        updateSeparator(text);
+
+        // write file data to the temporary file
+        _tempFile->write(text.toLatin1());
+
+        // close the file so the CSV reader can access it
+        _tempFile->close();
+    }
+}
+
+void TableDialog::updateSeparator(
+    const QString &text) const {
+    const QStringList list = { "\t", ";", "," };
+
+    foreach(const QString &character, list) {
+        if (text.contains(character)) {
+            // set separator if found
+            ui->separatorComboBox->setCurrentText(
+                character == "\t" ? "\\t" : character);
+
+            return;
         }
     }
 }

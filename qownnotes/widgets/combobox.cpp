@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,15 +11,16 @@
  * for more details.
  */
 
-#include <QDebug>
-#include <QApplication>
 #include "combobox.h"
+
+#include <QApplication>
+#include <QDebug>
 
 ComboBox::ComboBox(QWidget *parent) : QComboBox(parent) {
     // we (sadly) have to watch for all focus changes of the whole app,
     // there is no other way I know of that works reliably with QComboBox
-    connect(qApp, SIGNAL(focusChanged(QWidget *, QWidget *)),
-            this, SLOT(onFocusChanged(QWidget *, QWidget *)));
+    connect(qApp, SIGNAL(focusChanged(QWidget *, QWidget *)), this,
+            SLOT(onFocusChanged(QWidget *, QWidget *)));
 }
 
 /**

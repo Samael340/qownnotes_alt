@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,19 +14,18 @@
 
 #pragma once
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
+#include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
-QT_FORWARD_DECLARE_CLASS(QWebSocket)
-QT_FORWARD_DECLARE_CLASS(QString)
+class QWebSocketServer;
+class QWebSocket;
+class QString;
+class WebSocketTokenDialog;
 
-class WebSocketServerService : public QObject
-{
-Q_OBJECT
-public:
+class WebSocketServerService : public QObject {
+    Q_OBJECT
+   public:
     explicit WebSocketServerService(quint16 port = 0,
-            QObject *parent = nullptr);
+                                    QObject *parent = nullptr);
     ~WebSocketServerService() override;
 
     quint16 getPort();
@@ -39,13 +38,31 @@ public:
 
     void close();
 
-private slots:
+    static QString getBookmarksTag();
+
+    static QString getBookmarksNoteName();
+
+    QString flashMessageJsonText(const QString &message);
+
+    static QJsonArray createBookmarks(const QJsonObject &jsonObject);
+
+   private slots:
     void onNewConnection();
     void processMessage(const QString &message);
     void socketDisconnected();
 
-private:
+   private:
     QWebSocketServer *m_pWebSocketServer;
     QList<QWebSocket *> m_clients;
     quint16 m_port;
+
+    QString getBookmarksJsonText() const;
+
+    QString getNoteFolderSwitchedJsonText(bool switched) const;
+
+    QString getTokenQueryJsonText() const;
+
+#ifndef INTEGRATION_TESTS
+    WebSocketTokenDialog *_webSocketTokenDialog;
+#endif
 };

@@ -1,25 +1,31 @@
 #pragma once
 
+#include <entities/script.h>
+
 #include "masterdialog.h"
-#include <QNetworkReply>
-#include <QNetworkAccessManager>
-#include <QSplitter>
-#include <QTreeWidgetItem>
 
 namespace Ui {
 class ScriptRepositoryDialog;
 }
 
-class ScriptRepositoryDialog : public MasterDialog
-{
+class QSplitter;
+class QNetworkReply;
+class QNetworkAccessManager;
+class QTreeWidgetItem;
+
+class ScriptRepositoryDialog : public MasterDialog {
     Q_OBJECT
 
-public:
-    explicit ScriptRepositoryDialog(QWidget *parent = 0,
+   public:
+    explicit ScriptRepositoryDialog(QWidget *parent = nullptr,
                                     bool checkForUpdates = false);
     ~ScriptRepositoryDialog();
 
-private slots:
+    Script getLastInstalledScript();
+   signals:
+    void updateFound();
+
+   private slots:
     void on_searchScriptEdit_returnPressed();
 
     void slotReplyFinished(QNetworkReply *);
@@ -35,7 +41,7 @@ private slots:
 
     void on_loadMoreScriptsButton_clicked();
 
-private:
+   private:
     Ui::ScriptRepositoryDialog *ui;
     QNetworkAccessManager *_networkManager;
     QString _codeSearchUrl;
@@ -46,6 +52,7 @@ private:
     int _totalCount = 0;
     static const int _itemsPerPage = 30;
     QString _searchString;
+    Script _lastInstalledScript;
 
     void searchScript(int page = 1);
 
@@ -55,7 +62,7 @@ private:
 
     void storeSettings();
 
-    void parseInfoQMLReply(const QByteArray &arr) const;
+    void parseInfoQMLReply(const QByteArray &arr);
 
     void enableOverview(bool enable);
 

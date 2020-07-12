@@ -1,32 +1,36 @@
-#ifndef MASTERDIALOG_H
-#define MASTERDIALOG_H
+#pragma once
 
 #include <QDialog>
+class QKeyEvent;
 
-class MasterDialog : public QDialog
-{
-public:
-    explicit MasterDialog(QWidget *parent = 0);
+class MasterDialog : public QDialog {
+   public:
+    explicit MasterDialog(QWidget *parent = nullptr);
 
-public Q_SLOTS:
-    virtual int exec();
+   public Q_SLOTS:
+    virtual int exec() override;
 
     virtual void show();
 
-    virtual void open();
+    virtual void open() override;
 
-protected:
-    void resizeEvent(QResizeEvent *event);
+   protected:
+    bool _ignoreReturnKey = false;
+
+    void resizeEvent(QResizeEvent *event) override;
 
     const QString getGeometrySettingKey() const;
 
     void storeGeometrySettings() const;
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
     void handleOpenDialog();
-};
 
-#endif // MASTERDIALOG_H
+    virtual void keyPressEvent(QKeyEvent *keyEvent) override;
+
+   public:
+    void setIgnoreReturnKey(bool ignore);
+};

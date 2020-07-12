@@ -1,16 +1,17 @@
 #include "notediffdialog.h"
-#include "ui_notediffdialog.h"
-#include <QPushButton>
-#include <QDialogButtonBox>
+
 #include <QAbstractButton>
+#include <QButtonGroup>
 #include <QDebug>
+#include <QDialogButtonBox>
+#include <QPushButton>
 #include <QSettings>
 #include <QTimer>
-#include <QButtonGroup>
 
-NoteDiffDialog::NoteDiffDialog(QWidget *parent, QString html) :
-        MasterDialog(parent),
-        ui(new Ui::NoteDiffDialog) {
+#include "ui_notediffdialog.h"
+
+NoteDiffDialog::NoteDiffDialog(QWidget *parent, const QString &html)
+    : MasterDialog(parent), ui(new Ui::NoteDiffDialog) {
     ui->setupUi(this);
 
     _notificationButtonGroup = new QButtonGroup(this);
@@ -21,8 +22,7 @@ NoteDiffDialog::NoteDiffDialog(QWidget *parent, QString html) :
     _notificationNoneCheckBox = new QCheckBox(this);
     _notificationNoneCheckBox->setHidden(true);
     _notificationButtonGroup->addButton(_notificationNoneCheckBox);
-    connect(_notificationButtonGroup,
-            SIGNAL(buttonPressed(QAbstractButton *)),
+    connect(_notificationButtonGroup, SIGNAL(buttonPressed(QAbstractButton *)),
             this, SLOT(notificationButtonGroupPressed(QAbstractButton *)));
 
     this->ui->textEdit->setHtml(html);
@@ -30,33 +30,31 @@ NoteDiffDialog::NoteDiffDialog(QWidget *parent, QString html) :
     QPushButton *button;
     ui->buttonBox->clear();
 
-    button = new QPushButton(tr("Yes"));
+    button = new QPushButton(tr("Yes"), ui->buttonBox);
     button->setProperty("ActionRole", Reload);
     button->setDefault(false);
     ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
 
-    button = new QPushButton(tr("No"));
+    button = new QPushButton(tr("No"), ui->buttonBox);
     button->setProperty("ActionRole", Overwrite);
     button->setDefault(false);
     ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
 
-//    button = new QPushButton(tr("&Ignore changes"));
-//    button->setProperty("ActionRole", Ignore);
-//    button->setDefault(true);
-//    ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
-//
-//    button = new QPushButton(tr("&Cancel"));
-//    button->setProperty("ActionRole", Cancel);
-//    button->setDefault(false);
-//    ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
+    //    button = new QPushButton(tr("&Ignore changes"));
+    //    button->setProperty("ActionRole", Ignore);
+    //    button->setDefault(true);
+    //    ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
+    //
+    //    button = new QPushButton(tr("&Cancel"));
+    //    button->setProperty("ActionRole", Cancel);
+    //    button->setDefault(false);
+    //    ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
 
     connect(this->ui->buttonBox, SIGNAL(clicked(QAbstractButton *)),
             SLOT(dialogButtonClicked(QAbstractButton *)));
 }
 
-NoteDiffDialog::~NoteDiffDialog() {
-    delete ui;
-}
+NoteDiffDialog::~NoteDiffDialog() { delete ui; }
 
 /**
  * Check the _notificationNoneCheckBox when the checkboxes should all be
@@ -64,11 +62,9 @@ NoteDiffDialog::~NoteDiffDialog() {
  *
  * @param button
  */
-void NoteDiffDialog::notificationButtonGroupPressed(
-        QAbstractButton *button) {
+void NoteDiffDialog::notificationButtonGroupPressed(QAbstractButton *button) {
     if (button->isChecked()) {
-        QTimer::singleShot(100, this,
-                           SLOT(notificationNoneCheckBoxCheck()));
+        QTimer::singleShot(100, this, SLOT(notificationNoneCheckBoxCheck()));
     }
 }
 
@@ -85,18 +81,18 @@ void NoteDiffDialog::dialogButtonClicked(QAbstractButton *button) {
     // set the setting to ignore all external changes
     if (ui->ignoreAllExternalChangesCheckBox->isChecked()) {
         QSettings settings;
-        settings.setValue("ignoreAllExternalModifications", true);
+        settings.setValue(QStringLiteral("ignoreAllExternalModifications"),
+                          true);
     }
 
     // set the setting to accept all external changes
     if (ui->acceptAllExternalChangesCheckBox->isChecked()) {
         QSettings settings;
-        settings.setValue("acceptAllExternalModifications", true);
+        settings.setValue(QStringLiteral("acceptAllExternalModifications"),
+                          true);
     }
 
     this->close();
 }
 
-int NoteDiffDialog::resultActionRole() {
-    return this->actionRole;
-}
+int NoteDiffDialog::resultActionRole() { return this->actionRole; }

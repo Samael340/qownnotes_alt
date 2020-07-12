@@ -1,15 +1,15 @@
 #ifndef NOTEHISTORY_H
 #define NOTEHISTORY_H
 
-#include <QPlainTextEdit>
 #include <QDataStream>
-#include "note.h"
 
+class Note;
+class QPlainTextEdit;
 
-class NoteHistoryItem
-{
-public:
-    explicit NoteHistoryItem(Note *note = NULL, QPlainTextEdit *textEdit = NULL);
+class NoteHistoryItem {
+   public:
+    explicit NoteHistoryItem(Note *note = nullptr,
+                             QPlainTextEdit *textEdit = nullptr);
     explicit NoteHistoryItem(QString noteName, QString noteSubFolderPathData,
                              int cursorPosition,
                              float relativeScrollBarPosition);
@@ -18,12 +18,13 @@ public:
     QString getNoteSubFolderPathData() const;
     int getCursorPosition() const;
     float getRelativeScrollBarPosition() const;
-    Note getNote();
-    bool isNoteValid();
-    bool operator ==(const NoteHistoryItem &item) const;
-    void restoreTextEditPosition(QPlainTextEdit *textEdit);
+    Note getNote() const;
+    bool isNoteValid() const;
+    bool operator==(const NoteHistoryItem &item) const;
+    void restoreTextEditPosition(QPlainTextEdit *textEdit) const;
+    bool isValid() const;
 
-private:
+   private:
     QString _noteName;
     QString _noteSubFolderPathData;
     int _cursorPosition;
@@ -36,27 +37,34 @@ QDataStream &operator<<(QDataStream &out, const NoteHistoryItem &item);
 QDataStream &operator>>(QDataStream &in, NoteHistoryItem &item);
 Q_DECLARE_METATYPE(NoteHistoryItem)
 
-class NoteHistory
-{
-private:
+class NoteHistory {
+   private:
     QList<NoteHistoryItem> *noteHistory;
     int currentIndex;
     NoteHistoryItem currentHistoryItem;
-    int lastIndex();
+    int lastIndex() const;
 
-public:
-    explicit NoteHistory();
+   public:
+    NoteHistory();
+    // copy
+    NoteHistory(const NoteHistory &);
+    NoteHistory &operator=(const NoteHistory &rhs);
+    // move
+    NoteHistory(NoteHistory &&) noexcept;
+    NoteHistory &operator=(NoteHistory &&rhs) noexcept;
+    ~NoteHistory();
+
     void add(Note note, QPlainTextEdit *textEdit);
     friend QDebug operator<<(QDebug dbg, const NoteHistory &history);
     bool back();
     bool forward();
-    bool isEmpty();
-    NoteHistoryItem getCurrentHistoryItem();
+    bool isEmpty() const;
+    NoteHistoryItem getCurrentHistoryItem() const;
     void updateCursorPositionOfNote(Note note, QPlainTextEdit *textEdit);
     void clear();
-    NoteHistoryItem getLastItemOfNote(Note note);
+    NoteHistoryItem getLastItemOfNote(const Note &note) const;
     QList<NoteHistoryItem> getNoteHistoryItems() const;
-    void addNoteHistoryItem(NoteHistoryItem item);
+    void addNoteHistoryItem(const NoteHistoryItem &item);
     void storeForCurrentNoteFolder();
     void restoreForCurrentNoteFolder();
 };
@@ -66,4 +74,4 @@ QDataStream &operator<<(QDataStream &out, const NoteHistory &history);
 QDataStream &operator>>(QDataStream &in, NoteHistory &history);
 Q_DECLARE_METATYPE(NoteHistory)
 
-#endif // NOTEHISTORY_H
+#endif    // NOTEHISTORY_H

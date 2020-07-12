@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +12,7 @@
  */
 
 #include "lineedit.h"
+
 #include <QKeyEvent>
 
 LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent) {
@@ -20,7 +21,7 @@ LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent) {
 
 bool LineEdit::eventFilter(QObject *obj, QEvent *event) {
     if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        auto *keyEvent = static_cast<QKeyEvent *>(event);
 
         if (keyEvent->key() == Qt::Key_Escape) {
             this->clear();

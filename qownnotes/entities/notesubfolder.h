@@ -1,66 +1,67 @@
 #pragma once
 
 #include <QDateTime>
-#include <QSqlQuery>
 #include <QDebug>
 #include <QDir>
+#include <QSqlQuery>
 
-// note sub-folders that should be ignored by default
+// note subfolders that should be ignored by default
 // regular expression, separated by ";"
 #define IGNORED_NOTE_SUBFOLDERS_DEFAULT "^\\."
 
 class NoteSubFolder {
-public:
-    explicit NoteSubFolder();
+   public:
+    NoteSubFolder();
 
-    int getId();
+    int getId() const;
 
-    QString getName();
+    QString getName() const;
 
     void setName(QString text);
 
     static NoteSubFolder fetch(int id);
 
-    static QList<NoteSubFolder> fetchAll(int limit = -1);
+    static QVector<NoteSubFolder> fetchAll(int limit = -1);
 
-    static NoteSubFolder noteSubFolderFromQuery(QSqlQuery query);
+    static NoteSubFolder noteSubFolderFromQuery(const QSqlQuery& query);
 
     bool store();
 
-    friend QDebug operator<<(QDebug dbg, const NoteSubFolder &note);
+    friend QDebug operator<<(QDebug dbg, const NoteSubFolder& note);
 
     static bool deleteAll();
 
-    bool exists();
+    bool exists() const;
 
-    bool fillFromQuery(QSqlQuery query);
+    NoteSubFolder fillFromQuery(const QSqlQuery& query);
 
     bool remove();
 
-    bool isFetched();
+    bool isFetched() const;
 
-    QDateTime getFileLastModified();
+    QDateTime getFileLastModified() const;
 
-    QDateTime getModified();
+    QDateTime getModified() const;
 
     static int countAll();
 
-    int getParentId();
+    int getParentId() const;
 
     void setParentId(int parentId);
 
-    QString relativePath(QString separator = "");
+    QString relativePath(QString separator = QLatin1String("")) const;
 
-    QString fullPath();
+    QString fullPath() const;
 
-    NoteSubFolder getParent();
+    NoteSubFolder getParent() const;
 
-    static QList<NoteSubFolder> fetchAllByParentId(int parentId,
-            QString sortBy = "file_last_modified DESC");
+    static QVector<NoteSubFolder> fetchAllByParentId(
+        int parentId,
+        const QString& sortBy = QStringLiteral("file_last_modified DESC"));
 
-    static QList<int> fetchIdsRecursivelyByParentId(int parentId);
+    static QVector<int> fetchIdsRecursivelyByParentId(int parentId);
 
-    bool isActive();
+    bool isActive() const;
 
     static int activeNoteSubFolderId();
 
@@ -70,40 +71,44 @@ public:
 
     void setAsActive();
 
-    QString pathData();
+    QString pathData() const;
 
-    static NoteSubFolder fetchByPathData(QString pathData,
-                                         QString separator = "\n");
+    static NoteSubFolder fetchByPathData(
+        QString pathData, const QString& separator = QStringLiteral("\n"));
 
-    static NoteSubFolder fetchByNameAndParentId(QString name, int parentId);
+    static NoteSubFolder fetchByNameAndParentId(const QString& name,
+                                                int parentId);
 
-    void saveTreeWidgetExpandState(bool expanded);
+    void saveTreeWidgetExpandState(bool expanded) const;
 
-    bool treeWidgetExpandState();
+    bool treeWidgetExpandState() const;
 
     static QString treeWidgetExpandStateSettingsKey(int noteFolderId = 0);
 
-    bool removeFromFileSystem();
+    bool removeFromFileSystem() const;
 
-    QDir dir();
+    QDir dir() const;
 
-    bool rename(QString newName);
+    bool rename(const QString& newName);
 
     static int countAllParentId(int parentId);
 
-    static QList<int> fetchAllIds();
+    static QVector<int> fetchAllIds();
 
     static bool isNoteSubfoldersPanelShowNotesRecursively();
 
-protected:
-    int id;
-    int parentId;
-    QString name;
-    QDateTime fileLastModified;
-    QDateTime created;
-    QDateTime modified;
+    int depth() const;
 
-signals:
+    static bool willFolderBeIgnored(const QString& folderName,
+                                    bool showWarning = false);
 
-public slots:
+   protected:
+    int _id;
+    int _parentId;
+    QString _name;
+    QDateTime _fileLastModified;
+    QDateTime _created;
+    QDateTime _modified;
 };
+
+Q_DECLARE_TYPEINFO(NoteSubFolder, Q_MOVABLE_TYPE);

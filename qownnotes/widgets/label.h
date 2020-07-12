@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,22 +13,20 @@
 
 #pragma once
 
-#include <QWidget>
 #include <QLabel>
 
-class Label : public QLabel
-{
-Q_OBJECT
+class Label : public QLabel {
+    Q_OBJECT
 
-public:
-    explicit Label(QWidget *parent=Q_NULLPTR,
-            Qt::WindowFlags f=Qt::WindowFlags());
-    explicit Label(const QString &text, QWidget *parent=Q_NULLPTR,
-                   Qt::WindowFlags f=Qt::WindowFlags());
+   public:
+    explicit Label(QWidget *parent = Q_NULLPTR,
+                   Qt::WindowFlags f = Qt::WindowFlags());
+    explicit Label(const QString &text, QWidget *parent = Q_NULLPTR,
+                   Qt::WindowFlags f = Qt::WindowFlags());
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void setText(const QString &text);
 
-protected:
-    static QString injectCSS(QString text);
+   protected:
+    static QString injectCSS(const QString &text);
 };

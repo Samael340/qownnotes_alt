@@ -1,34 +1,33 @@
 #ifndef VERSIONDIALOG_H
 #define VERSIONDIALOG_H
 
-#include "mainwindow.h"
 #include "masterdialog.h"
 
-#include <QAbstractButton>
-#include <QDialog>
-#include <QSplitter>
-#include <QJSValue>
+class MainWindow;
+class QAbstractButton;
+class QJSValue;
+class QSplitter;
 
 namespace Ui {
 class VersionDialog;
 }
 
-class VersionDialog : public MasterDialog
-{
+class VersionDialog : public MasterDialog {
     Q_OBJECT
 
-public:
-    explicit VersionDialog(QJSValue versions, MainWindow *mainWindow,
+   public:
+    explicit VersionDialog(const QJSValue &versions, MainWindow *mainWindow,
                            QWidget *parent = 0);
     ~VersionDialog();
 
-private slots:
+   private slots:
     void storeSettings();
     void on_versionListWidget_currentRowChanged(int currentRow);
     void dialogButtonClicked(QAbstractButton *button);
-private:
+
+   private:
     enum ButtonRole {
-        Unset,  // nothing was selected
+        Unset,    // nothing was selected
         Restore,
         Cancel
     };
@@ -41,4 +40,4 @@ private:
     void setupMainSplitter();
 };
 
-#endif // VERSIONDIALOG_H
+#endif    // VERSIONDIALOG_H

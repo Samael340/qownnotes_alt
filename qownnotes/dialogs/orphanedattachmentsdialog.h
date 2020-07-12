@@ -1,28 +1,26 @@
 #pragma once
 
-#include <QDialog>
-#include <QTreeWidgetItem>
-#include <QEvent>
 #include "masterdialog.h"
+class QTreeWidgetItem;
+class QEvent;
 
 namespace Ui {
 class OrphanedAttachmentsDialog;
 }
 
-class OrphanedAttachmentsDialog : public MasterDialog
-{
+class OrphanedAttachmentsDialog : public MasterDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit OrphanedAttachmentsDialog(QWidget *parent = 0);
     ~OrphanedAttachmentsDialog();
 
-protected:
+   protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
-    void on_fileTreeWidget_currentItemChanged(
-            QTreeWidgetItem *current, QTreeWidgetItem *previous);
+   private slots:
+    void on_fileTreeWidget_currentItemChanged(QTreeWidgetItem *current,
+                                              QTreeWidgetItem *previous);
 
     void on_deleteButton_clicked();
 
@@ -32,7 +30,7 @@ private slots:
 
     void on_openFolderButton_clicked();
 
-private:
+   private:
     Ui::OrphanedAttachmentsDialog *ui;
 
     QString getFilePath(QTreeWidgetItem *item);

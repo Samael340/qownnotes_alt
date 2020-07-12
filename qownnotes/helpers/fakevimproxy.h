@@ -1,22 +1,27 @@
+#include <QObject>
+#include <QTextEdit>
 
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QTextEdit>
-#include <QtGui/QTextBlock>
-#include <QtWidgets/QMessageBox>
-#include <libraries/fakevim/fakevim/fakevimhandler.h>
-#include <mainwindow.h>
+class MainWindow;
+class QWidget;
+class QTextDocument;
+class QTextCursor;
 
-class FakeVimProxy : public QObject
-{
+namespace FakeVim {
+namespace Internal {
+class ExCommand;
+}
+}    // namespace FakeVim
+
+class FakeVimProxy : public QObject {
     Q_OBJECT
 
-public:
+   public:
     FakeVimProxy(QWidget *widget, MainWindow *mw, QObject *parent = 0);
 
-    signals:
-            void handleInput(const QString &keys);
+   signals:
+    void handleInput(const QString &keys);
 
-public slots:
+   public slots:
     void changeStatusData(const QString &info);
 
     void highlightMatches(const QString &pattern);
@@ -27,7 +32,8 @@ public slots:
 
     void updateStatusBar();
 
-    void handleExCommand(bool *handled, const FakeVim::Internal::ExCommand &cmd);
+    void handleExCommand(bool *handled,
+                         const FakeVim::Internal::ExCommand &cmd);
 
     void requestSetBlockSelection(const QTextCursor &tc);
 
@@ -41,7 +47,7 @@ public slots:
 
     void checkForElectricCharacter(bool *result, QChar c);
 
-private:
+   private:
     static int firstNonSpace(const QString &text);
 
     void updateExtraSelections();

@@ -1,22 +1,14 @@
-#ifndef OWNCLOUDSERVICE_H
-#define OWNCLOUDSERVICE_H
+#pragma once
 
-#include <QNetworkAccessManager>
-#include <QAuthenticator>
-#include <QNetworkReply>
 #include <QObject>
-#include <QXmlQuery>
-#include <dialogs/sharedialog.h>
-#include "mainwindow.h"
-#include "dialogs/settingsdialog.h"
-#include "dialogs/tododialog.h"
 
 #define QOWNNOTESAPI_MIN_VERSION "0.4.2"
 
 // we set a user agent to prevent troubles with some ownCloud / Nextcloud
 // server hosting providers
 // see: https://github.com/pbek/QOwnNotes/issues/541
-#define OWNCLOUD_SERVICE_USER_AGENT "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a3pre) Gecko/20070330"
+#define OWNCLOUD_SERVICE_USER_AGENT \
+    "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a3pre) Gecko/20070330"
 
 struct CalDAVCalendarData {
     QString url;
@@ -26,11 +18,20 @@ struct CalDAVCalendarData {
 class SettingsDialog;
 class MainWindow;
 class TodoDialog;
+class CalendarItem;
+class Note;
+class ShareDialog;
+class QNetworkReply;
+class QNetworkAccessManager;
+class QNetworkRequest;
+class QAuthenticator;
+class QXmlQuery;
+class QString;
 
 class OwnCloudService : public QObject {
-Q_OBJECT
+    Q_OBJECT
 
-public:
+   public:
     enum CalendarBackend {
         LegacyOwnCloudCalendar = 0,
         CalendarPlus,
@@ -39,20 +40,21 @@ public:
     };
     Q_ENUMS(CalendarBackend)
 
-    explicit OwnCloudService(QObject *parent = 0);
+    explicit OwnCloudService(int cloudConnectionId = -1,
+                             QObject *parent = nullptr);
 
     void settingsConnectionTest(SettingsDialog *dialog);
 
-    void loadVersions(QString fileName, MainWindow *mainWindow);
+    void loadVersions(const QString &fileName, MainWindow *mainWindow);
 
     void loadTrash(MainWindow *mainWindow);
 
-    void restoreTrashedNoteOnServer(QString fileName,
-                                    int timestamp, MainWindow *mainWindow);
+    void restoreTrashedNoteOnServer(const QString &fileName, int timestamp,
+                                    MainWindow *mainWindow);
 
     void settingsGetCalendarList(SettingsDialog *dialog);
 
-    void todoGetTodoList(QString calendarName, TodoDialog *dialog);
+    void todoGetTodoList(const QString &calendarName, TodoDialog *dialog);
 
     void postCalendarItemToServer(CalendarItem calendarItem,
                                   TodoDialog *dialog);
@@ -61,25 +63,36 @@ public:
 
     void removeCalendarItem(CalendarItem calItem, TodoDialog *dialog);
 
-    void settingsGetFileList(SettingsDialog *dialog, QString path);
+    void settingsGetFileList(SettingsDialog *dialog, const QString &path);
 
-    static bool hasOwnCloudSettings(bool withEnabledCheck = true);
+    static bool hasOwnCloudSettings(bool withEnabledCheck = true,
+                                    bool ignoreTableWarning = false);
 
-    void shareNote(Note note, ShareDialog *shareDialog);
+    void shareNote(const Note &note, ShareDialog *dialog);
 
-    void fetchShares(QString path = "");
+    void setPermissionsOnSharedNote(const Note &note, ShareDialog *dialog);
 
-    void removeNoteShare(Note note, ShareDialog *shareDialog);
+    void fetchShares(const QString &path = QString());
 
-    static OwnCloudService *instance();
+    void fetchBookmarks();
+
+    void removeNoteShare(const Note &note, ShareDialog *dialog);
+
+    static OwnCloudService *instance(bool reset = false,
+                                     int cloudConnectionId = -1);
 
     static bool isOwnCloudSupportEnabled();
+
+    static bool isTodoCalendarSupportEnabled();
 
     static bool isTodoSupportEnabled();
 
     void startAppVersionTest();
 
-private:
+    QString nextcloudPreviewImageTagToInlineImageTag(QString imageTag,
+                                                     int &imageWidth);
+
+   private:
     QString serverUrl;
     QString todoCalendarServerUrl;
     QString serverUrlPath;
@@ -89,6 +102,7 @@ private:
     QString userName;
     QString todoCalendarUsername;
     QString password;
+    bool appQOwnNotesAPICheckEnabled;
     QString todoCalendarPassword;
     QNetworkAccessManager *networkManager;
     QNetworkAccessManager *calendarNetworkManager;
@@ -102,15 +116,15 @@ private:
     QString capabilitiesPath;
     QString ownCloudTestPath;
     QString restoreTrashedNotePath;
-    QString webdavPath;
     QString sharePath;
+    QString bookmarkPath;
     SettingsDialog *settingsDialog;
     TodoDialog *todoDialog;
     QString calendarName;
 
     void checkAppInfo(QNetworkReply *reply);
 
-    void readSettings();
+    void readSettings(int cloudConnectionId = -1);
 
     void addAuthHeader(QNetworkRequest *r);
 
@@ -124,16 +138,16 @@ private:
 
     void loadTodoItems(QString &data);
 
-    void ignoreSslErrorsIfAllowed(QNetworkReply *reply);
+    static void ignoreSslErrorsIfAllowed(QNetworkReply *reply);
 
     void loadDirectory(QString &data);
 
-    void showOwnCloudServerErrorMessage(
-            QString message = QString(""), bool withSettingsButton = true);
+    void showOwnCloudServerErrorMessage(const QString &message = QString(),
+                                        bool withSettingsButton = true);
 
-    void showOwnCloudMessage(
-            QString headline = QString(""), QString message = QString(""),
-            bool withSettingsButton = true);
+    void showOwnCloudMessage(QString headline = QString(),
+                             QString message = QString(),
+                             bool withSettingsButton = true);
 
     void updateNoteShareStatusFromShare(QString &data);
 
@@ -144,13 +158,22 @@ private:
     void updateNoteShareStatus(QXmlQuery &query,
                                bool updateShareDialog = false);
 
-    void handleDeleteNoteShareReply(QString urlPart, QString &data);
+    void handleUpdateNoteShareReply(const QString &urlPart,
+                                    const QString &data);
 
-    void checkAppVersion(QNetworkReply *reply);
+    static void checkAppVersion(QNetworkReply *reply);
 
-signals:
+    void handleImportBookmarksReply(QString &data);
 
-private slots:
+    QByteArray downloadNextcloudPreviewImage(const QString &path);
+
+    void resetNetworkManagerCookieJar();
+
+    QString webdavPath();
+
+   signals:
+
+   private slots:
 
     void slotAuthenticationRequired(QNetworkReply *reply,
                                     QAuthenticator *authenticator);
@@ -160,5 +183,3 @@ private slots:
 
     void slotReplyFinished(QNetworkReply *);
 };
-
-#endif // OWNCLOUDSERVICE_H

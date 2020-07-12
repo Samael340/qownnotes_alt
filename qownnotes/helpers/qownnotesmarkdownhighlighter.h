@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,9 +13,9 @@
  * QPlainTextEdit markdown highlighter
  */
 
-
 #pragma once
 
+#include <entities/note.h>
 #include <libraries/qmarkdowntextedit/markdownhighlighter.h>
 
 QT_BEGIN_NAMESPACE
@@ -23,17 +23,30 @@ class QTextDocument;
 
 QT_END_NAMESPACE
 
-class QOwnNotesMarkdownHighlighter : public MarkdownHighlighter
-{
-Q_OBJECT
+namespace Sonnet {
+class WordTokenizer;
+class LanguageFilter;
+}    // namespace Sonnet
+class QOwnSpellChecker;
 
-public:
-    QOwnNotesMarkdownHighlighter(QTextDocument *parent = 0,
-                                 HighlightingOptions highlightingOptions =
-                                 HighlightingOption::None);
+class QOwnNotesMarkdownHighlighter : public MarkdownHighlighter {
+    Q_OBJECT
 
-protected:
+   public:
+    QOwnNotesMarkdownHighlighter(
+        QTextDocument *parent = nullptr,
+        HighlightingOptions highlightingOptions = HighlightingOption::None);
+
+    void updateCurrentNote(Note *note);
+
+   protected:
     void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
-    void highlightMarkdown(QString text);
-    void highlightBrokenNotesLink(QString text);
+    void highlightBrokenNotesLink(const QString &text);
+
+    // Set the format of a word as misspelled i.e., red wavy underline
+    void setMisspelled(const int start, const int count);
+    void highlightSpellChecking(const QString &text);
+
+   private:
+    Note *_currentNote = nullptr;
 };

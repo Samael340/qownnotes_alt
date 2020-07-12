@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/pbek/qt-piwik-tracker/badge.svg?branch=master)](https://coveralls.io/github/pbek/qt-piwik-tracker?branch=master)
 
 PiwikTracker is a C++ Qt 5 library for tracking with the open-source analytics 
-platform [Piwik, now Matomo](https://matomo.org//).
+platform [Piwik, now Matomo](https://matomo.org/).
 
 ## Features
 
@@ -31,7 +31,7 @@ piwikTracker->sendVisit("my/path");
 ```
 
 ## References
-- [QOwnNotes - cross-platform open source plain-text file notepad](http://www.qownnotes.org)
+- [QOwnNotes - cross-platform open source plain-text file markdown note taking](http://www.qownnotes.org)
 
 ## Disclaimer
 This SOFTWARE PRODUCT is provided by THE PROVIDER "as is" and "with all faults." THE PROVIDER makes no representations or warranties of any kind concerning the safety, suitability, lack of viruses, inaccuracies, typographical errors, or other harmful components of this SOFTWARE PRODUCT. 

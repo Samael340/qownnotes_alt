@@ -1,17 +1,16 @@
 #pragma once
 
-#include <QDialog>
-#include <QXmlQuery>
-#include <entities/note.h>
-#include <QtWidgets/QTreeWidgetItem>
 #include "masterdialog.h"
 
 namespace Ui {
 class EvernoteImportDialog;
 }
 
-class EvernoteImportDialog : public MasterDialog
-{
+class Note;
+class QXmlQuery;
+class QTreeWidgetItem;
+
+class EvernoteImportDialog : public MasterDialog {
     Q_OBJECT
 
     struct MediaFileData {
@@ -20,41 +19,43 @@ class EvernoteImportDialog : public MasterDialog
         QString fileName;
     };
 
-public:
+   public:
     explicit EvernoteImportDialog(QWidget *parent = 0);
     ~EvernoteImportDialog();
 
     int getImportCount();
 
-private slots:
+   private slots:
     void on_fileButton_clicked();
 
     void on_importButton_clicked();
 
-private:
+   private:
     Ui::EvernoteImportDialog *ui;
     int _importCount;
 
-    void importNotes(QString data);
+    void importNotes(const QString &data);
 
-    int countNotes(QString data);
+    int countNotes(const QString &data);
 
-    void initNoteCount(QString data);
+    void initNoteCount(const QString &data);
 
-    QString importImages(QString content, QXmlQuery query);
+    QString importImages(const Note &note, QString content, QXmlQuery query);
 
-    QString getMarkdownForMediaFileData(MediaFileData &mediaFileData);
+    QString getMarkdownForMediaFileData(Note note,
+                                        const MediaFileData &mediaFileData);
 
-    QString getMarkdownForAttachmentFileData(MediaFileData &mediaFileData);
+    QString getMarkdownForAttachmentFileData(
+        Note note, const MediaFileData &mediaFileData);
 
     void tagNote(QXmlQuery &query, Note &note);
 
-    QString importAttachments(QString content, QXmlQuery query);
+    QString importAttachments(const Note &note, QString content,
+                              QXmlQuery query);
 
     QTreeWidgetItem *addMetaDataTreeWidgetItem(
-            QString name,
-            QString attributeName = "",
-            QTreeWidgetItem *parentItem = nullptr);
+        const QString &name, const QString &attributeName = QString(),
+        QTreeWidgetItem *parentItem = nullptr);
 
     void setupMetaDataTreeWidgetItems();
 

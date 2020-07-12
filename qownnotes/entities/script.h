@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,16 +14,16 @@
 
 #pragma once
 
-#include <QSqlQuery>
-#include <QList>
 #include <QJsonObject>
-#include <QUrl>
+#include <QList>
+#include <QSqlQuery>
 #include <QStringList>
+#include <QUrl>
 #include <QtCore/QDir>
 
 class ScriptInfoJson {
-public:
-    explicit ScriptInfoJson(QJsonObject jsonObject);
+   public:
+    explicit ScriptInfoJson(const QJsonObject& jsonObject);
 
     QString name;
     QString identifier;
@@ -41,59 +41,58 @@ public:
     bool appVersionSupported;
 };
 
-class Script
-{
-public:
+class Script {
+   public:
     static const QString ScriptRepositoryRawContentUrlPrefix;
 
     explicit Script();
 
-    int getId();
-    static bool create(QString name, QString scriptPath);
+    int getId() const;
+    static bool create(const QString& name, QString scriptPath);
     static Script fetch(int id);
-    static Script scriptFromQuery(QSqlQuery query);
+    static Script scriptFromQuery(const QSqlQuery& query);
     bool store();
-    friend QDebug operator<<(QDebug dbg, const Script &script);
-    bool exists();
-    bool fillFromQuery(QSqlQuery query);
-    bool remove();
-    bool isFetched();
+    friend QDebug operator<<(QDebug dbg, const Script& script);
+    bool exists() const;
+    bool fillFromQuery(const QSqlQuery& query);
+    bool remove() const;
+    bool isFetched() const;
     static QList<Script> fetchAll(bool enabledOnly = false);
-    QString getName();
-    QString getScriptPath();
-    int getPriority();
-    void setName(QString text);
+    QString getName() const;
+    QString getScriptPath() const;
+    int getPriority() const;
+    void setName(const QString& text);
     void setScriptPath(QString text);
     void setPriority(int value);
     static int countAll();
-    bool scriptPathExists();
+    bool scriptPathExists() const;
     void setEnabled(bool value);
-    bool getEnabled();
-    bool isEnabled();
+    bool getEnabled() const;
+    bool isEnabled() const;
     static int countEnabled();
     void setIdentifier(QString identifier);
     void setInfoJson(QString infoJson);
-    QString getIdentifier();
-    QJsonObject getInfoJsonObject();
+    QString getIdentifier() const;
+    QJsonObject getInfoJsonObject() const;
     static QString globalScriptRepositoryPath();
-    QString scriptRepositoryPath(bool removeRecursively = false);
-    bool isScriptFromRepository();
-    QUrl remoteScriptUrl();
-    QUrl remoteFileUrl(QString fileName);
-    static bool scriptFromRepositoryExists(QString identifier);
+    QString scriptRepositoryPath(bool removeRecursively = false) const;
+    bool isScriptFromRepository() const;
+    QUrl remoteScriptUrl() const;
+    QUrl remoteFileUrl(const QString& fileName) const;
+    static bool scriptFromRepositoryExists(const QString& identifier);
     void setSettingsVariablesJson(QString json);
-    QString getSettingsVariablesJson();
-    QJsonObject getSettingsVariablesJsonObject();
-    void setSettingsVariablesJson(QJsonObject jsonObject);
-    QString getScriptDirPath();
-    QList<QUrl> remoteFileUrls();
-    ScriptInfoJson getScriptInfoJson();
-    static Script fetchByIdentifier(QString identifier);
+    QString getSettingsVariablesJson() const;
+    QJsonObject getSettingsVariablesJsonObject() const;
+    void setSettingsVariablesJson(const QJsonObject& jsonObject);
+    QString getScriptDirPath() const;
+    QList<QUrl> remoteFileUrls() const;
+    ScriptInfoJson getScriptInfoJson() const;
+    static Script fetchByIdentifier(const QString& identifier);
     bool refetch();
     bool fillFromId(int id);
-    QUrl repositoryInfoJsonUrl();
+    QUrl repositoryInfoJsonUrl() const;
 
-private:
+   private:
     int id;
     QString name;
     QString identifier;

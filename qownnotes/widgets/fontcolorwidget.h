@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Patrizio Bekerle -- http://www.bekerle.com
+ * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,29 +15,34 @@
 #pragma once
 
 #include <QFrame>
-#include <QTreeWidgetItem>
-#include <QSettings>
+
+class QTreeWidgetItem;
 
 namespace Ui {
 class FontColorWidget;
 }
 
-class FontColorWidget : public QFrame
-{
+class FontColorWidget : public QFrame {
     Q_OBJECT
 
-public:
-    explicit FontColorWidget(QWidget *parent = 0);
+   public:
+    explicit FontColorWidget(QWidget *parent = nullptr);
     ~FontColorWidget();
 
     void updateAllTextItems();
 
-private slots:
+   public slots:
+    bool selectFirstLightSchema();
+
+    bool selectFirstDarkSchema();
+
+   private slots:
     void on_foregroundColorButton_clicked();
 
     void on_colorSchemeComboBox_currentIndexChanged(int index);
 
-    void on_textTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_textTreeWidget_currentItemChanged(QTreeWidgetItem *current,
+                                              QTreeWidgetItem *previous);
 
     void on_copySchemeButton_clicked();
 
@@ -65,13 +70,13 @@ private slots:
 
     void needRestart();
 
-private:
+   private:
     Ui::FontColorWidget *ui;
     QStringList _defaultSchemaKeys;
     QString _currentSchemaKey;
     bool _currentSchemaIsDefault;
 
-    void addTextTreeWidgetItem(QString text, int index);
+    void addTextTreeWidgetItem(const QString &text, int index);
 
     void initTextTreeWidgetItems();
 
@@ -79,9 +84,11 @@ private:
 
     void updateSchemeEditFrame();
 
-    void setSchemaValue(QString key, QVariant value, QString schemaKey = "");
+    void setSchemaValue(const QString &key, const QVariant &value,
+                        QString schemaKey = QString());
 
-    QString textSettingsKey(QString key, QTreeWidgetItem *item = Q_NULLPTR);
+    QString textSettingsKey(const QString &key,
+                            QTreeWidgetItem *item = Q_NULLPTR);
 
     void updateTextItem(QTreeWidgetItem *item = Q_NULLPTR);
 
@@ -93,7 +100,7 @@ private:
 
     void updateTextItems(int index);
 
-    void storeCheckBoxState(QString name, bool checked);
+    void storeCheckBoxState(const QString &name, bool checked);
 
     void selectLastSchema();
 

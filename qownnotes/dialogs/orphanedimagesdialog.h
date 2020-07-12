@@ -1,34 +1,32 @@
 #pragma once
 
-#include <QDialog>
-#include <QTreeWidgetItem>
-#include <QEvent>
 #include "masterdialog.h"
+
+class QTreeWidgetItem;
 
 namespace Ui {
 class OrphanedImagesDialog;
 }
 
-class OrphanedImagesDialog : public MasterDialog
-{
+class OrphanedImagesDialog : public MasterDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit OrphanedImagesDialog(QWidget *parent = 0);
     ~OrphanedImagesDialog();
 
-protected:
+   protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
-    void on_fileTreeWidget_currentItemChanged(
-            QTreeWidgetItem *current, QTreeWidgetItem *previous);
+   private slots:
+    void on_fileTreeWidget_currentItemChanged(QTreeWidgetItem *current,
+                                              QTreeWidgetItem *previous);
 
     void on_deleteButton_clicked();
 
     void on_insertButton_clicked();
 
-private:
+   private:
     Ui::OrphanedImagesDialog *ui;
 
     QString getFilePath(QTreeWidgetItem *item);

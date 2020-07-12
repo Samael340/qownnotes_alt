@@ -1,7 +1,11 @@
-#include <QSettings>
-#include <QApplication>
-#include <QDesktopWidget>
 #include "masterdialog.h"
+
+#include <QApplication>
+#include <QGuiApplication>
+#include <QKeyEvent>
+#include <QScreen>
+#include <QSettings>
+
 #include "services/metricsservice.h"
 
 MasterDialog::MasterDialog(QWidget *parent) : QDialog(parent) {
@@ -9,7 +13,7 @@ MasterDialog::MasterDialog(QWidget *parent) : QDialog(parent) {
 }
 
 void MasterDialog::closeEvent(QCloseEvent *event) {
-//    storeGeometrySettings();
+    //    storeGeometrySettings();
     QDialog::closeEvent(event);
 }
 
@@ -17,7 +21,7 @@ void MasterDialog::resizeEvent(QResizeEvent *event) {
     // save the geometry of the dialog
     storeGeometrySettings();
 
-    QWidget::resizeEvent(event);
+    QDialog::resizeEvent(event);
 }
 
 /**
@@ -68,22 +72,36 @@ void MasterDialog::handleOpenDialog() {
     // restore the geometry of the dialog
     QSettings settings;
     QByteArray geometryData =
-            settings.value(getGeometrySettingKey()).toByteArray();
+        settings.value(getGeometrySettingKey()).toByteArray();
 
     // restore the geometry if there is some data
     if (geometryData.length() > 0) {
         restoreGeometry(geometryData);
     } else {
-        const QRect screenGeometry = QApplication::desktop()->screenGeometry();
+        const QRect screenGeometry =
+            QGuiApplication::primaryScreen()->availableGeometry();
 
         // maximize the dialog window if it looks like that it doesn't fit on
         // the current screen
         if (((window()->width() + 150) > screenGeometry.width()) ||
-                ((window()->height() + 150) > screenGeometry.height())) {
+            ((window()->height() + 150) > screenGeometry.height())) {
             setWindowState(windowState() ^ Qt::WindowMaximized);
         }
     }
 
     // send metrics
     MetricsService::instance()->sendVisitIfEnabled("dialog/" + objectName());
+}
+
+void MasterDialog::setIgnoreReturnKey(bool ignore) {
+    _ignoreReturnKey = ignore;
+}
+
+void MasterDialog::keyPressEvent(QKeyEvent *keyEvent) {
+    if (_ignoreReturnKey && (keyEvent->key() == Qt::Key_Enter ||
+                             keyEvent->key() == Qt::Key_Return)) {
+        return;
+    }
+
+    QDialog::keyPressEvent(keyEvent);
 }

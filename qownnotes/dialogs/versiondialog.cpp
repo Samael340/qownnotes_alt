@@ -1,17 +1,23 @@
 #include "versiondialog.h"
-#include "ui_versiondialog.h"
-#include <QSettings>
+
+#include <utils/misc.h>
+
 #include <QDebug>
-#include <QPushButton>
 #include <QJSValue>
 #include <QJSValueIterator>
+#include <QPushButton>
+#include <QSettings>
+#include <QSplitter>
 
-VersionDialog::VersionDialog(QJSValue versions, MainWindow *mainWindow,
-                             QWidget *parent) :
-        MasterDialog(parent),
-        ui(new Ui::VersionDialog) {
+#include "mainwindow.h"
+#include "ui_versiondialog.h"
+
+VersionDialog::VersionDialog(const QJSValue &versions, MainWindow *mainWindow,
+                             QWidget *parent)
+    : MasterDialog(parent), ui(new Ui::VersionDialog) {
     this->mainWindow = mainWindow;
     ui->setupUi(this);
+    setWindowTitle(Utils::Misc::replaceOwnCloudText(windowTitle()));
     ui->tabWidget->setCurrentIndex(0);
 
     // init the note text edit search frame
@@ -25,18 +31,16 @@ VersionDialog::VersionDialog(QJSValue versions, MainWindow *mainWindow,
     button = new QPushButton(tr("&Restore selected version"));
     button->setProperty("ActionRole", Restore);
     button->setDefault(false);
-    button->setIcon(
-            QIcon::fromTheme(
-                    "edit-download",
-                    QIcon(":/icons/breeze-qownnotes/16x16/edit-download.svg")));
+    button->setIcon(QIcon::fromTheme(
+        QStringLiteral("edit-download"),
+        QIcon(":/icons/breeze-qownnotes/16x16/edit-download.svg")));
     ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
 
     button = new QPushButton(tr("&Cancel"));
     button->setProperty("ActionRole", Cancel);
-    button->setIcon(
-            QIcon::fromTheme(
-                    "dialog-cancel",
-                    QIcon(":/icons/breeze-qownnotes/16x16/dialog-cancel.svg")));
+    button->setIcon(QIcon::fromTheme(
+        QStringLiteral("dialog-cancel"),
+        QIcon(":/icons/breeze-qownnotes/16x16/dialog-cancel.svg")));
     button->setDefault(true);
     ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
 
@@ -61,8 +65,8 @@ VersionDialog::VersionDialog(QJSValue versions, MainWindow *mainWindow,
     // iterate over the versions
     while (versionsIterator.hasNext()) {
         versionsIterator.next();
-        QJSValue property = versionsIterator.value()
-                .property("humanReadableTimestamp");
+        QJSValue property = versionsIterator.value().property(
+            QStringLiteral("humanReadableTimestamp"));
 
         if (property.isUndefined()) {
             continue;
@@ -70,23 +74,22 @@ VersionDialog::VersionDialog(QJSValue versions, MainWindow *mainWindow,
 
         itemName = property.toString();
 
-        if (itemName == "") {
+        if (itemName.isEmpty()) {
             continue;
         }
 
-        diffHtml = versionsIterator.value().property("diffHtml").toString();
-        diffHtml.replace("<ins>",
-                         "<span style='background-color: rgb(214, 255, 199)'>");
-        diffHtml.replace("</ins>", "</span>");
-        diffHtml.replace("<del>",
-                         "<span style='background-color: rgb(255, 215, 215)'>");
-        diffHtml.replace("</del>", "</span>");
-        diffHtml.replace("\\n", "&para;<br />");
-        diffHtml.replace("\n", "<br />");
+        diffHtml = "<style>" + Utils::Misc::genericCSS() + "</style>" +
+                   versionsIterator.value()
+                       .property(QStringLiteral("diffHtml"))
+                       .toString();
+        diffHtml.replace(QLatin1String("\\n"), QLatin1String("&para;<br />"));
+        diffHtml.replace(QLatin1String("\n"), QLatin1String("<br />"));
 
         ui->versionListWidget->addItem(itemName);
         diffList->append(diffHtml);
-        dataList->append(versionsIterator.value().property("data").toString());
+        dataList->append(versionsIterator.value()
+                             .property(QStringLiteral("data"))
+                             .toString());
     }
 
     ui->versionListWidget->setCurrentRow(0);
@@ -101,7 +104,8 @@ void VersionDialog::setupMainSplitter() {
 
     // restore splitter sizes
     QSettings settings;
-    QByteArray state = settings.value("versionSplitterSizes").toByteArray();
+    QByteArray state =
+        settings.value(QStringLiteral("versionSplitterSizes")).toByteArray();
     versionSplitter->restoreState(state);
 
     ui->gridLayout->addWidget(versionSplitter);
@@ -110,13 +114,11 @@ void VersionDialog::setupMainSplitter() {
 void VersionDialog::storeSettings() {
     // store the splitter sizes
     QSettings settings;
-    settings.setValue("versionSplitterSizes",
+    settings.setValue(QStringLiteral("versionSplitterSizes"),
                       versionSplitter->saveState());
 }
 
-VersionDialog::~VersionDialog() {
-    delete ui;
-}
+VersionDialog::~VersionDialog() { delete ui; }
 
 void VersionDialog::on_versionListWidget_currentRowChanged(int currentRow) {
     ui->diffBrowser->setHtml(diffList->value(currentRow));
@@ -128,7 +130,7 @@ void VersionDialog::dialogButtonClicked(QAbstractButton *button) {
 
     if (actionRole == Restore) {
         mainWindow->setCurrentNoteText(
-                dataList->value(ui->versionListWidget->currentRow()));
+            dataList->value(ui->versionListWidget->currentRow()));
     }
 
     this->close();
