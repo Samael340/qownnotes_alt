@@ -6,7 +6,7 @@ Group: Office
 Summary: Note-taking app and todo list manager with ownCloud/Nextcloud integration
 Url: http://www.qownnotes.org/
 
-BuildRequires: gcc gcc-c++ fdupes
+BuildRequires: gcc gcc-c++ fdupes libbotan-devel
 BuildRequires: qt5-base-devel
 BuildRequires: qt5-tools-devel
 BuildRequires: qt5-svg-devel
@@ -35,12 +35,15 @@ that handles them well. Out of this need QOwnNotes was born.
 
 %prep
 %setup
-mkdir build
-pushd build
-%qmake_qt5 ..
-popd
 
 %build
+mkdir build
+pushd build
+%qmake_qt5 \
+    USE_SYSTEM_BOTAN=1 \
+    ..
+popd
+
 pushd build
 %make_build
 popd
