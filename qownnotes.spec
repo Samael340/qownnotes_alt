@@ -1,5 +1,5 @@
 Name: qownnotes
-Version: 19.1.3
+Version: 20.7.3
 Release: alt1
 License: GPLv2
 Group: Office
@@ -11,6 +11,7 @@ BuildRequires: qt5-base-devel
 BuildRequires: qt5-tools-devel
 BuildRequires: qt5-svg-devel
 BuildRequires: qt5-declarative-devel
+BuildRequires: qt5-x11extras-devel
 BuildRequires: qt5-xmlpatterns-devel
 BuildRequires: qt5-websockets-devel
 BuildRequires: desktop-file-utils
@@ -68,7 +69,7 @@ install -d "%buildroot/%_datadir/QOwnNotes/languages/"
 install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 
 %files
-%doc LICENSE README.md CHANGELOG.md SHORTCUTS.md
+%doc LICENSE README.md CHANGELOG.md shortcuts.md
 %_bindir/QOwnNotes
 %_datadir/QOwnNotes/languages/QOwnNotes_*.qm
 %_desktopdir/QOwnNotes.desktop
@@ -77,6 +78,10 @@ install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 %_pixmapsdir/QOwnNotes.png
 
 %changelog
+* Mon Jul 13 2020 Grigory Ustinov <grenka@altlinux.org> 20.7.3-alt1
+- new version
+- build with system libbotan (Closes: #38379)
+
 * Wed Jan 16 2019 Konstantin Artyushkin <akv@altlinux.org> 19.1.3-alt1
 - new version
 
