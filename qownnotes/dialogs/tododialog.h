@@ -18,9 +18,7 @@ class TodoDialog : public MasterDialog {
     Q_OBJECT
 
    public:
-    explicit TodoDialog(MainWindow *mainWindow,
-                        const QString &taskUid = QString(),
-                        QWidget *parent = nullptr);
+    explicit TodoDialog(const QString &taskUid = QString(), QWidget *parent = nullptr);
     ~TodoDialog();
 
     void reloadTodoListItems();
@@ -37,7 +35,7 @@ class TodoDialog : public MasterDialog {
 
    private slots:
     void on_TodoDialog_finished(int result);
-    void on_todoListSelector_currentIndexChanged(const QString &arg1);
+    void on_todoListSelector_currentIndexChanged(int index);
     void on_prioritySlider_valueChanged(int value);
     void on_showCompletedItemsCheckBox_clicked();
     void on_saveButton_clicked();
@@ -54,10 +52,10 @@ class TodoDialog : public MasterDialog {
                                                   QTreeWidgetItem *previous);
     void on_todoItemTreeWidget_itemChanged(QTreeWidgetItem *item, int column);
     void on_todoItemTreeWidget_customContextMenuRequested(QPoint pos);
+    void on_showDueTodayItemsOnlyCheckBox_clicked();
 
    private:
     Ui::TodoDialog *ui;
-    MainWindow *_mainWindow;
     QSplitter *mainSplitter;
     CalendarItem currentCalendarItem;
     CalendarItem lastCreatedCalendarItem;
@@ -77,9 +75,11 @@ class TodoDialog : public MasterDialog {
                            const QString &relatedUid = QLatin1String(""));
 
    protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     void jumpToTodoListItem();
+   private slots:
+    void updateCalendarItem(CalendarItem item);
 };
 
 #endif    // TODODIALOG_H

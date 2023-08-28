@@ -8,8 +8,16 @@ include_directories(libraries/sonnet/src/core)
 #some hunspell settings for windows
 include(libraries/sonnet/src/plugins/hunspell/hunspell/CMakeLists.txt)
 
+add_subdirectory(libraries/md4c)
 
 add_executable(QOwnNotes "")
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    message("Debug build configuration detected")
+    add_definitions(-DQT_DEBUG)
+else()
+    message("Non-debug build configuration detected")
+endif()
 
 set_target_properties(QOwnNotes PROPERTIES
     CXX_STANDARD 11
@@ -18,6 +26,24 @@ set_target_properties(QOwnNotes PROPERTIES
     AUTOUIC ON
     AUTORCC ON
 )
+
+if (UNIX)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(QOwnNotes PRIVATE
+            -Wall -Wextra -pedantic -Wno-gnu-zero-variadic-macro-arguments -Wno-error=deprecated-declarations
+        )
+    else()
+        target_compile_options(QOwnNotes PRIVATE
+            -Wall -Wextra -pedantic
+        )
+    endif()
+
+    # enable werror on linux
+    if (NOT APPLE)
+        message("Werror enabled on linux")
+        target_compile_options(QOwnNotes PRIVATE -Werror)
+    endif()
+endif()
 
 target_include_directories(QOwnNotes PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -40,6 +66,12 @@ endif()
 add_subdirectory(libraries/fakevim)
 add_subdirectory(libraries/diff_match_patch)
 
+option(USE_QLITE_HTML "Build using QLiteHtml for preview" OFF)
+if (USE_QLITEHTML)
+    add_definitions(-DUSE_QLITEHTML=1)
+    add_subdirectory(libraries/qlitehtml)
+endif()
+
 
 find_package(Qt5 COMPONENTS REQUIRED
     LinguistTools
@@ -50,7 +82,6 @@ find_package(Qt5 COMPONENTS REQUIRED
     Svg
     Network
     Xml
-    XmlPatterns
     PrintSupport
     WebSockets
     Qml
@@ -109,6 +140,9 @@ set(SOURCE_FILES
     dialogs/localtrashdialog.cpp
     dialogs/localtrashdialog.h
     dialogs/localtrashdialog.ui
+    dialogs/nextclouddeckdialog.cpp
+    dialogs/nextclouddeckdialog.h
+    dialogs/nextclouddeckdialog.ui
     dialogs/updatedialog.cpp
     dialogs/updatedialog.h
     dialogs/updatedialog.ui
@@ -129,15 +163,18 @@ set(SOURCE_FILES
     dialogs/evernoteimportdialog.cpp
     dialogs/evernoteimportdialog.h
     dialogs/evernoteimportdialog.ui
+    dialogs/joplinimportdialog.cpp
+    dialogs/joplinimportdialog.h
+    dialogs/joplinimportdialog.ui
     dialogs/serverbookmarksimportdialog.cpp
     dialogs/serverbookmarksimportdialog.h
     dialogs/serverbookmarksimportdialog.ui
-    dialogs/orphanedimagesdialog.cpp
-    dialogs/orphanedimagesdialog.h
-    dialogs/orphanedimagesdialog.ui
-    dialogs/orphanedattachmentsdialog.cpp
-    dialogs/orphanedattachmentsdialog.h
-    dialogs/orphanedattachmentsdialog.ui
+    dialogs/storedimagesdialog.cpp
+    dialogs/storedimagesdialog.h
+    dialogs/storedimagesdialog.ui
+    dialogs/storedattachmentsdialog.cpp
+    dialogs/storedattachmentsdialog.h
+    dialogs/storedattachmentsdialog.ui
     dialogs/scriptrepositorydialog.cpp
     dialogs/scriptrepositorydialog.h
     dialogs/scriptrepositorydialog.ui
@@ -159,11 +196,15 @@ set(SOURCE_FILES
     dialogs/imagedialog.cpp
     dialogs/imagedialog.h
     dialogs/imagedialog.ui
+    dialogs/commandbar.cpp
+    dialogs/commandbar.h
     dialogs/attachmentdialog.cpp
     dialogs/attachmentdialog.h
     dialogs/attachmentdialog.ui
     dialogs/filedialog.cpp
     dialogs/filedialog.h
+    models/commandmodel.cpp
+    models/commandmodel.h
     entities/calendaritem.cpp
     entities/calendaritem.h
     entities/note.cpp
@@ -199,13 +240,13 @@ set(SOURCE_FILES
     helpers/codetohtmlconverter.h
     api/noteapi.cpp
     api/noteapi.h
+    api/notesubfolderapi.cpp
+    api/notesubfolderapi.h
     api/tagapi.cpp
     api/tagapi.h
     api/scriptapi.cpp
     api/scriptapi.h
-    libraries/md4c/md4c/md4c.c
-    libraries/md4c/md2html/render_html.c
-    libraries/md4c/md2html/entity.c
+    libraries/qmarkdowntextedit/linenumberarea.h
     libraries/qmarkdowntextedit/qownlanguagedata.cpp
     libraries/qmarkdowntextedit/qownlanguagedata.h
     libraries/qmarkdowntextedit/markdownhighlighter.cpp
@@ -236,6 +277,8 @@ set(SOURCE_FILES
     services/databaseservice.h
     services/owncloudservice.cpp
     services/owncloudservice.h
+    services/nextclouddeckservice.cpp
+    services/nextclouddeckservice.h
     services/updateservice.cpp
     services/updateservice.h
     services/metricsservice.cpp
@@ -273,6 +316,9 @@ set(SOURCE_FILES
     libraries/sonnet/src/core/textbreaks_p.h
     libraries/sonnet/src/core/tokenizer.cpp
     libraries/sonnet/src/core/tokenizer_p.h
+    libraries/fuzzy/kfuzzymatcher.cpp
+    libraries/qr-code-generator/QrCode.hpp
+    libraries/qr-code-generator/QrCode.cpp
 
     threads/scriptthread.cpp
     threads/scriptthread.h
@@ -299,6 +345,8 @@ set(SOURCE_FILES
     widgets/logwidget.ui
     widgets/label.cpp
     widgets/label.h
+    widgets/qrcodewidget.cpp
+    widgets/qrcodewidget.h
     widgets/lineedit.cpp
     widgets/lineedit.h
     widgets/scriptsettingwidget.cpp
@@ -313,6 +361,12 @@ set(SOURCE_FILES
     widgets/layoutwidget.cpp
     widgets/layoutwidget.h
     widgets/layoutwidget.ui
+    widgets/todoitemtreewidget.cpp
+    widgets/todoitemtreewidget.h
+    widgets/htmlpreviewwidget.h
+    widgets/htmlpreviewwidget.cpp
+    widgets/notesubfoldertree.cpp
+    widgets/notesubfoldertree.h
     utils/misc.cpp
     utils/misc.h
     utils/git.cpp
@@ -321,6 +375,8 @@ set(SOURCE_FILES
     utils/gui.h
     utils/schema.cpp
     utils/schema.h
+    utils/urlhandler.h
+    utils/urlhandler.cpp
     build_number.h
     main.cpp
     mainwindow.cpp
@@ -332,7 +388,10 @@ set(SOURCE_FILES
     helpers/fakevimproxy.cpp
     services/websocketserverservice.cpp
     services/websocketserverservice.h
-    entities/bookmark.h entities/bookmark.cpp)
+    services/webappclientservice.cpp
+    services/webappclientservice.h
+    entities/bookmark.h entities/bookmark.cpp
+    entities/commandsnippet.h entities/commandsnippet.cpp)
 
 if(NOT APPLE)
 list(APPEND SOURCE_FILES
@@ -446,6 +505,8 @@ SET(QON_TS_FILES
     languages/QOwnNotes_pa.ts
     languages/QOwnNotes_sq.ts
     languages/QOwnNotes_he.ts
+    languages/QOwnNotes_yi.ts
+    languages/QOwnNotes_th.ts
     languages/QOwnNotes_sn.ts
     languages/QOwnNotes_km.ts
     languages/QOwnNotes_si.ts
@@ -497,7 +558,6 @@ target_link_libraries(QOwnNotes PRIVATE
     Qt5::Svg
     Qt5::Network
     Qt5::Xml
-    Qt5::XmlPatterns
     Qt5::PrintSupport
     Qt5::WebSockets
     Qt5::Qml
@@ -505,11 +565,18 @@ target_link_libraries(QOwnNotes PRIVATE
     Botan::Botan
     fakevim
     Google::DiffMatchPatch
+    md4c-html
 )
 if(UNIX)
     target_link_libraries(QOwnNotes PRIVATE
         Qt5::X11Extras
         ${X11_LIBRARIES}
+    )
+endif()
+
+if (USE_QLITEHTML)
+    target_link_libraries(QOwnNotes PRIVATE
+        qlitehtml::qlitehtml
     )
 endif()
 

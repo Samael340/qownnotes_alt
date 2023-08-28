@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ QMap<QString, int> ScriptThread::threadCounter;
 ScriptThread::ScriptThread(ScriptingService *ss,
                            const TerminalCmd &cmd,
                            const QString &identifier,
-                           const QVariant callbackParameter) : QThread() {
+                           const QVariant &callbackParameter) : QThread() {
     this->cmd = cmd;
     this->identifier = identifier;
     this->callbackParameter = callbackParameter;
@@ -40,7 +40,7 @@ int ScriptThread::getThreadCounter() {
     return threadCounter[identifier];
 }
 
-// We overrides the QThread's run() method here
+// We override the QThread's run() method here
 // run() will be called when a thread starts
 // the code will be shared by all threads
 void ScriptThread::run() {

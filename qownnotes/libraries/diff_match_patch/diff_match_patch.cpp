@@ -21,8 +21,14 @@
 
 #include <algorithm>
 #include <limits>
-// Code known to compile and run with Qt 4.3 through Qt 4.7.
-#include <QtCore>
+
+#include <QString>
+#include <QList>
+#include <QUrl>
+#include <QVariant>
+#include <QStack>
+#include <QRegularExpression>
+
 #include <time.h>
 #include "diff_match_patch.h"
 
@@ -67,7 +73,7 @@ QString Diff::strOperation(Operation op) {
 QString Diff::toString() const {
   QString prettyText = text;
   // Replace linebreaks with Pilcrow signs.
-  prettyText.replace('\n', L'\u00b6');
+  prettyText.replace('\n', u'\u00b6');
   return QString("Diff(") + strOperation(operation) + QString(",\"")
       + prettyText + QString("\")");
 }
@@ -572,7 +578,7 @@ void diff_match_patch::diff_charsToLines(QList<Diff> &diffs,
 int diff_match_patch::diff_commonPrefix(const QString &text1,
                                         const QString &text2) {
   // Performance analysis: http://neil.fraser.name/news/2007/10/09/
-  const int n = std::min(text1.length(), text2.length());
+  const int n = std::min<int>(text1.length(), text2.length());
   for (int i = 0; i < n; i++) {
     if (text1[i] != text2[i]) {
       return i;
@@ -944,6 +950,10 @@ int diff_match_patch::diff_cleanupSemanticScore(const QString &one,
     return 6;
   }
 
+  // Define some regex patterns for matching boundaries.
+  static QRegularExpression BLANKLINEEND = QRegularExpression("\\n\\r?\\n$");
+  static QRegularExpression BLANKLINESTART = QRegularExpression("^\\r?\\n\\r?\\n");
+
   // Each port of this function behaves slightly differently due to
   // subtle differences in each language's definition of things like
   // 'whitespace'.  Since this function's purpose is largely cosmetic,
@@ -957,8 +967,8 @@ int diff_match_patch::diff_cleanupSemanticScore(const QString &one,
   bool whitespace2 = nonAlphaNumeric2 && char2.isSpace();
   bool lineBreak1 = whitespace1 && char1.category() == QChar::Other_Control;
   bool lineBreak2 = whitespace2 && char2.category() == QChar::Other_Control;
-  bool blankLine1 = lineBreak1 && BLANKLINEEND.indexIn(one) != -1;
-  bool blankLine2 = lineBreak2 && BLANKLINESTART.indexIn(two) != -1;
+  bool blankLine1 = lineBreak1 && one.indexOf(BLANKLINEEND) != -1;
+  bool blankLine2 = lineBreak2 && two.indexOf(BLANKLINESTART) != -1;
 
   if (blankLine1 || blankLine2) {
     // Five points for blank lines.
@@ -978,11 +988,6 @@ int diff_match_patch::diff_cleanupSemanticScore(const QString &one,
   }
   return 0;
 }
-
-
-// Define some regex patterns for matching boundaries.
-QRegExp diff_match_patch::BLANKLINEEND = QRegExp("\\n\\r?\\n$");
-QRegExp diff_match_patch::BLANKLINESTART = QRegExp("^\\r?\\n\\r?\\n");
 
 
 void diff_match_patch::diff_cleanupEfficiency(QList<Diff> &diffs) {
@@ -1432,7 +1437,7 @@ int diff_match_patch::match_main(const QString &text, const QString &pattern,
     throw "Null inputs. (match_main)";
   }
 
-  loc = std::max(0, std::min(loc, text.length()));
+  loc = std::max<int>(0, std::min<int>(loc, text.length()));
   if (text == pattern) {
     // Shortcut (potentially not guaranteed by the algorithm)
     return 0;
@@ -1464,12 +1469,12 @@ int diff_match_patch::match_bitap(const QString &text, const QString &pattern,
   // Is there a nearby exact match? (speedup)
   int best_loc = text.indexOf(pattern, loc);
   if (best_loc != -1) {
-    score_threshold = std::min(match_bitapScore(0, best_loc, loc, pattern),
+    score_threshold = std::min<int>(match_bitapScore(0, best_loc, loc, pattern),
         score_threshold);
     // What about in the other direction? (speedup)
     best_loc = text.lastIndexOf(pattern, loc + pattern.length());
     if (best_loc != -1) {
-      score_threshold = std::min(match_bitapScore(0, best_loc, loc, pattern),
+      score_threshold = std::min<int>(match_bitapScore(0, best_loc, loc, pattern),
           score_threshold);
     }
   }
@@ -1480,8 +1485,8 @@ int diff_match_patch::match_bitap(const QString &text, const QString &pattern,
 
   int bin_min, bin_mid;
   int bin_max = pattern.length() + text.length();
-  int *rd;
-  int *last_rd = NULL;
+  int *rd = nullptr;
+  int *last_rd = nullptr;
   for (int d = 0; d < pattern.length(); d++) {
     // Scan for the best match; each iteration allows for one more error.
     // Run a binary search to determine how far from 'loc' we can stray at
@@ -1499,8 +1504,8 @@ int diff_match_patch::match_bitap(const QString &text, const QString &pattern,
     }
     // Use the result from this iteration as the maximum for the next.
     bin_max = bin_mid;
-    int start = std::max(1, loc - bin_mid + 1);
-    int finish = std::min(loc + bin_mid, text.length()) + pattern.length();
+    int start = std::max<int>(1, loc - bin_mid + 1);
+    int finish = std::min<int>(loc + bin_mid, text.length()) + pattern.length();
 
     rd = new int[finish + 2];
     rd[finish + 1] = (1 << d) - 1;
@@ -1531,7 +1536,7 @@ int diff_match_patch::match_bitap(const QString &text, const QString &pattern,
           best_loc = j - 1;
           if (best_loc > loc) {
             // When passing loc, don't exceed our current distance from loc.
-            start = std::max(1, 2 * loc - best_loc);
+            start = std::max<int>(1, 2 * loc - best_loc);
           } else {
             // Already passed loc, downhill from here on in.
             break;
@@ -1594,22 +1599,22 @@ void diff_match_patch::patch_addContext(Patch &patch, const QString &text) {
   while (text.indexOf(pattern) != text.lastIndexOf(pattern)
       && pattern.length() < Match_MaxBits - Patch_Margin - Patch_Margin) {
     padding += Patch_Margin;
-    pattern = safeMid(text, std::max(0, patch.start2 - padding),
-        std::min(text.length(), patch.start2 + patch.length1 + padding)
-        - std::max(0, patch.start2 - padding));
+    pattern = safeMid(text, std::max<int>(0, patch.start2 - padding),
+        std::min<int>(text.length(), patch.start2 + patch.length1 + padding)
+        - std::max<int>(0, patch.start2 - padding));
   }
   // Add one chunk for good luck.
   padding += Patch_Margin;
 
   // Add the prefix.
-  QString prefix = safeMid(text, std::max(0, patch.start2 - padding),
-      patch.start2 - std::max(0, patch.start2 - padding));
+  QString prefix = safeMid(text, std::max<int>(0, patch.start2 - padding),
+      patch.start2 - std::max<int>(0, patch.start2 - padding));
   if (!prefix.isEmpty()) {
     patch.diffs.prepend(Diff(EQUAL, prefix));
   }
   // Add the suffix.
   QString suffix = safeMid(text, patch.start2 + patch.length1,
-      std::min(text.length(), patch.start2 + patch.length1 + padding)
+      std::min<int>(text.length(), patch.start2 + patch.length1 + padding)
       - (patch.start2 + patch.length1));
   if (!suffix.isEmpty()) {
     patch.diffs.append(Diff(EQUAL, suffix));
@@ -1977,7 +1982,7 @@ void diff_match_patch::patch_splitMax(QList<Patch> &patches) {
           bigpatch.diffs.removeFirst();
         } else {
           // Deletion or equality.  Only take as much as we can stomach.
-          diff_text = diff_text.left(std::min(diff_text.length(),
+          diff_text = diff_text.left(std::min<int>(diff_text.length(),
               patch_size - patch.length1 - Patch_Margin));
           patch.length1 += diff_text.length();
           start1 += diff_text.length();
@@ -2038,37 +2043,45 @@ QList<Patch> diff_match_patch::patch_fromText(const QString &textline) {
   if (textline.isEmpty()) {
     return patches;
   }
-  QStringList text = textline.split("\n", QString::SkipEmptyParts);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+  QStringList text = textline.split('\n', Qt::SkipEmptyParts);
+#else
+  QStringList text = textline.split('\n', QString::SkipEmptyParts);
+#endif
+
   Patch patch;
-  QRegExp patchHeader("^@@ -(\\d+),?(\\d*) \\+(\\d+),?(\\d*) @@$");
+  static const QRegularExpression patchHeaderRe("^@@ -(\\d+),?(\\d*) \\+(\\d+),?(\\d*) @@$");
+//   QRegExp patchHeader("^@@ -(\\d+),?(\\d*) \\+(\\d+),?(\\d*) @@$");
   char sign;
   QString line;
   while (!text.isEmpty()) {
-    if (!patchHeader.exactMatch(text.front())) {
+    auto patchHeader = patchHeaderRe.match(text.front());
+    if (!patchHeader.hasMatch()) {
       throw QString("Invalid patch string: %1").arg(text.front());
     }
 
     patch = Patch();
-    patch.start1 = patchHeader.cap(1).toInt();
-    if (patchHeader.cap(2).isEmpty()) {
+    patch.start1 = patchHeader.captured(1).toInt();
+    if (patchHeader.captured(2).isEmpty()) {
       patch.start1--;
       patch.length1 = 1;
-    } else if (patchHeader.cap(2) == "0") {
+    } else if (patchHeader.captured(2) == "0") {
       patch.length1 = 0;
     } else {
       patch.start1--;
-      patch.length1 = patchHeader.cap(2).toInt();
+      patch.length1 = patchHeader.captured(2).toInt();
     }
 
-    patch.start2 = patchHeader.cap(3).toInt();
-    if (patchHeader.cap(4).isEmpty()) {
+    patch.start2 = patchHeader.captured(3).toInt();
+    if (patchHeader.captured(4).isEmpty()) {
       patch.start2--;
       patch.length2 = 1;
-    } else if (patchHeader.cap(4) == "0") {
+    } else if (patchHeader.captured(4) == "0") {
       patch.length2 = 0;
     } else {
       patch.start2--;
-      patch.length2 = patchHeader.cap(4).toInt();
+      patch.length2 = patchHeader.captured(4).toInt();
     }
     text.removeFirst();
 

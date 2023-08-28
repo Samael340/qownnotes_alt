@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -71,7 +71,7 @@ PiwikTracker::PiwikTracker(QCoreApplication* parent, QUrl trackerUrl,
         // create a client id if none was in the settings
         if (!settings.contains("PiwikClientId")) {
             QByteArray ba;
-            ba.append(QUuid::createUuid().toString());
+            ba.append(QUuid::createUuid().toByteArray());
 
             // generate a random md5 hash
             QString md5Hash = QString(
@@ -120,7 +120,7 @@ PiwikTracker::PiwikTracker(QCoreApplication* parent, QUrl trackerUrl,
 #endif
 
     // for QT >= 5.4 we can use QSysInfo
-    // Piwik doesn't recognize that on Mac OS X very well
+    // Piwik doesn't recognize that on macOS very well
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
 #ifdef Q_OS_MAC
     operatingSystem = "Macintosh " + QSysInfo::prettyProductName();
@@ -223,14 +223,21 @@ void PiwikTracker::sendVisit(const QString& path, const QString& actionName) {
 
     url.setQuery(q);
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     // try to ensure the network is accessible
     _networkAccessManager.setNetworkAccessible(
         QNetworkAccessManager::Accessible);
+#endif
 
     QNetworkReply* reply = _networkAccessManager.get(QNetworkRequest(url));
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this,
             SLOT(replyError(QNetworkReply::NetworkError)));
+#else
+    connect(reply, SIGNAL(errorOccurred(QNetworkReply::NetworkError)), this,
+            SLOT(replyError(QNetworkReply::NetworkError)));
+#endif
 
     // ignoring SSL errors
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply,
@@ -250,14 +257,21 @@ void PiwikTracker::sendPing() {
     q.addQueryItem("ping", "1");
     url.setQuery(q);
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     // try to ensure the network is accessible
     _networkAccessManager.setNetworkAccessible(
         QNetworkAccessManager::Accessible);
+#endif
 
     QNetworkReply* reply = _networkAccessManager.get(QNetworkRequest(url));
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this,
             SLOT(replyError(QNetworkReply::NetworkError)));
+#else
+    connect(reply, SIGNAL(errorOccurred(QNetworkReply::NetworkError)), this,
+            SLOT(replyError(QNetworkReply::NetworkError)));
+#endif
 
     // ignoring SSL errors
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply,
@@ -293,14 +307,21 @@ void PiwikTracker::sendEvent(const QString& path, const QString& eventCategory,
 
     url.setQuery(q);
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     // try to ensure the network is accessible
     _networkAccessManager.setNetworkAccessible(
         QNetworkAccessManager::Accessible);
+#endif
 
     QNetworkReply* reply = _networkAccessManager.get(QNetworkRequest(url));
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this,
             SLOT(replyError(QNetworkReply::NetworkError)));
+#else
+    connect(reply, SIGNAL(errorOccurred(QNetworkReply::NetworkError)), this,
+            SLOT(replyError(QNetworkReply::NetworkError)));
+#endif
 
     // ignoring SSL errors
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply,

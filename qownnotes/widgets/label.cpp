@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,8 +43,7 @@ void Label::setText(const QString &text) { QLabel::setText(injectCSS(text)); }
 QString Label::injectCSS(const QString &text) {
     //    text = text.remove("<html>").remove("</html>").remove("<head/>");
     QString ret;
-    ret.reserve(text.size() + 15 + Utils::Misc::genericCSS().size() +
-                text.size());
+    ret.reserve(text.size() + 15 + Utils::Misc::genericCSS().size() + text.size());
     ret.append(QStringLiteral("<style>"));
     ret.append(Utils::Misc::genericCSS());
     ret.append(QStringLiteral("</style>"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 namespace Utils {
 namespace Git {
 void commitCurrentNoteFolder();
-bool executeCommand(const QString& command, QProcess* process = Q_NULLPTR,
-                    bool withErrorDialog = false);
-bool executeGitCommand(const QString& arguments, QProcess* process = Q_NULLPTR,
-                       bool withErrorDialog = true);
+bool executeCommand(const QString& command, const QStringList& arguments,
+                    QProcess* process = nullptr, bool withErrorDialog = false);
+bool executeGitCommand(const QString& gitExe, const QStringList& arguments,
+                       QProcess* process = nullptr, bool withErrorDialog = true);
 QString gitCommand();
 void showLog(const QString& filePath);
 bool hasLogCommand();

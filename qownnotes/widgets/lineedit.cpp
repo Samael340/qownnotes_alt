@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,7 @@
 
 #include <QKeyEvent>
 
-LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent) {
-    installEventFilter(this);
-}
+LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent) { installEventFilter(this); }
 
 bool LineEdit::eventFilter(QObject *obj, QEvent *event) {
     if (event->type() == QEvent::KeyPress) {

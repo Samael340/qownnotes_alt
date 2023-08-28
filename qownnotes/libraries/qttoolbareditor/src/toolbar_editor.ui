@@ -227,9 +227,9 @@
  <connections>
   <connection>
    <sender>combo_toolbar</sender>
-   <signal>currentIndexChanged(QString)</signal>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>Toolbar_Editor</receiver>
-   <slot>update_list_toolbar(QString)</slot>
+   <slot>update_list_toolbar(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>294</x>
@@ -243,6 +243,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>update_list_toolbar(QString)</slot>
+  <slot>update_list_toolbar(int)</slot>
  </slots>
 </ui>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 
+#ifdef QT_QUICK_LIB
+#include <QQuickTextDocument>
+#endif
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 
@@ -26,6 +30,25 @@ QT_END_NAMESPACE
 
 class MarkdownHighlighter : public QSyntaxHighlighter {
     Q_OBJECT
+
+#ifdef QT_QUICK_LIB
+    Q_PROPERTY(QQuickTextDocument *textDocument READ textDocument WRITE
+                   setTextDocument NOTIFY textDocumentChanged)
+
+    QQuickTextDocument *m_quickDocument = nullptr;
+
+   signals:
+    void textDocumentChanged();
+
+   public:
+    inline QQuickTextDocument *textDocument() const { return m_quickDocument; };
+    void setTextDocument(QQuickTextDocument *textDocument) {
+        if (!textDocument) return;
+        m_quickDocument = textDocument;
+        setDocument(m_quickDocument->textDocument());
+        Q_EMIT textDocumentChanged();
+    };
+#endif
 
    public:
     enum HighlightingOption {
@@ -67,8 +90,20 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
         return state == MarkdownHighlighter::CodeBlockEnd ||
                state == MarkdownHighlighter::CodeBlockTildeEnd;
     }
+    static constexpr inline bool isHeading(const int state) {
+        return state >= H1 && state <= H6;
+    }
 
-    // we use some predefined numbers here to be compatible with
+    enum class RangeType {
+        CodeSpan,
+        Emphasis
+    };
+
+    QPair<int, int> findPositionInRanges(MarkdownHighlighter::RangeType type, int blockNum, int pos) const;
+    bool isPosInACodeSpan(int blockNumber, int position) const;
+    QPair<int, int> getSpanRange(RangeType rangeType, int blockNumber, int position) const;
+
+    // we used some predefined numbers here to be compatible with
     // the peg-markdown parser
     enum HighlighterState {
         NoState = -1,
@@ -97,6 +132,7 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
         TrailingSpace,
         CheckBoxUnChecked,
         CheckBoxChecked,
+        StUnderline,
 
         // code highlighting
         CodeKeyWord = 1000,
@@ -160,19 +196,12 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
         CodeVex = 240,
         CodeVexComment = 241,
         CodeCMake = 242,
-        CodeMake = 244
+        CodeMake = 244,
+        CodeNix = 246,
+        CodeForth = 248,
+        CodeForthComment = 249
     };
-    Q_ENUMS(HighlighterState)
-
-    //    enum BlockState {
-    //        NoBlockState = 0,
-    //        H1,
-    //        H2,
-    //        H3,
-    //        Table,
-    //        CodeBlock,
-    //        CodeBlockEnd
-    //    };
+    Q_ENUM(HighlighterState)
 
     static void setTextFormats(
         QHash<HighlighterState, QTextCharFormat> formats);
@@ -180,10 +209,11 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
     void clearDirtyBlocks();
     void setHighlightingOptions(const HighlightingOptions options);
     void initHighlightingRules();
-   signals:
+
+   Q_SIGNALS:
     void highlightingFinished();
 
-   protected slots:
+   protected Q_SLOTS:
     void timerTick();
 
    protected:
@@ -198,14 +228,28 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
         uint8_t capturingGroup = 0;
         uint8_t maskedGroup = 0;
     };
+    struct InlineRange {
+        int begin;
+        int end;
+        RangeType type;
+        InlineRange() = default;
+        InlineRange(int begin_, int end_, RangeType type_) :
+            begin{begin_}, end{end_}, type{type_}
+        {}
+    };
 
-    void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
+
+    void highlightBlock(const QString &text) override;
 
     static void initTextFormats(int defaultFontSize = 12);
 
     static void initCodeLangs();
 
     void highlightMarkdown(const QString &text);
+
+    void formatAndMaskRemaining(int formatBegin, int formatLength,
+                                int beginningText, int endText,
+                                const QTextCharFormat &format);
 
     /******************************
      *  BLOCK LEVEL FUNCTIONS
@@ -226,18 +270,22 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
 
     void highlightLists(const QString &text);
 
+    void highlightCheckbox(const QString &text, int curPos);
+
     /******************************
      *  INLINE FUNCTIONS
      ******************************/
 
     void highlightInlineRules(const QString &text);
 
-    Q_REQUIRED_RESULT int highlightInlineSpans(const QString &text,
+    int highlightInlineSpans(const QString &text,
                                                int currentPos, const QChar c);
 
     void highlightEmAndStrong(const QString &text, const int pos);
 
     Q_REQUIRED_RESULT int highlightInlineComment(const QString &text, int pos);
+
+    int highlightLinkOrImage(const QString &text, int startIndex);
 
     void setHeadingStyles(MarkdownHighlighter::HighlighterState rule,
                           const QRegularExpressionMatch &match,
@@ -271,19 +319,26 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
 
     void makeHighlighter(const QString &text);
 
+    void forthHighlighter(const QString &text);
+
     void taggerScriptHighlighter(const QString &text);
 
     void addDirtyBlock(const QTextBlock &block);
 
     void reHighlightDirtyBlocks();
 
-    QVector<HighlightingRule> _highlightingRules;
-    QVector<QPair<int,int>> _linkRanges;
-    static QHash<HighlighterState, QTextCharFormat> _formats;
-    static QHash<QString, HighlighterState> _langStringToEnum;
-    QVector<QTextBlock> _dirtyTextBlocks;
-    QTimer *_timer;
+    void clearRangesForBlock(int blockNumber, RangeType type);
+
     bool _highlightingFinished;
     HighlightingOptions _highlightingOptions;
+    QTimer *_timer;
+    QVector<QTextBlock> _dirtyTextBlocks;
+    QVector<QPair<int,int>> _linkRanges;
+
+    QHash<int, QVector<InlineRange>> _ranges;
+
+    static QVector<HighlightingRule> _highlightingRules;
+    static QHash<HighlighterState, QTextCharFormat> _formats;
+    static QHash<QString, HighlighterState> _langStringToEnum;
     static constexpr int tildeOffset = 300;
 };

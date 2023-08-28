@@ -16,18 +16,11 @@
 #include "notefolder.h"
 #include "notesubfolder.h"
 
-Tag::Tag() noexcept
-    : _id(0), _parentId(0), _priority(0), _name(QLatin1String("")) {}
-
-int Tag::getId() const { return _id; }
+Tag::Tag() noexcept : _parentId(0), _priority(0) {}
 
 int Tag::getParentId() const { return _parentId; }
 
 void Tag::setParentId(const int id) { _parentId = id; }
-
-QString Tag::getName() const { return _name; }
-
-void Tag::setName(const QString &text) { _name = text; }
 
 QColor Tag::getColor() const { return _color; }
 
@@ -68,10 +61,9 @@ Tag Tag::fetchByName(QString name, const bool startsWith) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
     Tag tag;
-    const QString sql =
-        QStringLiteral("SELECT * FROM tag WHERE name ") %
-        QString(startsWith ? QStringLiteral("LIKE") : QStringLiteral("=")) %
-        QStringLiteral(" :name ORDER BY name");
+    const QString sql = QStringLiteral("SELECT * FROM tag WHERE name ") %
+                        QString(startsWith ? QStringLiteral("LIKE") : QStringLiteral("=")) %
+                        QStringLiteral(" :name ORDER BY name");
     query.prepare(sql);
 
     if (startsWith) {
@@ -159,8 +151,7 @@ bool Tag::remove() const {
         QSqlQuery query2(db2);
 
         // remove the note tag links
-        query2.prepare(
-            QStringLiteral("DELETE FROM noteTagLink WHERE tag_id = :id"));
+        query2.prepare(QStringLiteral("DELETE FROM noteTagLink WHERE tag_id = :id"));
         query2.bindValue(QStringLiteral(":id"), _id);
 
         if (!query2.exec()) {
@@ -175,9 +166,7 @@ bool Tag::remove() const {
     }
 }
 
-Tag Tag::tagFromQuery(const QSqlQuery &query) {
-    return Tag().fillFromQuery(query);
-}
+Tag Tag::tagFromQuery(const QSqlQuery &query) { return Tag().fillFromQuery(query); }
 
 Tag Tag::fillFromQuery(const QSqlQuery &query) {
     _id = query.value(QStringLiteral("id")).toInt();
@@ -191,11 +180,11 @@ Tag Tag::fillFromQuery(const QSqlQuery &query) {
     return *this;
 }
 
-QList<Tag> Tag::fetchAll() {
+QVector<Tag> Tag::fetchAll() {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
 
-    QList<Tag> tagList;
+    QVector<Tag> tagList;
 
     // query.prepare("SELECT * FROM tag ORDER BY priority ASC, name ASC");
     /*
@@ -213,23 +202,22 @@ QList<Tag> Tag::fetchAll() {
      * to sort the result by.
      *
      */
-    query.prepare(QStringLiteral(
-        "SELECT t.id as id, t.name as name, t.priority as priority, max( "
-        "CASE "
-        "WHEN l.created > t.updated THEN l.created "
-        "ELSE t.updated "
-        "END "
-        ") AS created, t.parent_id as parent_id, "
-        "t.color as color, t.dark_color as dark_color "
-        "FROM tag t LEFT JOIN noteTagLink l ON t.id = l.tag_id "
-        "GROUP BY t.name "
-        "ORDER BY created DESC"));
+    query.prepare(
+        QStringLiteral("SELECT t.id as id, t.name as name, t.priority as priority, max( "
+                       "CASE "
+                       "WHEN l.created > t.updated THEN l.created "
+                       "ELSE t.updated "
+                       "END "
+                       ") AS created, t.parent_id as parent_id, "
+                       "t.color as color, t.dark_color as dark_color "
+                       "FROM tag t LEFT JOIN noteTagLink l ON t.id = l.tag_id "
+                       "GROUP BY t.name "
+                       "ORDER BY created DESC"));
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
     } else {
         for (int r = 0; query.next(); r++) {
-            const Tag tag = tagFromQuery(query);
-            tagList.append(tag);
+            tagList.append(tagFromQuery(query));
         }
     }
 
@@ -238,10 +226,37 @@ QList<Tag> Tag::fetchAll() {
     return tagList;
 }
 
-QList<Tag> Tag::fetchAllByParentId(const int parentId, const QString &sortBy) {
+QVector<TagHeader> Tag::fetchAllTagHeadersByParentId(const int parentId) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
-    QList<Tag> tagList;
+    QVector<TagHeader> tagList;
+
+    query.prepare(
+        QStringLiteral("SELECT t.id as id, t.name as name "
+                       "FROM tag t LEFT JOIN noteTagLink l ON t.id = l.tag_id "
+                       "WHERE parent_id = :parentId "
+                       "GROUP BY t.name"));
+    query.bindValue(QStringLiteral(":parentId"), parentId);
+
+    if (!query.exec()) {
+        qWarning() << __func__ << ": " << query.lastError();
+    } else {
+        for (int r = 0; query.next(); r++) {
+            int id = query.value(QStringLiteral("id")).toInt();
+            QString name = query.value(QStringLiteral("name")).toString();
+            tagList.append(TagHeader{id, name});
+        }
+    }
+
+    DatabaseService::closeDatabaseConnection(db, query);
+
+    return tagList;
+}
+
+QVector<Tag> Tag::fetchAllByParentId(const int parentId, const QString &sortBy) {
+    QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
+    QSqlQuery query(db);
+    QVector<Tag> tagList;
 
     // query.prepare("SELECT * FROM tag WHERE parent_id = :parentId ORDER BY "
     //                      "priority ASC, name ASC");
@@ -250,20 +265,19 @@ QList<Tag> Tag::fetchAllByParentId(const int parentId, const QString &sortBy) {
      * parent_id.
      */
     query.prepare(
-        QStringLiteral(
-            "SELECT t.id as id, t.name as name, t.priority as priority, max( "
-            "CASE "
-            "WHEN l.created > t.updated THEN l.created "
-            "ELSE t.updated "
-            "END "
-            ") AS created, t.parent_id as parent_id, "
-            "t.color as color, t.dark_color as dark_color "
-            "FROM tag t LEFT JOIN noteTagLink l ON t.id = l.tag_id "
-            "WHERE parent_id = :parentId "
-            "GROUP BY t.name "
-            "ORDER BY ") %
-        sortBy);
+        QStringLiteral("SELECT t.id as id, t.name as name, t.priority as priority, max( "
+                       "CASE "
+                       "WHEN l.created > t.updated THEN l.created "
+                       "ELSE t.updated "
+                       "END "
+                       ") AS created, t.parent_id as parent_id, "
+                       "t.color as color, t.dark_color as dark_color "
+                       "FROM tag t LEFT JOIN noteTagLink l ON t.id = l.tag_id "
+                       "WHERE parent_id = :parentId "
+                       "GROUP BY t.name "
+                       "ORDER BY :sortBy"));
     query.bindValue(QStringLiteral(":parentId"), parentId);
+    query.bindValue(QStringLiteral(":sortBy"), sortBy);
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -278,6 +292,30 @@ QList<Tag> Tag::fetchAllByParentId(const int parentId, const QString &sortBy) {
     return tagList;
 }
 
+QVector<int> Tag::fetchAllIdsByParentId(const int parentId) {
+    QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
+    QSqlQuery query(db);
+
+    query.prepare(
+        QStringLiteral("SELECT t.id as id "
+                       "FROM tag t LEFT JOIN noteTagLink l ON t.id = l.tag_id "
+                       "WHERE parent_id = :parentId"));
+
+    query.bindValue(QStringLiteral(":parentId"), parentId);
+
+    QVector<int> tagList;
+    if (!query.exec()) {
+        qWarning() << __func__ << ": " << query.lastError();
+    } else {
+        for (int r = 0; query.next(); r++) {
+            int id = query.value(QStringLiteral("id")).toInt();
+            tagList.append(id);
+        }
+    }
+    DatabaseService::closeDatabaseConnection(db, query);
+    return tagList;
+}
+
 /**
  * Fetches a list of all tags recursively by a parent id
  * The tag of the parent id is also included in the list
@@ -285,8 +323,8 @@ QList<Tag> Tag::fetchAllByParentId(const int parentId, const QString &sortBy) {
  * @param parentId
  * @return
  */
-QList<Tag> Tag::fetchRecursivelyByParentId(const int parentId) {
-    QList<Tag> tagList = QList<Tag>{fetch(parentId)};
+QVector<Tag> Tag::fetchRecursivelyByParentId(const int parentId) {
+    QVector<Tag> tagList = QVector<Tag>{fetch(parentId)};
     const auto tags = fetchAllByParentId(parentId);
     tagList.reserve(tags.size());
 
@@ -295,6 +333,18 @@ QList<Tag> Tag::fetchRecursivelyByParentId(const int parentId) {
     }
 
     return tagList;
+}
+
+QVector<int> Tag::fetchTagIdsRecursivelyByParentId(const int parentId) {
+    QVector<int> tagIdList{parentId};
+    const auto tagIds = fetchAllIdsByParentId(parentId);
+    tagIdList.reserve(tagIds.size());
+
+    for (const int tagId : tagIds) {
+        tagIdList << fetchTagIdsRecursivelyByParentId(tagId);
+    }
+
+    return tagIdList;
 }
 
 QStringList Tag::getParentTagNames() {
@@ -320,9 +370,7 @@ QStringList Tag::getParentTagNames() {
  * Checks if taggingShowNotesRecursively is set
  */
 bool Tag::isTaggingShowNotesRecursively() {
-    return QSettings()
-        .value(QStringLiteral("taggingShowNotesRecursively"))
-        .toBool();
+    return QSettings().value(QStringLiteral("taggingShowNotesRecursively")).toBool();
 }
 
 int Tag::countAllParentId(const int parentId) {
@@ -366,11 +414,11 @@ bool Tag::hasChild(const int tagId) const {
 /**
  * Fetches all linked tags of a note
  */
-QList<Tag> Tag::fetchAllOfNote(const Note &note) {
+QVector<Tag> Tag::fetchAllOfNote(const Note &note) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
 
-    QList<Tag> tagList;
+    QVector<Tag> tagList;
 
     query.prepare(
         QStringLiteral("SELECT t.* FROM tag t "
@@ -379,15 +427,13 @@ QList<Tag> Tag::fetchAllOfNote(const Note &note) {
                        "l.note_sub_folder_path = :noteSubFolderPath "
                        "ORDER BY t.priority ASC, t.name ASC"));
     query.bindValue(QStringLiteral(":fileName"), note.getName());
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), note.getNoteSubFolder().relativePath());
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
     } else {
         for (int r = 0; query.next(); r++) {
-            const Tag tag = tagFromQuery(query);
-            tagList.append(tag);
+            tagList.append(tagFromQuery(query));
         }
     }
 
@@ -399,23 +445,19 @@ QList<Tag> Tag::fetchAllOfNote(const Note &note) {
 /**
  * Fetches all linked tags of a list of notes
  */
-QList<Tag> Tag::fetchAllOfNotes(const QVector<Note> &notes) {
-    QList<Tag> resultTagList;
+QVector<Tag> Tag::fetchAllOfNotes(const QVector<Note> &notes) {
+    QVector<Tag> notesTagList;
 
+    // get all tags for the notes list
     for (const Note &note : notes) {
-        const QList<Tag> tagList = Tag::fetchAllOfNote(note);
-
-        resultTagList.reserve(tagList.size());
-        for (const Tag &tag : tagList) {
-            if (!resultTagList.contains(tag)) {
-                resultTagList.append(tag);
-            }
-        }
+        notesTagList.append(Tag::fetchAllOfNote(note));
     }
+    // sort
+    std::sort(notesTagList.begin(), notesTagList.end());
+    // remove duplicates
+    notesTagList.erase(std::unique(notesTagList.begin(), notesTagList.end()), notesTagList.end());
 
-    std::sort(resultTagList.begin(), resultTagList.end());
-
-    return resultTagList;
+    return notesTagList;
 }
 
 /**
@@ -433,8 +475,7 @@ QStringList Tag::fetchAllNamesOfNote(const Note &note) {
                        "l.note_sub_folder_path = :noteSubFolderPath "
                        "ORDER BY t.priority ASC, t.name ASC"));
     query.bindValue(QStringLiteral(":fileName"), note.getName());
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), note.getNoteSubFolder().relativePath());
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -462,8 +503,7 @@ QSet<int> Tag::fetchAllIdsByNote(const Note &note) {
                        "WHERE note_file_name = :fileName AND "
                        "note_sub_folder_path = :noteSubFolderPath"));
     query.bindValue(QStringLiteral(":fileName"), note.getName());
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), note.getNoteSubFolder().relativePath());
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -520,19 +560,20 @@ Tag Tag::fetchOneOfNoteWithColor(const Note &note) {
 }
 
 /**
- * Count all linked tags of a note
+ * Checks if a note has tags
  */
-int Tag::countAllOfNote(const Note &note) {
+bool Tag::noteHasTags(const Note &note, const QString &path) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
 
     query.prepare(
-        QStringLiteral("SELECT COUNT(*) AS cnt FROM noteTagLink "
-                       "WHERE note_file_name = :fileName AND "
-                       "note_sub_folder_path = :noteSubFolderPath"));
+        QStringLiteral("SELECT "
+                       "EXISTS (SELECT tag_id FROM noteTagLink "
+                       "WHERE note_file_name=:fileName AND "
+                       "note_sub_folder_path=:noteSubFolderPath) AS cnt"));
     query.bindValue(QStringLiteral(":fileName"), note.getName());
     query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+                    path.isEmpty() ? note.getNoteSubFolder().relativePath() : path);
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -540,7 +581,7 @@ int Tag::countAllOfNote(const Note &note) {
         int result = query.value(QStringLiteral("cnt")).toInt();
         DatabaseService::closeDatabaseConnection(db, query);
 
-        return result;
+        return result == 1;
     }
 
     DatabaseService::closeDatabaseConnection(db, query);
@@ -561,8 +602,7 @@ bool Tag::isLinkedToNote(const Note &note) const {
                        "note_sub_folder_path = :noteSubFolderPath "
                        "AND tag_id = :tagId"));
     query.bindValue(QStringLiteral(":fileName"), note.getName());
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), note.getNoteSubFolder().relativePath());
     query.bindValue(QStringLiteral(":tagId"), _id);
 
     if (!query.exec()) {
@@ -582,10 +622,10 @@ bool Tag::isLinkedToNote(const Note &note) const {
 /**
  * Returns all tags that are linked to certain note names
  */
-QList<Tag> Tag::fetchAllWithLinkToNoteNames(const QStringList &noteNameList) {
+QVector<Tag> Tag::fetchAllWithLinkToNoteNames(const QStringList &noteNameList) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
-    QList<Tag> tagList;
+    QVector<Tag> tagList;
     const QString noteIdListString = noteNameList.join(QStringLiteral("','"));
 
     const QString sql = QStringLiteral(
@@ -604,8 +644,7 @@ QList<Tag> Tag::fetchAllWithLinkToNoteNames(const QStringList &noteNameList) {
         qWarning() << __func__ << ": " << query.lastError();
     } else {
         for (int r = 0; query.next(); r++) {
-            const Tag tag = tagFromQuery(query);
-            tagList.append(tag);
+            tagList.append(tagFromQuery(query));
         }
     }
 
@@ -617,8 +656,8 @@ QList<Tag> Tag::fetchAllWithLinkToNoteNames(const QStringList &noteNameList) {
 /**
  * Fetches all linked note ids
  */
-QVector<int> Tag::fetchAllLinkedNoteIds(const bool fromAllSubfolders,
-                                        const bool recursive) const {
+QVector<int> Tag::fetchAllLinkedNoteIds(int tagId, const bool fromAllSubfolders,
+                                        const bool recursive) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
     QVector<int> noteIdList;
@@ -633,9 +672,8 @@ QVector<int> Tag::fetchAllLinkedNoteIds(const bool fromAllSubfolders,
             QStringLiteral("SELECT note_file_name, note_sub_folder_path "
                            "FROM noteTagLink WHERE tag_id = :id "
                            "AND note_sub_folder_path LIKE :noteSubFolderPath"));
-        query.bindValue(
-            QStringLiteral(":noteSubFolderPath"),
-            NoteSubFolder::activeNoteSubFolder().relativePath() + "%");
+        query.bindValue(QStringLiteral(":noteSubFolderPath"),
+                        NoteSubFolder::activeNoteSubFolder().relativePath() + "%");
     } else {
         query.prepare(
             QStringLiteral("SELECT note_file_name, note_sub_folder_path "
@@ -645,7 +683,7 @@ QVector<int> Tag::fetchAllLinkedNoteIds(const bool fromAllSubfolders,
                         NoteSubFolder::activeNoteSubFolder().relativePath());
     }
 
-    query.bindValue(QStringLiteral(":id"), _id);
+    query.bindValue(QStringLiteral(":id"), tagId);
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -653,14 +691,13 @@ QVector<int> Tag::fetchAllLinkedNoteIds(const bool fromAllSubfolders,
         for (int r = 0; query.next(); r++) {
             // always keep in mind that note_file_name is no file name,
             // but the base name (so "my-note", instead of "my-note.md")
-            const QString &name =
-                query.value(QStringLiteral("note_file_name")).toString();
-            const QString &noteSubFolderPathData =
+            const QString name = query.value(QStringLiteral("note_file_name")).toString();
+            const QString noteSubFolderPathData =
                 query.value(QStringLiteral("note_sub_folder_path")).toString();
-            const Note &note = Note::fetchByName(name, noteSubFolderPathData,
-                                                 QStringLiteral("/"));
-
-            noteIdList.append(note.getId());
+            int noteSubFolderId =
+                NoteSubFolder::fetchByPathData(noteSubFolderPathData, QStringLiteral("/")).getId();
+            int noteId = Note::fetchNoteIdByName(name, noteSubFolderId);
+            noteIdList.append(noteId);
         }
     }
 
@@ -672,9 +709,8 @@ QVector<int> Tag::fetchAllLinkedNoteIds(const bool fromAllSubfolders,
 /**
  * Fetches all linked note ids for a given subfolder
  */
-QVector<int> Tag::fetchAllLinkedNoteIdsForFolder(
-    const NoteSubFolder &noteSubFolder, bool fromAllSubfolders,
-    const bool recursive) const {
+QVector<int> Tag::fetchAllLinkedNoteIdsForFolder(int tagId, const NoteSubFolder &noteSubFolder,
+                                                 bool fromAllSubfolders, const bool recursive) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
     QVector<int> noteIdList;
@@ -689,18 +725,16 @@ QVector<int> Tag::fetchAllLinkedNoteIdsForFolder(
             QStringLiteral("SELECT note_file_name, note_sub_folder_path "
                            "FROM noteTagLink WHERE tag_id = :id "
                            "AND note_sub_folder_path LIKE :noteSubFolderPath"));
-        query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                        noteSubFolder.relativePath() + "%");
+        query.bindValue(QStringLiteral(":noteSubFolderPath"), noteSubFolder.relativePath() + "%");
     } else {
         query.prepare(
             QStringLiteral("SELECT note_file_name, note_sub_folder_path "
                            "FROM noteTagLink WHERE tag_id = :id "
                            "AND note_sub_folder_path = :noteSubFolderPath"));
-        query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                        noteSubFolder.relativePath());
+        query.bindValue(QStringLiteral(":noteSubFolderPath"), noteSubFolder.relativePath());
     }
 
-    query.bindValue(QStringLiteral(":id"), _id);
+    query.bindValue(QStringLiteral(":id"), tagId);
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -708,14 +742,13 @@ QVector<int> Tag::fetchAllLinkedNoteIdsForFolder(
         for (int r = 0; query.next(); r++) {
             // always keep in mind that note_file_name is no file name,
             // but the base name (so "my-note", instead of "my-note.md")
-            const QString &name =
-                query.value(QStringLiteral("note_file_name")).toString();
-            const QString &noteSubFolderPathData =
+            const QString name = query.value(QStringLiteral("note_file_name")).toString();
+            const QString noteSubFolderPathData =
                 query.value(QStringLiteral("note_sub_folder_path")).toString();
-            const Note &note = Note::fetchByName(name, noteSubFolderPathData,
-                                                 QStringLiteral("/"));
-
-            noteIdList.append(note.getId());
+            int noteSubFolderId =
+                NoteSubFolder::fetchByPathData(noteSubFolderPathData, QStringLiteral("/")).getId();
+            int noteId = Note::fetchNoteIdByName(name, noteSubFolderId);
+            noteIdList.append(noteId);
         }
     }
 
@@ -727,10 +760,10 @@ QVector<int> Tag::fetchAllLinkedNoteIdsForFolder(
 /**
  * Fetches all linked notes
  */
-QList<Note> Tag::fetchAllLinkedNotes() const {
+QVector<Note> Tag::fetchAllLinkedNotes() const {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
-    QList<Note> noteList;
+    QVector<Note> noteList;
 
     query.prepare(
         QStringLiteral("SELECT note_file_name, note_sub_folder_path FROM "
@@ -741,14 +774,12 @@ QList<Note> Tag::fetchAllLinkedNotes() const {
         qWarning() << __func__ << ": " << query.lastError();
     } else {
         for (int r = 0; query.next(); r++) {
-            const QString fileName =
-                query.value(QStringLiteral("note_file_name")).toString();
+            const QString fileName = query.value(QStringLiteral("note_file_name")).toString();
             const QString noteSubFolderPath =
                 query.value(QStringLiteral("note_sub_folder_path")).toString();
-            const auto noteSubFolder = NoteSubFolder::fetchByPathData(
-                std::move(noteSubFolderPath), QStringLiteral("/"));
-            const auto note =
-                Note::fetchByName(fileName, noteSubFolder.getId());
+            const auto noteSubFolder =
+                NoteSubFolder::fetchByPathData(std::move(noteSubFolderPath), QStringLiteral("/"));
+            const auto note = Note::fetchByName(fileName, noteSubFolder.getId());
 
             noteList << note;
         }
@@ -805,27 +836,31 @@ QStringList Tag::fetchAllNames() {
 /**
  * Count the linked note file names for a note sub folder
  */
-int Tag::countLinkedNoteFileNamesForNoteSubFolder(
-    const NoteSubFolder &noteSubFolder, const bool recursive) const {
+int Tag::countLinkedNoteFileNamesForNoteSubFolder(int tagId, const NoteSubFolder &noteSubFolder,
+                                                  bool fromAllSubfolders, const bool recursive) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
 
-    if (recursive) {
-        query.prepare(QStringLiteral(
-            "SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
-            "WHERE tag_id = :id AND "
-            "note_sub_folder_path LIKE :noteSubFolderPath"));
+    if (fromAllSubfolders) {
+        query.prepare(
+            QStringLiteral("SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
+                           "WHERE tag_id = :id"));
+    } else if (recursive) {
+        query.prepare(
+            QStringLiteral("SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
+                           "WHERE tag_id = :id AND "
+                           "note_sub_folder_path LIKE :noteSubFolderPath"));
         query.bindValue(QStringLiteral(":noteSubFolderPath"),
                         noteSubFolder.relativePath() + QLatin1Char('%'));
     } else {
-        query.prepare(QStringLiteral(
-            "SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
-            "WHERE tag_id = :id AND "
-            "note_sub_folder_path = :noteSubFolderPath"));
+        query.prepare(
+            QStringLiteral("SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
+                           "WHERE tag_id = :id AND "
+                           "note_sub_folder_path = :noteSubFolderPath"));
         query.bindValue(QStringLiteral(":noteSubFolderPath"),
                         noteSubFolder.relativePath() + QLatin1Char('%'));
     }
-    query.bindValue(QStringLiteral(":id"), _id);
+    query.bindValue(QStringLiteral(":id"), tagId);
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -844,32 +879,30 @@ int Tag::countLinkedNoteFileNamesForNoteSubFolder(
 /**
  * Count the linked note file names
  */
-int Tag::countLinkedNoteFileNames(const bool fromAllSubfolders,
-                                  const bool recursive) const {
+int Tag::countLinkedNoteFileNames(int tagId, bool fromAllSubfolders, bool recursive) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
 
     if (fromAllSubfolders) {
-        query.prepare(QStringLiteral(
-            "SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
-            "WHERE tag_id = :id"));
+        query.prepare(
+            QStringLiteral("SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
+                           "WHERE tag_id = :id"));
     } else if (recursive) {
-        query.prepare(QStringLiteral(
-            "SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
-            "WHERE tag_id = :id AND "
-            "note_sub_folder_path LIKE :noteSubFolderPath"));
-        query.bindValue(
-            QStringLiteral(":noteSubFolderPath"),
-            NoteSubFolder::activeNoteSubFolder().relativePath() + "%");
+        query.prepare(
+            QStringLiteral("SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
+                           "WHERE tag_id = :id AND "
+                           "note_sub_folder_path LIKE :noteSubFolderPath"));
+        query.bindValue(QStringLiteral(":noteSubFolderPath"),
+                        NoteSubFolder::activeNoteSubFolder().relativePath() + "%");
     } else {
-        query.prepare(QStringLiteral(
-            "SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
-            "WHERE tag_id = :id AND "
-            "note_sub_folder_path = :noteSubFolderPath"));
+        query.prepare(
+            QStringLiteral("SELECT COUNT(note_file_name) AS cnt FROM noteTagLink "
+                           "WHERE tag_id = :id AND "
+                           "note_sub_folder_path = :noteSubFolderPath"));
         query.bindValue(QStringLiteral(":noteSubFolderPath"),
                         NoteSubFolder::activeNoteSubFolder().relativePath());
     }
-    query.bindValue(QStringLiteral(":id"), _id);
+    query.bindValue(QStringLiteral(":id"), tagId);
 
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
@@ -895,19 +928,16 @@ bool Tag::store() {
 
     const int id = _id;
     if (id > 0) {
-        query.prepare(
-            QStringLiteral("UPDATE tag SET name = :name, priority = :priority, "
-                           "parent_id = :parentId, ") %
-            colorField %
-            QStringLiteral(" = :color, "
-                           "updated = datetime('now') "
-                           "WHERE id = :id"));
+        query.prepare(QStringLiteral("UPDATE tag SET name = :name, priority = :priority, "
+                                     "parent_id = :parentId, ") %
+                      colorField %
+                      QStringLiteral(" = :color, "
+                                     "updated = datetime('now') "
+                                     "WHERE id = :id"));
         query.bindValue(QStringLiteral(":id"), id);
     } else {
-        query.prepare(
-            QStringLiteral("INSERT INTO tag (name, priority, parent_id, ") %
-            colorField %
-            QStringLiteral(") VALUES (:name, :priority, :parentId, :color)"));
+        query.prepare(QStringLiteral("INSERT INTO tag (name, priority, parent_id, ") % colorField %
+                      QStringLiteral(") VALUES (:name, :priority, :parentId, :color)"));
     }
 
     const int parentId = _parentId;
@@ -915,8 +945,7 @@ bool Tag::store() {
     query.bindValue(QStringLiteral(":name"), _name);
     query.bindValue(QStringLiteral(":priority"), _priority);
     query.bindValue(QStringLiteral(":parentId"), parentId);
-    query.bindValue(QStringLiteral(":color"),
-                    _color.isValid() ? _color.name() : QLatin1String(""));
+    query.bindValue(QStringLiteral(":color"), _color.isValid() ? _color.name() : QLatin1String(""));
 
     if (!query.exec()) {
         // on error
@@ -932,8 +961,7 @@ bool Tag::store() {
     // update the parent tag for correct sorting by last use
     if (parentId > 0) {
         QSqlQuery parentQuery(db);
-        parentQuery.prepare(
-            QStringLiteral("SELECT * FROM tag WHERE id = :parentId"));
+        parentQuery.prepare(QStringLiteral("SELECT * FROM tag WHERE id = :parentId"));
         parentQuery.bindValue(QStringLiteral(":parentId"), parentId);
 
         if (!parentQuery.exec()) {
@@ -958,9 +986,8 @@ bool Tag::store() {
  * @return
  */
 QString Tag::colorFieldName() const {
-    return QSettings().value(QStringLiteral("darkMode")).toBool()
-               ? QStringLiteral("dark_color")
-               : QStringLiteral("color");
+    return QSettings().value(QStringLiteral("darkMode")).toBool() ? QStringLiteral("dark_color")
+                                                                  : QStringLiteral("color");
 }
 
 /**
@@ -981,12 +1008,11 @@ bool Tag::linkToNote(const Note &note) const {
 
     query.bindValue(QStringLiteral(":tagId"), _id);
     query.bindValue(QStringLiteral(":noteFileName"), note.getName());
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), note.getNoteSubFolder().relativePath());
 
     if (!query.exec()) {
         // we should not show this warning, because we don't check if a
-        // link to a note already exists before we try to create an other link
+        // link to a note already exists before we try to create another link
         //        qWarning() << __func__ << ": " << query.lastError();
 
         DatabaseService::closeDatabaseConnection(db, query);
@@ -997,8 +1023,7 @@ bool Tag::linkToNote(const Note &note) const {
     // update the parent tag for correct sorting by last use
     if (_parentId > 0) {
         QSqlQuery parentQuery(db);
-        parentQuery.prepare(
-            QStringLiteral("SELECT * FROM tag WHERE id = :parentId"));
+        parentQuery.prepare(QStringLiteral("SELECT * FROM tag WHERE id = :parentId"));
         parentQuery.bindValue(QStringLiteral(":parentId"), _parentId);
 
         if (!parentQuery.exec()) {
@@ -1033,8 +1058,7 @@ bool Tag::removeLinkToNote(const Note &note) const {
 
     query.bindValue(QStringLiteral(":tagId"), _id);
     query.bindValue(QStringLiteral(":noteFileName"), note.getName());
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), note.getNoteSubFolder().relativePath());
 
     if (!query.exec()) {
         // on error
@@ -1062,8 +1086,7 @@ bool Tag::removeAllLinksToNote(const Note &note) {
                        "note_sub_folder_path = :noteSubFolderPath"));
 
     query.bindValue(QStringLiteral(":noteFileName"), note.getName());
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    note.getNoteSubFolder().relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), note.getNoteSubFolder().relativePath());
 
     if (!query.exec()) {
         // on error
@@ -1086,30 +1109,54 @@ void Tag::removeBrokenLinks() {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
 
+    // Check all note tag links if note is missing to set the link stale
     query.prepare(QStringLiteral("SELECT * FROM notetaglink"));
     if (!query.exec()) {
         qWarning() << __func__ << ": " << query.lastError();
     } else {
         for (int r = 0; query.next(); r++) {
-            const QString noteFileName =
-                query.value(QStringLiteral("note_file_name")).toString();
-            const QString noteSubFolderPath =
-                query.value(QStringLiteral("note_sub_folder_path")).toString();
+            Note note = getNoteFromNoteTagLinkQuery(query);
 
-            const NoteSubFolder noteSubFolder = NoteSubFolder::fetchByPathData(
-                std::move(noteSubFolderPath), QStringLiteral("/"));
-            const Note note =
-                Note::fetchByName(noteFileName, noteSubFolder.getId());
-
-            // remove note tag link if note doesn't exist
-            if (!note.exists()) {
+            // set note tag link stale if note doesn't exist
+            if (!note.isFetched()) {
                 const int id = query.value(QStringLiteral("id")).toInt();
-                removeNoteLinkById(id);
+                setNoteLinkByIdStale(id);
             }
         }
     }
 
+    // Check all stale note tag links if note is still missing to remove the
+    // stale date if the note came back
+    query.prepare(QStringLiteral("SELECT * FROM notetaglink WHERE stale_DATE IS NOT NULL"));
+    if (!query.exec()) {
+        qWarning() << __func__ << ": " << query.lastError();
+    } else {
+        for (int r = 0; query.next(); r++) {
+            Note note = getNoteFromNoteTagLinkQuery(query);
+
+            // set note tag link to not stale if note exists again
+            if (note.isFetched()) {
+                const int id = query.value(QStringLiteral("id")).toInt();
+                setNoteLinkByIdNotStale(id);
+            }
+        }
+    }
+
+    // Remove all note links that were stale for too long
+    removeExpiredStaleNoteLinkBy();
+
     DatabaseService::closeDatabaseConnection(db, query);
+}
+
+Note Tag::getNoteFromNoteTagLinkQuery(const QSqlQuery &query) {
+    const QString noteFileName = query.value(QStringLiteral("note_file_name")).toString();
+    const QString noteSubFolderPath =
+        query.value(QStringLiteral("note_sub_folder_path")).toString();
+
+    const NoteSubFolder noteSubFolder =
+        NoteSubFolder::fetchByPathData(noteSubFolderPath, QStringLiteral("/"));
+
+    return Note::fetchByName(noteFileName, noteSubFolder.getId());
 }
 
 /**
@@ -1118,7 +1165,7 @@ void Tag::removeBrokenLinks() {
  * @param id
  * @return
  */
-bool Tag::removeNoteLinkById(const int id) {
+bool Tag::removeNoteLinkById(int id) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
     query.prepare(QStringLiteral("DELETE FROM noteTagLink WHERE id = :id"));
@@ -1137,22 +1184,93 @@ bool Tag::removeNoteLinkById(const int id) {
 }
 
 /**
- * Renames the note file name of note links
+ * Sets a note tag link stale by its id (if it wasn't already stale)
+ *
+ * @param id
+ * @return
  */
-bool Tag::renameNoteFileNamesOfLinks(const QString &oldFileName,
-                                     const QString &newFileName,
-                                     const NoteSubFolder &noteSubFolder) {
+bool Tag::setNoteLinkByIdStale(int id) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
     query.prepare(QStringLiteral(
-        "UPDATE noteTagLink SET note_file_name = :newFileName WHERE "
-        "note_file_name = :oldFileName AND "
-        "note_sub_folder_path = :noteSubFolderPath"));
+        "UPDATE noteTagLink SET stale_date = :date WHERE id = :id AND stale_date IS NULL"));
+    query.bindValue(QStringLiteral(":id"), id);
+    query.bindValue(QStringLiteral(":date"), QDateTime::currentDateTime());
+
+    if (!query.exec()) {
+        // on error
+        qWarning() << __func__ << ": " << query.lastError();
+
+        DatabaseService::closeDatabaseConnection(db, query);
+        return false;
+    }
+
+    DatabaseService::closeDatabaseConnection(db, query);
+    return true;
+}
+
+/**
+ * Sets a note tag link to not stale by its id
+ *
+ * @param id
+ * @return
+ */
+bool Tag::setNoteLinkByIdNotStale(int id) {
+    QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
+    QSqlQuery query(db);
+    query.prepare(QStringLiteral("UPDATE noteTagLink SET stale_date = NULL WHERE id = :id"));
+    query.bindValue(QStringLiteral(":id"), id);
+
+    if (!query.exec()) {
+        // on error
+        qWarning() << __func__ << ": " << query.lastError();
+
+        DatabaseService::closeDatabaseConnection(db, query);
+        return false;
+    }
+
+    DatabaseService::closeDatabaseConnection(db, query);
+    return true;
+}
+
+/**
+ * Remove all note links that were stale for too long (10 days)
+ *
+ * @return
+ */
+bool Tag::removeExpiredStaleNoteLinkBy() {
+    QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
+    QSqlQuery query(db);
+    query.prepare(QStringLiteral("DELETE FROM noteTagLink WHERE stale_date < :date"));
+    query.bindValue(QStringLiteral(":date"), QDateTime::currentDateTime().addDays(-10));
+
+    if (!query.exec()) {
+        // on error
+        qWarning() << __func__ << ": " << query.lastError();
+
+        DatabaseService::closeDatabaseConnection(db, query);
+        return false;
+    }
+
+    DatabaseService::closeDatabaseConnection(db, query);
+    return true;
+}
+
+/**
+ * Renames the note file name of note links
+ */
+bool Tag::renameNoteFileNamesOfLinks(const QString &oldFileName, const QString &newFileName,
+                                     const NoteSubFolder &noteSubFolder) {
+    QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
+    QSqlQuery query(db);
+    query.prepare(
+        QStringLiteral("UPDATE noteTagLink SET note_file_name = :newFileName WHERE "
+                       "note_file_name = :oldFileName AND "
+                       "note_sub_folder_path = :noteSubFolderPath"));
 
     query.bindValue(QStringLiteral(":oldFileName"), oldFileName);
     query.bindValue(QStringLiteral(":newFileName"), newFileName);
-    query.bindValue(QStringLiteral(":noteSubFolderPath"),
-                    noteSubFolder.relativePath());
+    query.bindValue(QStringLiteral(":noteSubFolderPath"), noteSubFolder.relativePath());
 
     if (!query.exec()) {
         // on error
@@ -1170,14 +1288,13 @@ bool Tag::renameNoteFileNamesOfLinks(const QString &oldFileName,
 /**
  * Renames the note sub folder paths of note links
  */
-bool Tag::renameNoteSubFolderPathsOfLinks(const QString &oldPath,
-                                          const QString &newPath) {
+bool Tag::renameNoteSubFolderPathsOfLinks(const QString &oldPath, const QString &newPath) {
     QSqlDatabase db = DatabaseService::getNoteFolderDatabase();
     QSqlQuery query(db);
-    query.prepare(QStringLiteral(
-        "UPDATE noteTagLink SET note_sub_folder_path = "
-        "replace(note_sub_folder_path, :oldPath, :newPath) WHERE "
-        "note_sub_folder_path LIKE :oldPathLike"));
+    query.prepare(
+        QStringLiteral("UPDATE noteTagLink SET note_sub_folder_path = "
+                       "replace(note_sub_folder_path, :oldPath, :newPath) WHERE "
+                       "note_sub_folder_path LIKE :oldPathLike"));
 
     query.bindValue(QStringLiteral(":oldPath"), oldPath);
     query.bindValue(QStringLiteral(":oldPathLike"), oldPath + "%");
@@ -1240,7 +1357,7 @@ void Tag::migrateDarkColors() {
     settings.setValue(QStringLiteral("darkMode"), false);
 
     // fetch all tags with non-dark mode colors
-    const QList<Tag> tags = fetchAll();
+    const QVector<Tag> tags = fetchAll();
 
     // enable dark mode to later set the dark color
     settings.setValue(QStringLiteral("darkMode"), true);
@@ -1265,14 +1382,11 @@ bool Tag::mergeFromDatabase(QSqlDatabase &db) {
 
     const bool isSameTagTable =
         DatabaseService::generateDatabaseTableSha1Signature(db, "tag") ==
-        DatabaseService::generateDatabaseTableSha1Signature(noteFolderDB,
-                                                            "tag");
+        DatabaseService::generateDatabaseTableSha1Signature(noteFolderDB, "tag");
 
     const bool isSameNoteTagLinkTable =
-        DatabaseService::generateDatabaseTableSha1Signature(db,
-                                                            "noteTagLink") ==
-        DatabaseService::generateDatabaseTableSha1Signature(noteFolderDB,
-                                                            "noteTagLink");
+        DatabaseService::generateDatabaseTableSha1Signature(db, "noteTagLink") ==
+        DatabaseService::generateDatabaseTableSha1Signature(noteFolderDB, "noteTagLink");
 
     // if those tables are the same everything is ok
     if (isSameTagTable && isSameNoteTagLinkTable) {
@@ -1296,8 +1410,7 @@ bool Tag::mergeFromDatabase(QSqlDatabase &db) {
  * created
  * @return Tag object of deepest tag of the name breadcrumb list
  */
-Tag Tag::getTagByNameBreadcrumbList(const QStringList &nameList,
-                                    bool createMissing) {
+Tag Tag::getTagByNameBreadcrumbList(const QStringList &nameList, bool createMissing) {
     int parentId = 0;
     Tag tag;
 
@@ -1327,7 +1440,7 @@ bool Tag::operator==(const Tag &tag) const { return _id == tag._id; }
 bool Tag::operator<(const Tag &tag) const { return _name < tag._name; }
 
 QDebug operator<<(QDebug dbg, const Tag &tag) {
-    dbg.nospace() << "Tag: <id>" << tag._id << " <name>" << tag._name
-                  << " <parentId>" << tag._parentId;
+    dbg.nospace() << "Tag: <id>" << tag._id << " <name>" << tag._name << " <parentId>"
+                  << tag._parentId;
     return dbg.space();
 }

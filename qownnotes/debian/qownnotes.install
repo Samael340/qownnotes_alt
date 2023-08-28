@@ -1,5 +1,4 @@
 PBE.QOwnNotes.desktop usr/share/applications
-images/icons/128x128/apps/QOwnNotes.png usr/share/pixmaps
 images/icons/16x16/apps/QOwnNotes.png usr/share/icons/hicolor/16x16/apps
 images/icons/24x24/apps/QOwnNotes.png usr/share/icons/hicolor/24x24/apps
 images/icons/32x32/apps/QOwnNotes.png usr/share/icons/hicolor/32x32/apps
@@ -56,6 +55,8 @@ languages/QOwnNotes_is.qm usr/share/qt5/translations
 languages/QOwnNotes_pa.qm usr/share/qt5/translations
 languages/QOwnNotes_sq.qm usr/share/qt5/translations
 languages/QOwnNotes_he.qm usr/share/qt5/translations
+languages/QOwnNotes_yi.qm usr/share/qt5/translations
+languages/QOwnNotes_th.qm usr/share/qt5/translations
 languages/QOwnNotes_sn.qm usr/share/qt5/translations
 languages/QOwnNotes_km.qm usr/share/qt5/translations
 languages/QOwnNotes_si.qm usr/share/qt5/translations

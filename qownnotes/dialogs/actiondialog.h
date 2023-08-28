@@ -18,18 +18,16 @@ class ActionDialog : public MasterDialog {
     void refreshUi();
 
    private slots:
-    void on_actionTreeWidget_itemDoubleClicked(QTreeWidgetItem *item,
-                                               int column);
+    void on_actionTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     void on_actionLineEdit_textChanged(const QString &arg1);
 
    protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
    private:
     Ui::ActionDialog *ui;
     QMenuBar *_menuBar;
 
-    void buildActionTreeForMenu(QMenu *menu,
-                                QTreeWidgetItem *parentItem = Q_NULLPTR);
+    void buildActionTreeForMenu(QMenu *menu, QTreeWidgetItem *parentItem = nullptr);
 };

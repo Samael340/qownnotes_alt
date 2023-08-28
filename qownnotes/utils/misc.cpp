@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,16 +23,20 @@
 #include <services/databaseservice.h>
 #include <services/owncloudservice.h>
 #include <services/updateservice.h>
+#include <threads/scriptthread.h>
 
 #include <QApplication>
 #include <QCoreApplication>
+#include <QDataStream>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
+#include <QHttpMultiPart>
 #include <QMimeDatabase>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QPrinter>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -45,7 +49,12 @@
 #include <QUrl>
 #include <QUuid>
 #include <QtGui/QIcon>
+#include <QXmlStreamReader>
+
 #include <utility>
+#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
+#include <QHostInfo>
+#endif
 
 #include "build_number.h"
 #include "libraries/sonnet/src/core/speller.h"
@@ -61,6 +70,11 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+#endif
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QRandomGenerator>
+#include <QStandardPaths>
 #endif
 
 enum SearchEngines {
@@ -83,8 +97,7 @@ void Utils::Misc::openPath(const QString &absolutePath) {
     const QString path = QDir::fromNativeSeparators(absolutePath);
     // Hack to access samba shares with QDesktopServices::openUrl
     if (path.startsWith(QStringLiteral("//")))
-        QDesktopServices::openUrl(
-            QDir::toNativeSeparators(QStringLiteral("file:") % path));
+        QDesktopServices::openUrl(QDir::toNativeSeparators(QStringLiteral("file:") % path));
     else
         QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
@@ -122,8 +135,8 @@ void Utils::Misc::openFolderSelect(const QString &absolutePath) {
         cmd.toWCharArray(lpCmd);
         lpCmd[cmd.size()] = 0;
 
-        bool ret = ::CreateProcessW(NULL, lpCmd, NULL, NULL, FALSE, 0, NULL,
-                                    NULL, &startupInfo, &processInfo);
+        bool ret = ::CreateProcessW(NULL, lpCmd, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo,
+                                    &processInfo);
         delete[] lpCmd;
 
         if (ret) {
@@ -135,40 +148,34 @@ void Utils::Misc::openFolderSelect(const QString &absolutePath) {
         openPath(path.left(path.lastIndexOf("/")));
     }
 #elif defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    if (QFileInfo(path).exists()) {
+    static const auto fullXdgMimePath = QStandardPaths::findExecutable(QStringLiteral("xdg-mime"));
+    if (!fullXdgMimePath.isEmpty() && QFileInfo(path).exists()) {
         QProcess proc;
         QString output;
-        proc.start(QStringLiteral("xdg-mime"),
-                   QStringList{"query", "default", "inode/directory"});
+        proc.start(fullXdgMimePath, QStringList{"query", "default", "inode/directory"});
         proc.waitForFinished();
         output = proc.readLine().simplified();
         if (output == QStringLiteral("dolphin.desktop") ||
             output == QStringLiteral("org.kde.dolphin.desktop")) {
-            proc.startDetached(
-                QStringLiteral("dolphin"),
-                QStringList{"--select", QDir::toNativeSeparators(path)});
+            proc.startDetached(QStringLiteral("dolphin"),
+                               QStringList{"--select", QDir::toNativeSeparators(path)});
         } else if (output == QStringLiteral("nautilus.desktop") ||
                    output == QStringLiteral("org.gnome.Nautilus.desktop") ||
-                   output ==
-                       QStringLiteral("nautilus-folder-handler.desktop")) {
-            proc.startDetached(
-                QStringLiteral("nautilus"),
-                QStringList{"--no-desktop", QDir::toNativeSeparators(path)});
+                   output == QStringLiteral("nautilus-folder-handler.desktop")) {
+            proc.startDetached(QStringLiteral("nautilus"),
+                               QStringList{"--no-desktop", QDir::toNativeSeparators(path)});
         } else if (output == QStringLiteral("caja-folder-handler.desktop")) {
             const QDir dir = QFileInfo(path).absoluteDir();
             const QString absDir = dir.absolutePath();
-            proc.startDetached(
-                QStringLiteral("caja"),
-                QStringList{"--no-desktop", QDir::toNativeSeparators(absDir)});
+            proc.startDetached(QStringLiteral("caja"),
+                               QStringList{"--no-desktop", QDir::toNativeSeparators(absDir)});
         } else if (output == QStringLiteral("nemo.desktop")) {
-            proc.startDetached(
-                QStringLiteral("nemo"),
-                QStringList{"--no-desktop", QDir::toNativeSeparators(path)});
+            proc.startDetached(QStringLiteral("nemo"),
+                               QStringList{"--no-desktop", QDir::toNativeSeparators(path)});
         } else if (output == QStringLiteral("konqueror.desktop") ||
                    output == QStringLiteral("kfmclient_dir.desktop")) {
-            proc.startDetached(
-                QStringLiteral("konqueror"),
-                QStringList{"--select", QDir::toNativeSeparators(path)});
+            proc.startDetached(QStringLiteral("konqueror"),
+                               QStringList{"--select", QDir::toNativeSeparators(path)});
         } else {
             openPath(path.left(path.lastIndexOf(QLatin1Char('/'))));
         }
@@ -184,11 +191,10 @@ void Utils::Misc::openFolderSelect(const QString &absolutePath) {
 /**
  * Removes a string from the start if it starts with it
  */
-QString Utils::Misc::removeIfStartsWith(QString text,
-                                        const QString &removeString) {
+QString Utils::Misc::removeIfStartsWith(QString text, const QString &removeString) {
     if (text.startsWith(removeString)) {
-        text.remove(QRegularExpression(
-            QStringLiteral("^") + QRegularExpression::escape(removeString)));
+        text.remove(
+            QRegularExpression(QStringLiteral("^") + QRegularExpression::escape(removeString)));
     }
 
     return text;
@@ -197,11 +203,10 @@ QString Utils::Misc::removeIfStartsWith(QString text,
 /**
  * Removes a string from the end if it ends with it
  */
-QString Utils::Misc::removeIfEndsWith(QString text,
-                                      const QString &removeString) {
+QString Utils::Misc::removeIfEndsWith(QString text, const QString &removeString) {
     if (text.endsWith(removeString)) {
-        text.remove(QRegularExpression(
-            QRegularExpression::escape(removeString) + QStringLiteral("$")));
+        text.remove(
+            QRegularExpression(QRegularExpression::escape(removeString) + QStringLiteral("$")));
     }
 
     return text;
@@ -210,8 +215,7 @@ QString Utils::Misc::removeIfEndsWith(QString text,
 /**
  * Adds a string to the beginning of a string if it doesn't start with it
  */
-QString Utils::Misc::prependIfDoesNotStartWith(QString text,
-                                               const QString &startString) {
+QString Utils::Misc::prependIfDoesNotStartWith(QString text, const QString &startString) {
     if (!text.startsWith(startString)) {
         text.prepend(startString);
     }
@@ -222,8 +226,7 @@ QString Utils::Misc::prependIfDoesNotStartWith(QString text,
 /**
  * Adds a string to the end of a string if it doesn't end with it
  */
-QString Utils::Misc::appendIfDoesNotEndWith(QString text,
-                                            const QString &endString) {
+QString Utils::Misc::appendIfDoesNotEndWith(QString text, const QString &endString) {
     if (!text.endsWith(endString)) {
         text.append(endString);
     }
@@ -234,8 +237,7 @@ QString Utils::Misc::appendIfDoesNotEndWith(QString text,
 /**
  * Shortens text and adds a sequence string if text is too long
  */
-QString Utils::Misc::shorten(QString text, int length,
-                             const QString &sequence) {
+QString Utils::Misc::shorten(QString text, int length, const QString &sequence) {
     if (text.length() > length) {
         int newLength = length - sequence.length();
 
@@ -306,15 +308,14 @@ QString Utils::Misc::toSentenceCase(const QString &text) {
     //     whitespace) or
     // (any of [.?!] followed by at least one horizontal or vertical
     //     whitespace)
-    QRegularExpression sentenceSplitter(
+    static const QRegularExpression sentenceSplitter(
         QStringLiteral(R"((^[\s\v]*|[.?!][\s\v]+)\K)"));
 
     QStringList sentences = text.toLower().split(sentenceSplitter);
 
     for (QString &sentence : sentences) {
         if (sentence.length() > 0) {
-            sentence = sentence.left(1).toUpper() +
-                       sentence.right(sentence.length() - 1);
+            sentence = sentence.left(1).toUpper() + sentence.right(sentence.length() - 1);
         }
     }
 
@@ -327,7 +328,7 @@ QString Utils::Misc::toSentenceCase(const QString &text) {
 QString Utils::Misc::toStartCase(const QString &text) {
     // A word is a string of characters immediately preceded by horizontal or
     // vertical whitespace
-    QRegularExpression wordSplitter(QStringLiteral("(?<=[\\s\\v])"));
+    static const QRegularExpression wordSplitter(QStringLiteral("(?<=[\\s\\v])"));
 
     QStringList words = text.toLower().split(wordSplitter);
 
@@ -345,11 +346,10 @@ QString Utils::Misc::toStartCase(const QString &text) {
  *
  * @param executablePath the path of the executable
  * @param parameters a list of parameter strings
- * @param workingDirectory the directory to run the executable from
+ * @param workingDirectory the directory to run the executable from (optional)
  * @return true on success, false otherwise
  */
-bool Utils::Misc::startDetachedProcess(const QString &executablePath,
-                                       const QStringList &parameters,
+bool Utils::Misc::startDetachedProcess(const QString &executablePath, const QStringList &parameters,
                                        QString workingDirectory) {
     QProcess process;
 
@@ -362,10 +362,9 @@ bool Utils::Misc::startDetachedProcess(const QString &executablePath,
 
     // start executablePath detached with parameters
 #ifdef Q_OS_MAC
-    return process.startDetached(
-        QStringLiteral("open"),
-        QStringList() << executablePath << "--args" << parameters,
-        workingDirectory);
+    return process.startDetached(QStringLiteral("open"),
+                                 QStringList() << executablePath << "--args" << parameters,
+                                 workingDirectory);
 #else
     return process.startDetached(executablePath, parameters, workingDirectory);
 #endif
@@ -379,8 +378,7 @@ bool Utils::Misc::startDetachedProcess(const QString &executablePath,
  * @param workingDirectory the directory to run the executable from
  * @return true on success, false otherwise
  */
-bool Utils::Misc::openFilesWithApplication(const QString &executablePath,
-                                           const QStringList &files,
+bool Utils::Misc::openFilesWithApplication(const QString &executablePath, const QStringList &files,
                                            QString workingDirectory) {
 #ifdef Q_OS_MAC
     QProcess process;
@@ -391,8 +389,7 @@ bool Utils::Misc::openFilesWithApplication(const QString &executablePath,
 
     // start executablePath detached with parameters
     return process.startDetached(
-        QStringLiteral("open"),
-        QStringList() << "-a" << executablePath << files, workingDirectory);
+        QStringLiteral("open"), QStringList() << "-a" << executablePath << files, workingDirectory);
 #else
     return startDetachedProcess(executablePath, files, workingDirectory);
 #endif
@@ -403,18 +400,23 @@ bool Utils::Misc::openFilesWithApplication(const QString &executablePath,
  *
  * @param executablePath the path of the executable
  * @param parameters a list of parameter strings
- * @param data the data that will be written to the process
+ * @param data the data that will be written to the process (optional)
+ * @param workingDirectory the working directory to execute the process in (optional)
  * @return the text that was returned by the process
  */
 QByteArray Utils::Misc::startSynchronousProcess(const QString &executablePath,
                                                 const QStringList &parameters,
-                                                const QByteArray &data) {
+                                                const QByteArray &data,
+                                                const QString &workingDirectory) {
     QProcess process;
+
+    if (!workingDirectory.isEmpty()) {
+        process.setWorkingDirectory(workingDirectory);
+    }
 
     // start executablePath synchronous with parameters
 #ifdef Q_OS_MAC
-    process.start("open", QStringList()
-                              << executablePath << "--args" << parameters);
+    process.start("open", QStringList() << executablePath << "--args" << parameters);
 #else
     process.start(executablePath, parameters);
 #endif
@@ -447,8 +449,7 @@ bool Utils::Misc::startSynchronousResultProcess(TerminalCmd &cmd) {
 
     // start executablePath synchronous with parameters
 #ifdef Q_OS_MAC
-    process.start("open", QStringList()
-                              << cmd.executablePath << "--args" << cmd.parameters);
+    process.start("open", QStringList() << cmd.executablePath << "--args" << cmd.parameters);
 #else
     process.start(cmd.executablePath, cmd.parameters);
 #endif
@@ -479,10 +480,9 @@ bool Utils::Misc::startSynchronousResultProcess(TerminalCmd &cmd) {
 QString Utils::Misc::defaultNotesPath() {
     // it seems QDir::separator() is not needed,
     // because Windows also uses "/" in QDir::homePath()
-    QString path = isInPortableMode()
-                       ? portableDataPath()
-                       : QDir::homePath() % Utils::Misc::dirSeparator() %
-                             QStringLiteral("ownCloud");
+    QString path = isInPortableMode() ? portableDataPath()
+                                      : QDir::homePath() % Utils::Misc::dirSeparator() %
+                                            QStringLiteral("ownCloud");
 
     // check if the ownCloud path already exists (because the user is using
     // ownCloud), if not use Nextcloud
@@ -492,18 +492,27 @@ QString Utils::Misc::defaultNotesPath() {
         path.append(".test");
 #endif
 
+        // check if ownCloud path is found
         QDir dir(path);
         if (!dir.exists()) {
-            path = QDir::homePath() % Utils::Misc::dirSeparator() %
-                   QStringLiteral("Nextcloud");
+            // set Nextcloud path if ownCloud wasn't found
+            path = QDir::homePath() % Utils::Misc::dirSeparator() % QStringLiteral("Nextcloud");
+        }
+
+        // check if Nextcloud path is found
+        dir = QDir(path);
+        if (!dir.exists()) {
+            // set home directory path if Nextcloud wasn't found
+            path = QDir::homePath();
         }
     }
 
+    // add "Notes" to the base path
     path += Utils::Misc::dirSeparator() % QStringLiteral("Notes");
 
     // remove the snap path for Snapcraft builds
-    path.remove(
-        QRegularExpression(QStringLiteral(R"(snap\/qownnotes\/\w\d+\/)")));
+    static const QRegularExpression re(QStringLiteral(R"(snap\/qownnotes\/\w\d+\/)"));
+    path.remove(re);
 
     return path;
 }
@@ -515,7 +524,7 @@ QString Utils::Misc::defaultNotesPath() {
  *
  * @return
  */
-QString Utils::Misc::dirSeparator() { return QStringLiteral("/"); }
+char Utils::Misc::dirSeparator() { return '/'; }
 
 void Utils::Misc::waitMsecs(int msecs) {
     QTime dieTime = QTime::currentTime().addMSecs(msecs);
@@ -531,8 +540,16 @@ void Utils::Misc::waitMsecs(int msecs) {
 QString Utils::Misc::portableDataPath() {
     QString path = QString();
 
-    if (qApp != Q_NULLPTR) {
-        path = QCoreApplication::applicationDirPath();
+    if (qApp != nullptr) {
+        // for AppImages we best take out the path directly from the first
+        // argument of the executable arguments, because the applicationDirPath
+        // will be some temporary path
+        if (Utils::Misc::isAppImage()) {
+            const QFileInfo fileInfo(Utils::Misc::applicationPath());
+            path = fileInfo.absolutePath();
+        } else {
+            path = QCoreApplication::applicationDirPath();
+        }
     }
 
     // use a fallback if the QApplication object wasn't instantiated yet
@@ -561,13 +578,21 @@ bool Utils::Misc::isInPortableMode() {
 }
 
 /**
+ * Returns true if the app is an AppImage
+ *
+ * @return
+ */
+bool Utils::Misc::isAppImage() {
+    return qApp->property("release").toString().contains(QStringLiteral("AppImage"));
+}
+
+/**
  * Prepends the portable data path if we are in portable mode
  *
  * @param path
  * @return
  */
-QString Utils::Misc::prependPortableDataPathIfNeeded(QString path,
-                                                     bool ifNotEmptyOnly) {
+QString Utils::Misc::prependPortableDataPathIfNeeded(QString path, bool ifNotEmptyOnly) {
     if (ifNotEmptyOnly && path.isEmpty()) {
         return QString();
     }
@@ -612,112 +637,93 @@ QString Utils::Misc::makePathRelativeToPortableDataPathIfNeeded(QString path) {
  */
 QString Utils::Misc::htmlToMarkdown(QString text) {
     // replace Windows line breaks
-    text.replace(QRegularExpression(QStringLiteral("\r\n")),
-                 QStringLiteral("\n"));
+    static const QRegularExpression re(QStringLiteral("\r\n"));
+    text.replace(re, QStringLiteral("\n"));
 
     // remove all null characters
     // we can get those from Google Chrome via the clipboard
     text.remove(QChar(0));
 
     // remove some blocks
-    text.remove(
-        QRegularExpression(QStringLiteral("<head.*?>(.+?)<\\/head>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption));
+    text.remove(QRegularExpression(QStringLiteral("<head.*?>(.+?)<\\/head>"),
+                                   QRegularExpression::CaseInsensitiveOption |
+                                       QRegularExpression::DotMatchesEverythingOption));
 
-    text.remove(
-        QRegularExpression(QStringLiteral("<script.*?>(.+?)<\\/script>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption));
+    text.remove(QRegularExpression(QStringLiteral("<script.*?>(.+?)<\\/script>"),
+                                   QRegularExpression::CaseInsensitiveOption |
+                                       QRegularExpression::DotMatchesEverythingOption));
 
-    text.remove(
-        QRegularExpression(QStringLiteral("<style.*?>(.+?)<\\/style>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption));
+    text.remove(QRegularExpression(QStringLiteral("<style.*?>(.+?)<\\/style>"),
+                                   QRegularExpression::CaseInsensitiveOption |
+                                       QRegularExpression::DotMatchesEverythingOption));
 
     // replace some html tags with markdown
+    text.replace(QRegularExpression(QStringLiteral("<strong.*?>(.+?)<\\/strong>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("**\\1**"));
+    text.replace(QRegularExpression(QStringLiteral("<b.*?>(.+?)<\\/b>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("**\\1**"));
+    text.replace(QRegularExpression(QStringLiteral("<em.*?>(.+?)<\\/em>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("*\\1*"));
+    text.replace(QRegularExpression(QStringLiteral("<i.*?>(.+?)<\\/i>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("*\\1*"));
+    text.replace(QRegularExpression(QStringLiteral("<pre.*?>(.+?)<\\/pre>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n```\n\\1\n```\n"));
+    text.replace(QRegularExpression(QStringLiteral("<code.*?>(.+?)<\\/code>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n```\n\\1\n```\n"));
+    text.replace(QRegularExpression(QStringLiteral("<h1.*?>(.+?)<\\/h1>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n# \\1\n"));
+    text.replace(QRegularExpression(QStringLiteral("<h2.*?>(.+?)<\\/h2>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n## \\1\n"));
+    text.replace(QRegularExpression(QStringLiteral("<h3.*?>(.+?)<\\/h3>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n### \\1\n"));
+    text.replace(QRegularExpression(QStringLiteral("<h4.*?>(.+?)<\\/h4>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n#### \\1\n"));
+    text.replace(QRegularExpression(QStringLiteral("<h5.*?>(.+?)<\\/h5>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n##### \\1\n"));
+    text.replace(QRegularExpression(QStringLiteral("<h6.*?>(.+?)<\\/h6>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n###### \\1\n"));
+    text.replace(QRegularExpression(QStringLiteral("<li.*?>(.+?)<\\/li>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("- \\1\n"));
     text.replace(
-        QRegularExpression(QStringLiteral("<strong.*?>(.+?)<\\/strong>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("**\\1**"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<b.*?>(.+?)<\\/b>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("**\\1**"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<em.*?>(.+?)<\\/em>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("*\\1*"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<i.*?>(.+?)<\\/i>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("*\\1*"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<pre.*?>(.+?)<\\/pre>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n```\n\\1\n```\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<code.*?>(.+?)<\\/code>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n```\n\\1\n```\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<h1.*?>(.+?)<\\/h1>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n# \\1\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<h2.*?>(.+?)<\\/h2>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n## \\1\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<h3.*?>(.+?)<\\/h3>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n### \\1\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<h4.*?>(.+?)<\\/h4>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n#### \\1\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<h5.*?>(.+?)<\\/h5>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n##### \\1\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<h6.*?>(.+?)<\\/h6>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n###### \\1\n"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<li.*?>(.+?)<\\/li>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("- \\1\n"));
-    text.replace(QRegularExpression(QStringLiteral("<br.*?>"),
-                                    QRegularExpression::CaseInsensitiveOption),
-                 QStringLiteral("\n"));
-    text.replace(QRegularExpression(
-                     QStringLiteral("<a[^>]+href=\"(.+?)\".*?>(.+?)<\\/a>"),
-                     QRegularExpression::CaseInsensitiveOption |
-                         QRegularExpression::DotMatchesEverythingOption),
+        QRegularExpression(QStringLiteral("<br.*?>"), QRegularExpression::CaseInsensitiveOption),
+        QStringLiteral("\n"));
+    text.replace(QRegularExpression(QStringLiteral("<a[^>]+href=\"(.+?)\".*?>(.+?)<\\/a>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
                  QStringLiteral("[\\2](\\1)"));
-    text.replace(
-        QRegularExpression(QStringLiteral("<p.*?>(.+?)</p>"),
-                           QRegularExpression::CaseInsensitiveOption |
-                               QRegularExpression::DotMatchesEverythingOption),
-        QStringLiteral("\n\n\\1\n\n"));
+    text.replace(QRegularExpression(QStringLiteral("<p.*?>(.+?)</p>"),
+                                    QRegularExpression::CaseInsensitiveOption |
+                                        QRegularExpression::DotMatchesEverythingOption),
+                 QStringLiteral("\n\n\\1\n\n"));
 
     // replace multiple line breaks
-    text.replace(QRegularExpression(QStringLiteral("\n\n+")),
-                 QStringLiteral("\n\n"));
+    text.replace(QRegularExpression(QStringLiteral("\n\n+")), QStringLiteral("\n\n"));
 
     return text;
 }
@@ -736,15 +742,16 @@ QString Utils::Misc::parseTaskList(const QString &html, bool clickable) {
     // using a css class didn't work because the styling seems to affects the sub-items too
     const auto listTag = QStringLiteral("<li style=\"list-style-type:square\">");
 
+    static const QRegularExpression re1(QStringLiteral(R"(<li>(\s*(<p>)*\s*)\[ ?\])"),
+                                        QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression re2(QStringLiteral(R"(<li>(\s*(<p>)*\s*)\[[xX]\])"),
+                                        QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression re3(QStringLiteral(R"(<li>(\s*(<p>)*\s*)\[-\])"),
+                                        QRegularExpression::CaseInsensitiveOption);
     if (!clickable) {
-        text.replace(
-            QRegularExpression(QStringLiteral(R"(<li>(\s*(<p>)*\s*)\[ ?\])"),
-                               QRegularExpression::CaseInsensitiveOption),
-            listTag % QStringLiteral("\\1&#9744;"));
-        text.replace(
-            QRegularExpression(QStringLiteral(R"(<li>(\s*(<p>)*\s*)\[[xX]\])"),
-                               QRegularExpression::CaseInsensitiveOption),
-            listTag % QStringLiteral("\\1&#9745;"));
+        text.replace(re1, listTag % QStringLiteral("\\1&#9744;"));
+        text.replace(re2, listTag % QStringLiteral("\\1&#9745;"));
+        text.replace(re3, listTag % QStringLiteral("\\1&#10005;"));
         return text;
     }
 
@@ -753,18 +760,14 @@ QString Utils::Misc::parseTaskList(const QString &html, bool clickable) {
     // line numbers of checkboxes in the original markdown text
     // should be provided by the markdown parser
 
-    const QString checkboxStart = QStringLiteral(
-        R"(<a class="task-list-item-checkbox" href="checkbox://_)");
+    text.replace(re3, listTag % QStringLiteral("\\1&#10005;"));
+
+    const QString checkboxStart =
+        QStringLiteral(R"(<a class="task-list-item-checkbox" href="checkbox://_)");
     text.replace(
-        QRegularExpression(QStringLiteral(R"(<li>(\s*(<p>)*\s*)\[ ?\])"),
-                           QRegularExpression::CaseInsensitiveOption),
-        listTag % QStringLiteral("\\1") % checkboxStart %
-            QStringLiteral("\">&#9744;</a>"));
+        re1, listTag % QStringLiteral("\\1") % checkboxStart % QStringLiteral("\">&#9744;</a>"));
     text.replace(
-        QRegularExpression(QStringLiteral(R"(<li>(\s*(<p>)*\s*)\[[xX]\])"),
-                           QRegularExpression::CaseInsensitiveOption),
-        listTag % QStringLiteral("\\1") % checkboxStart %
-            QStringLiteral("\">&#9745;</a>"));
+        re2, listTag % QStringLiteral("\\1") % checkboxStart % QStringLiteral("\">&#9745;</a>"));
 
     int count = 0;
     int pos = 0;
@@ -789,7 +792,7 @@ QList<QObject *> Utils::Misc::getParents(QObject *object) {
     QList<QObject *> list;
     QObject *parent = object->parent();
 
-    if (parent != Q_NULLPTR) {
+    if (parent != nullptr) {
         list = getParents(parent);
         list << parent;
     }
@@ -833,11 +836,7 @@ QString Utils::Misc::appDataPath() {
  *
  * @return
  */
-QString Utils::Misc::logFilePath() {
-    return appDataPath() % QStringLiteral("/") %
-               qAppName().replace(QStringLiteral(" "), QStringLiteral("-")) +
-           QStringLiteral(".log");
-}
+QString Utils::Misc::logFilePath() { return appDataPath() % QStringLiteral("/QOwnNotes.log"); }
 
 /**
  * Transforms all line feeds to \n
@@ -846,9 +845,8 @@ QString Utils::Misc::logFilePath() {
  * @return
  */
 QString Utils::Misc::transformLineFeeds(QString text) {
-    return text.replace(
-        QRegularExpression(QStringLiteral(R"((\r\n)|(\n\r)|\r|\n)")),
-        QStringLiteral("\n"));
+    static const QRegularExpression re(QStringLiteral(R"((\r\n)|(\n\r)|\r|\n)"));
+    return text.replace(re, QStringLiteral("\n"));
 }
 
 /**
@@ -863,10 +861,9 @@ QString Utils::Misc::replaceOwnCloudText(QString text, bool useShortText) {
         return text;
     }
 
-    QString replaceText = useShortText ? QStringLiteral("NC / oC")
-                                       : QStringLiteral("Nextcloud / ownCloud");
-    return text.replace(QStringLiteral("ownCloud"), replaceText,
-                        Qt::CaseInsensitive);
+    QString replaceText =
+        useShortText ? QStringLiteral("NC / oC") : QStringLiteral("Nextcloud / ownCloud");
+    return text.replace(QStringLiteral("ownCloud"), replaceText, Qt::CaseInsensitive);
 }
 
 /**
@@ -878,14 +875,89 @@ void Utils::Misc::needRestart() { qApp->setProperty("needsRestart", true); }
  * Restarts the application
  */
 void Utils::Misc::restartApplication() {
-    QStringList parameters = QApplication::arguments();
-    const QString appPath = parameters.takeFirst();
+    // QApplication::arguments() didn't contain any parameters!
+    QStringList parameters = qApp->property("arguments").toStringList();
+    const QString appPath = Utils::Misc::applicationPath();
 
     // we don't want to have our settings cleared again after a restart
     parameters.removeOne(QStringLiteral("--clear-settings"));
 
+    // If only one app instance is allowed force allowing multiple for the
+    // next launch, so we can launch the application before we quit the
+    // current instance
+    if (qApp->property("singleApplication").toBool() &&
+        !parameters.contains("--allow-multiple-instances")) {
+        parameters.append("--allow-multiple-instances");
+    }
+
     startDetachedProcess(appPath, parameters);
     QApplication::quit();
+}
+
+QString Utils::Misc::applicationPath() {
+    QString appPath;
+
+    if (isAppImage()) {
+        // qApp->property("arguments").toStringList() doesn't report the correct path for the
+        // AppImages of the deployment process for Ubuntu 20.04!
+        // (see https://github.com/pbek/QOwnNotes/issues/2728#issuecomment-1466522381)
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        appPath = env.value("APPIMAGE");
+    } else {
+        QStringList parameters = qApp->property("arguments").toStringList();
+        appPath = parameters.takeFirst();
+    }
+
+    return appPath;
+}
+
+QString Utils::Misc::appendSingleAppInstanceTextIfNeeded(QString text) {
+    if (QSettings().value("allowOnlyOneAppInstance").toBool()) {
+        text.append(QStringLiteral("\n\n") +
+                    QObject::tr("You are using the single app instance mode, that "
+                                "prevents the application be be started a second time. For the "
+                                "next launch of the application the single app instance mode "
+                                "will be disabled, so that the application can be restarted "
+                                "before quitting this instance."));
+    }
+
+    return text;
+}
+
+QByteArray Utils::Misc::friendlyUserAgentString() {
+    const auto pattern = QStringLiteral("%1 (QOwnNotes - %2)");
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    const auto userAgent = pattern.arg(QSysInfo::machineHostName(), platform());
+#else
+    const auto userAgent = pattern.arg(QHostInfo::localHostName(), platform());
+#endif
+
+    return userAgent.toUtf8();
+}
+
+QLatin1String Utils::Misc::platform() {
+#if defined(Q_OS_WIN)
+    return QLatin1String("Windows");
+#elif defined(Q_OS_MAC)
+    return QLatin1String("macOS");
+#elif defined(Q_OS_LINUX)
+    return QLatin1String("Linux");
+#elif defined(Q_OS_FREEBSD) || defined(Q_OS_FREEBSD_KERNEL)
+    return QLatin1String("FreeBSD");
+#elif defined(Q_OS_NETBSD)
+    return QLatin1String("NetBSD");
+#elif defined(Q_OS_OPENBSD)
+    return QLatin1String("OpenBSD");
+#elif defined(Q_OS_SOLARIS)
+    return QLatin1String("Solaris");
+#else
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+    return QSysInfo::productType();
+#else
+    return " Qt " + QString(QT_VERSION_STR);
+#endif
+#endif
 }
 
 /**
@@ -894,7 +966,13 @@ void Utils::Misc::restartApplication() {
  * @param url
  * @return {QByteArray} the content of the downloaded url
  */
-QByteArray Utils::Misc::downloadUrl(const QUrl &url) {
+QByteArray Utils::Misc::downloadUrl(const QUrl &url, bool usePost, QByteArray postData) {
+    int statusCode;
+
+    return downloadUrlWithStatusCode(url, statusCode, usePost, std::move(postData));
+}
+
+QByteArray Utils::Misc::downloadUrlWithStatusCode(const QUrl &url, int &returnStatusCode, bool usePost, QByteArray postData) {
     auto *manager = new QNetworkAccessManager();
     QEventLoop loop;
     QTimer timer;
@@ -902,31 +980,45 @@ QByteArray Utils::Misc::downloadUrl(const QUrl &url) {
     timer.setSingleShot(true);
 
     QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-    QObject::connect(manager, SIGNAL(finished(QNetworkReply *)), &loop,
-                     SLOT(quit()));
+    QObject::connect(manager, SIGNAL(finished(QNetworkReply *)), &loop, SLOT(quit()));
 
     // 10 sec timeout for the request
     timer.start(10000);
 
     QNetworkRequest networkRequest = QNetworkRequest(url);
+    networkRequest.setHeader(QNetworkRequest::UserAgentHeader,
+                             Utils::Misc::friendlyUserAgentString());
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    networkRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute,
-                                true);
+#if QT_VERSION < QT_VERSION_CHECK(5, 9, 0)
+    networkRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#else
+    networkRequest.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
 #endif
 
     QByteArray data;
-    QNetworkReply *reply = manager->get(networkRequest);
+    QNetworkReply *reply;
+
+    if (usePost) {
+        if (postData == nullptr) {
+            postData = QByteArray();
+        }
+
+        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
+                                 "application/x-www-form-urlencoded");
+        reply = manager->post(networkRequest, postData);
+    } else {
+        reply = manager->get(networkRequest);
+    }
+
     loop.exec();
 
     // if we didn't get a timeout let us return the content
     if (timer.isActive()) {
-        int statusCode =
-            reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        returnStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
         // only get the data if the status code was "success"
         // see: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-        if (statusCode >= 200 && statusCode < 300) {
+        if (returnStatusCode >= 200 && returnStatusCode < 300) {
             // get the data from the network reply
             data = reply->readAll();
         }
@@ -967,27 +1059,18 @@ bool Utils::Misc::downloadUrlToFile(const QUrl &url, QFile *file) {
  */
 QString Utils::Misc::genericCSS() {
     QSettings settings;
-    const bool darkModeColors =
-        settings.value(QStringLiteral("darkModeColors")).toBool();
-    QString color =
-        darkModeColors ? QStringLiteral("#ffd694") : QStringLiteral("#fc7600");
-    QString cssStyles =
-        QStringLiteral("a {color: ") % color % QStringLiteral("}");
+    const bool darkModeColors = settings.value(QStringLiteral("darkModeColors")).toBool();
+    QString color = darkModeColors ? QStringLiteral("#ffd694") : QStringLiteral("#fc7600");
+    QString cssStyles = QStringLiteral("a {color: ") % color % QStringLiteral("}");
 
-    color =
-        darkModeColors ? QStringLiteral("#5b5b5b") : QStringLiteral("#e8e8e8");
-    cssStyles +=
-        QStringLiteral("kbd {background-color: ") % color % QStringLiteral("}");
+    color = darkModeColors ? QStringLiteral("#5b5b5b") : QStringLiteral("#e8e8e8");
+    cssStyles += QStringLiteral("kbd {background-color: ") % color % QStringLiteral("}");
 
-    color =
-        darkModeColors ? QStringLiteral("#336924") : QStringLiteral("#d6ffc7");
-    cssStyles +=
-        QStringLiteral("ins {background-color: ") % color % QStringLiteral("}");
+    color = darkModeColors ? QStringLiteral("#336924") : QStringLiteral("#d6ffc7");
+    cssStyles += QStringLiteral("ins {background-color: ") % color % QStringLiteral("}");
 
-    color =
-        darkModeColors ? QStringLiteral("#802c2c") : QStringLiteral("#ffd7d7");
-    cssStyles +=
-        QStringLiteral("del {background-color: ") % color % QStringLiteral("}");
+    color = darkModeColors ? QStringLiteral("#802c2c") : QStringLiteral("#ffd7d7");
+    cssStyles += QStringLiteral("del {background-color: ") % color % QStringLiteral("}");
     return cssStyles;
 }
 
@@ -997,45 +1080,37 @@ QString Utils::Misc::genericCSS() {
  */
 QHash<int, Utils::Misc::SearchEngine> Utils::Misc::getSearchEnginesHashMap() {
     QHash<int, Utils::Misc::SearchEngine> searchEngines;
-    searchEngines.insert(SearchEngines::Google,
-                         {QStringLiteral("Google"),
-                          QStringLiteral("https://www.google.com/search?q="),
-                          SearchEngines::Google});
+    searchEngines.insert(SearchEngines::Google, {QStringLiteral("Google"),
+                                                 QStringLiteral("https://www.google.com/search?q="),
+                                                 SearchEngines::Google});
     searchEngines.insert(SearchEngines::Bing,
-                         {QStringLiteral("Bing"),
-                          QStringLiteral("https://www.bing.com/search?q="),
+                         {QStringLiteral("Bing"), QStringLiteral("https://www.bing.com/search?q="),
                           SearchEngines::Bing});
     searchEngines.insert(
         SearchEngines::DuckDuckGo,
-        {QStringLiteral("DuckDuckGo"),
-         QStringLiteral("https://duckduckgo.com/?t=qownnotes&q="),
+        {QStringLiteral("DuckDuckGo"), QStringLiteral("https://duckduckgo.com/?t=qownnotes&q="),
          SearchEngines::DuckDuckGo});
-    searchEngines.insert(SearchEngines::Yahoo,
-                         {QStringLiteral("Yahoo"),
-                          QStringLiteral("https://search.yahoo.com/search?p="),
-                          SearchEngines::Yahoo});
+    searchEngines.insert(
+        SearchEngines::Yahoo,
+        {QStringLiteral("Yahoo"), QStringLiteral("https://search.yahoo.com/search?p="),
+         SearchEngines::Yahoo});
     searchEngines.insert(
         SearchEngines::GoogleScholar,
         {QStringLiteral("Google Scholar"),
-         QStringLiteral("https://scholar.google.co.il/scholar?q="),
-         SearchEngines::GoogleScholar});
+         QStringLiteral("https://scholar.google.co.il/scholar?q="), SearchEngines::GoogleScholar});
     searchEngines.insert(
         SearchEngines::Yandex,
-        {QStringLiteral("Yandex"),
-         QStringLiteral("https://www.yandex.com/search/?text="),
+        {QStringLiteral("Yandex"), QStringLiteral("https://www.yandex.com/search/?text="),
          SearchEngines::Yandex});
     searchEngines.insert(SearchEngines::AskDotCom,
-                         {QStringLiteral("Ask.com"),
-                          QStringLiteral("https://www.ask.com/web?q="),
+                         {QStringLiteral("Ask.com"), QStringLiteral("https://www.ask.com/web?q="),
                           SearchEngines::AskDotCom});
-    searchEngines.insert(
-        SearchEngines::Qwant,
-        {QStringLiteral("Qwant"), QStringLiteral("https://www.qwant.com/?q="),
-         SearchEngines::Qwant});
+    searchEngines.insert(SearchEngines::Qwant,
+                         {QStringLiteral("Qwant"), QStringLiteral("https://www.qwant.com/?q="),
+                          SearchEngines::Qwant});
     searchEngines.insert(
         SearchEngines::Startpage,
-        {QStringLiteral("Startpage"),
-         QStringLiteral("https://www.startpage.com/do/dsearch?query="),
+        {QStringLiteral("Startpage"), QStringLiteral("https://www.startpage.com/do/dsearch?query="),
          SearchEngines::Startpage});
     return searchEngines;
 }
@@ -1045,9 +1120,7 @@ QHash<int, Utils::Misc::SearchEngine> Utils::Misc::getSearchEnginesHashMap() {
  *
  * @return
  */
-int Utils::Misc::getDefaultSearchEngineId() {
-    return SearchEngines::DuckDuckGo;
-}
+int Utils::Misc::getDefaultSearchEngineId() { return SearchEngines::DuckDuckGo; }
 
 /**
  * Returns a list of search engines in the order it should be displayed
@@ -1055,11 +1128,10 @@ int Utils::Misc::getDefaultSearchEngineId() {
  * @return
  */
 QList<int> Utils::Misc::getSearchEnginesIds() {
-    return QList<int>{SearchEngines::DuckDuckGo,    SearchEngines::Google,
-                      SearchEngines::Bing,          SearchEngines::Yahoo,
-                      SearchEngines::GoogleScholar, SearchEngines::Yandex,
-                      SearchEngines::AskDotCom,     SearchEngines::Qwant,
-                      SearchEngines::Startpage};
+    return QList<int>{
+        SearchEngines::DuckDuckGo, SearchEngines::Google,        SearchEngines::Bing,
+        SearchEngines::Yahoo,      SearchEngines::GoogleScholar, SearchEngines::Yandex,
+        SearchEngines::AskDotCom,  SearchEngines::Qwant,         SearchEngines::Startpage};
 }
 
 /**
@@ -1071,15 +1143,12 @@ void Utils::Misc::presetDisableAutomaticUpdateDialog() {
 
     // disable the automatic update dialog per default for repositories and
     // self-builds
-    if (settings.value(QStringLiteral("disableAutomaticUpdateDialog"))
-            .toString()
-            .isEmpty()) {
+    if (settings.value(QStringLiteral("disableAutomaticUpdateDialog")).toString().isEmpty()) {
         QString release = qApp->property("release").toString();
         bool enabled = release.contains(QStringLiteral("Travis")) ||
                        release.contains(QStringLiteral("AppVeyor")) ||
                        release.contains(QStringLiteral("AppImage"));
-        settings.setValue(QStringLiteral("disableAutomaticUpdateDialog"),
-                          !enabled);
+        settings.setValue(QStringLiteral("disableAutomaticUpdateDialog"), !enabled);
     }
 }
 
@@ -1098,38 +1167,35 @@ void writeStreamElement<QString>(QDataStream &os, const QString s) {
     os << s;
 }
 
-QDataStream &Utils::Misc::dataStreamWrite(QDataStream &os,
-                                          const QPrinter &printer) {
+/**
+ * Save printer settings to a stream
+ */
+QDataStream &Utils::Misc::dataStreamWrite(QDataStream &os, const QPrinter &printer) {
     writeStreamElement(os, printer.printerName());
-    writeStreamElement(os, printer.pageSize());
+    writeStreamElement(os, printer.pageLayout().pageSize().id());
     writeStreamElement(os, printer.collateCopies());
     writeStreamElement(os, printer.colorMode());
     writeStreamElement(os, printer.copyCount());
     writeStreamElement(os, printer.creator());
     writeStreamElement(os, printer.docName());
-    writeStreamElement(os, printer.doubleSidedPrinting());
     writeStreamElement(os, printer.duplex());
     writeStreamElement(os, printer.fontEmbeddingEnabled());
     writeStreamElement(os, printer.fullPage());
-    writeStreamElement(os, printer.orientation());
+    writeStreamElement(os, printer.pageLayout().orientation());
     writeStreamElement(os, printer.outputFileName());
     writeStreamElement(os, printer.outputFormat());
     writeStreamElement(os, printer.pageOrder());
-    writeStreamElement(os, printer.paperSize());
     writeStreamElement(os, printer.paperSource());
     writeStreamElement(os, printer.printProgram());
     writeStreamElement(os, printer.printRange());
     writeStreamElement(os, printer.printerName());
     writeStreamElement(os, printer.resolution());
-    writeStreamElement(os, printer.winPageSize());
 
-    qreal left, top, right, bottom;
-    printer.getPageMargins(&left, &top, &right, &bottom, QPrinter::Millimeter);
-    os << left << top << right << bottom;
+    auto margins = printer.pageLayout().margins(QPageLayout::Unit::Millimeter);
+    os << margins.left() << margins.top() << margins.right() << margins.bottom();
 
-    Q_ASSERT_X(
-        os.status() == QDataStream::Ok, __FUNCTION__,
-        QString("Stream status = %1").arg(os.status()).toStdString().c_str());
+    Q_ASSERT_X(os.status() == QDataStream::Ok, __FUNCTION__,
+               QString("Stream status = %1").arg(os.status()).toStdString().c_str());
     return os;
 }
 
@@ -1151,38 +1217,43 @@ QString readStreamElement<QString>(QDataStream &is) {
     return s;
 }
 
+/**
+ * Load printer settings from a stream
+ */
 QDataStream &Utils::Misc::dataStreamRead(QDataStream &is, QPrinter &printer) {
     printer.setPrinterName(readStreamElement<QString>(is));
-    printer.setPageSize(readStreamElement<QPrinter::PaperSize>(is));
+
+    QPageSize pageSize(readStreamElement<QPageSize::PageSizeId>(is));
+    auto pageLayout = printer.pageLayout();
+    pageLayout.setPageSize(pageSize);
+    printer.setPageLayout(pageLayout);
+
     printer.setCollateCopies(readStreamElement<bool>(is));
     printer.setColorMode(readStreamElement<QPrinter::ColorMode>(is));
     printer.setCopyCount(readStreamElement<int>(is));
     printer.setCreator(readStreamElement<QString>(is));
     printer.setDocName(readStreamElement<QString>(is));
-    printer.setDoubleSidedPrinting(readStreamElement<bool>(is));
     printer.setDuplex(readStreamElement<QPrinter::DuplexMode>(is));
     printer.setFontEmbeddingEnabled(readStreamElement<bool>(is));
     printer.setFullPage(readStreamElement<bool>(is));
-    printer.setOrientation(readStreamElement<QPrinter::Orientation>(is));
+    printer.setPageOrientation(readStreamElement<QPageLayout::Orientation>(is));
     printer.setOutputFileName(readStreamElement<QString>(is));
     printer.setOutputFormat(readStreamElement<QPrinter::OutputFormat>(is));
     printer.setPageOrder(readStreamElement<QPrinter::PageOrder>(is));
-    printer.setPaperSize(readStreamElement<QPrinter::PaperSize>(is));
     printer.setPaperSource(readStreamElement<QPrinter::PaperSource>(is));
     printer.setPrintProgram(readStreamElement<QString>(is));
     printer.setPrintRange(readStreamElement<QPrinter::PrintRange>(is));
     printer.setPrinterName(readStreamElement<QString>(is));
     printer.setResolution(readStreamElement<int>(is));
-    printer.setWinPageSize(readStreamElement<int>(is));
 
     qreal left, top, right, bottom;
     is >> left >> top >> right >> bottom;
 
-    printer.setPageMargins(left, top, right, bottom, QPrinter::Millimeter);
+    QMarginsF margins(left, top, right, bottom);
+    printer.setPageMargins(margins, QPageLayout::Unit::Millimeter);
 
-    Q_ASSERT_X(
-        is.status() == QDataStream::Ok, __FUNCTION__,
-        QString("Stream status = %1").arg(is.status()).toStdString().c_str());
+    Q_ASSERT_X(is.status() == QDataStream::Ok, __FUNCTION__,
+               QString("Stream status = %1").arg(is.status()).toStdString().c_str());
 
     return is;
 }
@@ -1193,13 +1264,11 @@ QDataStream &Utils::Misc::dataStreamRead(QDataStream &is, QPrinter &printer) {
  * @param printer
  * @param settingsKey
  */
-void Utils::Misc::storePrinterSettings(QPrinter *printer,
-                                       const QString &settingsKey) {
+void Utils::Misc::storePrinterSettings(QPrinter *printer, const QString &settingsKey) {
     QByteArray byteArr;
     QDataStream os(&byteArr, QIODevice::WriteOnly);
     dataStreamWrite(os, *printer);
-    QSettings settings;
-    settings.setValue(settingsKey, byteArr.toHex());
+    QSettings().setValue(settingsKey, byteArr.toHex());
 }
 
 /**
@@ -1208,8 +1277,7 @@ void Utils::Misc::storePrinterSettings(QPrinter *printer,
  * @param printer
  * @param settingsKey
  */
-void Utils::Misc::loadPrinterSettings(QPrinter *printer,
-                                      const QString &settingsKey) {
+void Utils::Misc::loadPrinterSettings(QPrinter *printer, const QString &settingsKey) {
     QSettings settings;
 
     if (!settings.value(settingsKey).isValid()) {
@@ -1228,8 +1296,7 @@ void Utils::Misc::loadPrinterSettings(QPrinter *printer,
  * @return
  */
 bool Utils::Misc::isNoteEditingAllowed() {
-    QSettings settings;
-    return settings.value(QStringLiteral("allowNoteEditing"), true).toBool();
+    return QSettings().value(QStringLiteral("allowNoteEditing"), true).toBool();
 }
 
 /**
@@ -1238,11 +1305,8 @@ bool Utils::Misc::isNoteEditingAllowed() {
  * @return
  */
 bool Utils::Misc::useInternalExportStylingForPreview() {
-    QSettings settings;
-    return settings
-        .value(
-            QStringLiteral("MainWindow/noteTextView.useInternalExportStyling"),
-            true)
+    return QSettings()
+        .value(QStringLiteral("MainWindow/noteTextView.useInternalExportStyling"), true)
         .toBool();
 }
 
@@ -1252,10 +1316,10 @@ bool Utils::Misc::useInternalExportStylingForPreview() {
  * @return
  */
 QString Utils::Misc::previewFontString() {
-    QSettings settings;
-    return settings.value(isPreviewUseEditorStyles() ?
-        QStringLiteral("MainWindow/noteTextEdit.font") :
-        QStringLiteral("MainWindow/noteTextView.font")).toString();
+    return QSettings()
+        .value(isPreviewUseEditorStyles() ? QStringLiteral("MainWindow/noteTextEdit.font")
+                                          : QStringLiteral("MainWindow/noteTextView.font"))
+        .toString();
 }
 
 /**
@@ -1264,10 +1328,10 @@ QString Utils::Misc::previewFontString() {
  * @return
  */
 QString Utils::Misc::previewCodeFontString() {
-    QSettings settings;
-    return settings.value(isPreviewUseEditorStyles() ?
-        QStringLiteral("MainWindow/noteTextEdit.code.font") :
-        QStringLiteral("MainWindow/noteTextView.code.font")).toString();
+    return QSettings()
+        .value(isPreviewUseEditorStyles() ? QStringLiteral("MainWindow/noteTextEdit.code.font")
+                                          : QStringLiteral("MainWindow/noteTextView.code.font"))
+        .toString();
 }
 
 /**
@@ -1276,20 +1340,42 @@ QString Utils::Misc::previewCodeFontString() {
  * @return
  */
 bool Utils::Misc::isPreviewUseEditorStyles() {
-    const QSettings settings;
-    return settings.value(
-        QStringLiteral("MainWindow/noteTextView.useEditorStyles"),
-                       true).toBool();
+    return QSettings()
+        .value(QStringLiteral("MainWindow/noteTextView.useEditorStyles"), true)
+        .toBool();
 }
 
 /**
- * Returns if "allowNoteEditing" is turned on
+ * Returns if "enableSocketServer" is turned on
  *
  * @return
  */
 bool Utils::Misc::isSocketServerEnabled() {
-    const QSettings settings;
-    return settings.value(QStringLiteral("enableSocketServer"), true).toBool();
+    return QSettings().value(QStringLiteral("enableSocketServer"), true).toBool();
+}
+
+/**
+ * Returns if "enableWebAppSupport" is turned on
+ *
+ * @return
+ */
+bool Utils::Misc::isWebAppSupportEnabled() {
+    return QSettings().value(QStringLiteral("enableWebAppSupport"), false).toBool();
+}
+
+/**
+ * Returns if "restoreCursorPosition" is turned on
+ *
+ * @return
+ */
+bool Utils::Misc::isRestoreCursorPosition() {
+#ifdef Q_OS_MAC
+    const bool defaultValue = false;
+#else
+    const bool defaultValue = true;
+#endif
+
+    return QSettings().value(QStringLiteral("restoreCursorPosition"), defaultValue).toBool();
 }
 
 /**
@@ -1300,8 +1386,7 @@ bool Utils::Misc::isSocketServerEnabled() {
 bool Utils::Misc::isDarkModeIconTheme() {
     const QSettings settings;
     const bool darkMode = settings.value(QStringLiteral("darkMode")).toBool();
-    return settings.value(QStringLiteral("darkModeIconTheme"), darkMode)
-        .toBool();
+    return settings.value(QStringLiteral("darkModeIconTheme"), darkMode).toBool();
 }
 
 /**
@@ -1310,9 +1395,7 @@ bool Utils::Misc::isDarkModeIconTheme() {
  * @return
  */
 bool Utils::Misc::doAutomaticNoteFolderDatabaseClosing() {
-    const QSettings settings;
-    return settings.value(QStringLiteral("automaticNoteFolderDatabaseClosing"))
-        .toBool();
+    return QSettings().value(QStringLiteral("automaticNoteFolderDatabaseClosing")).toBool();
 }
 
 /**
@@ -1321,8 +1404,7 @@ bool Utils::Misc::doAutomaticNoteFolderDatabaseClosing() {
  * @return
  */
 bool Utils::Misc::isNoteListPreview() {
-    const QSettings settings;
-    return settings.value(QStringLiteral("noteListPreview")).toBool();
+    return QSettings().value(QStringLiteral("noteListPreview")).toBool();
 }
 
 /**
@@ -1331,8 +1413,7 @@ bool Utils::Misc::isNoteListPreview() {
  * @return
  */
 bool Utils::Misc::isEnableNoteTree() {
-    QSettings settings;
-    return settings.value(QStringLiteral("enableNoteTree")).toBool();
+    return QSettings().value(QStringLiteral("enableNoteTree")).toBool();
 }
 
 /**
@@ -1341,8 +1422,7 @@ bool Utils::Misc::isEnableNoteTree() {
  * @return
  */
 QString Utils::Misc::indentCharacters() {
-    const QSettings settings;
-    return settings.value("Editor/useTabIndent").toBool()
+    return QSettings().value("Editor/useTabIndent").toBool()
                ? QStringLiteral("\t")
                : QStringLiteral(" ").repeated(indentSize());
 }
@@ -1352,10 +1432,7 @@ QString Utils::Misc::indentCharacters() {
  *
  * @return
  */
-int Utils::Misc::indentSize() {
-    const QSettings settings;
-    return settings.value("Editor/indentSize", 4).toInt();
-}
+int Utils::Misc::indentSize() { return QSettings().value("Editor/indentSize", 4).toInt(); }
 
 /**
  * Unescapes html special characters
@@ -1363,22 +1440,30 @@ int Utils::Misc::indentSize() {
  * @param html
  * @return
  */
-QString Utils::Misc::unescapeHtml(QString html) {
-    //    html.replace("&lt;","<");
-    //    html.replace("&gt;",">");
-    //    html.replace("&amp;","&");
-    //    return html;
+QString Utils::Misc::unescapeHtml(QString html, bool soft) {
+    // It looks like "text.toPlainText();" also destroys "<a" tags, so we
+    // also want a "soft" un-escaping method
+    if (soft) {
+        html.replace("&lt;", "<");
+        html.replace("&gt;", ">");
+        html.replace("&amp;", "&");
+        html.replace("&quot;", "\"");
+        html.replace("&apos;", "'");
+
+        return html;
+    }
 
     // text.toPlainText() will remove all line breaks, we don't want that
     html.replace(QStringLiteral("\n"), QStringLiteral("<br>"));
 
     QTextDocument text;
     text.setHtml(html);
+
     return text.toPlainText();
 }
 
 /**
- * Unescapes some html special characters
+ * Escapes some html special characters
  *
  * @param text
  * @return
@@ -1397,13 +1482,7 @@ QString Utils::Misc::htmlspecialchars(QString text) {
  *
  * @param text
  */
-void Utils::Misc::printInfo(const QString &text) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
-    qInfo() << text;
-#else
-    printf("%s\n", text.toLatin1().data());
-#endif
-}
+void Utils::Misc::printInfo(const QString &text) { qInfo() << text; }
 
 /**
  * Converts a byte size to a human readable size
@@ -1431,17 +1510,14 @@ QString Utils::Misc::toHumanReadableByteSize(qint64 size) {
  * @param headline
  * @param data
  */
-QString Utils::Misc::prepareDebugInformationLine(const QString &headline,
-                                                 QString data,
+QString Utils::Misc::prepareDebugInformationLine(const QString &headline, QString data,
                                                  bool withGitHubLineBreaks,
                                                  const QString &typeText) {
     // add two spaces if we don't want GitHub line breaks
-    const QString spaces =
-        withGitHubLineBreaks ? QString() : QStringLiteral("  ");
+    const QString spaces = withGitHubLineBreaks ? QString() : QStringLiteral("  ");
 
     if (data.contains(QStringLiteral("\n"))) {
-        data = QStringLiteral("\n```\n") % data.trimmed() %
-               QStringLiteral("\n```");
+        data = QStringLiteral("\n```\n") % data.trimmed() % QStringLiteral("\n```");
     } else {
         data = (data.isEmpty()) ? QStringLiteral("*empty*") : "`" % data % "`";
     }
@@ -1467,51 +1543,40 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
 
     // add information about QOwnNotes
     output += QStringLiteral("\n## General Info\n\n");
-    output +=
-        prepareDebugInformationLine(QStringLiteral("Current Date"),
-                                    dateTime.toString(), withGitHubLineBreaks);
-    output += prepareDebugInformationLine(
-        QStringLiteral("Version"), QString(VERSION), withGitHubLineBreaks);
-    output += prepareDebugInformationLine(
-        QStringLiteral("Build date"), QString(__DATE__), withGitHubLineBreaks);
-    output += prepareDebugInformationLine(QStringLiteral("Build number"),
-                                          QString::number(BUILD),
+    output += prepareDebugInformationLine(QStringLiteral("Current Date"), dateTime.toString(),
                                           withGitHubLineBreaks);
-    output += prepareDebugInformationLine(
-        QStringLiteral("Platform"), QString(PLATFORM), withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Version"), QString(VERSION),
+                                          withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Build date"), QString(__DATE__),
+                                          withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Build number"), QString::number(BUILD),
+                                          withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Platform"), QString(PLATFORM),
+                                          withGitHubLineBreaks);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
     output += prepareDebugInformationLine(QStringLiteral("Operating System"),
-                                          QSysInfo::prettyProductName(),
-                                          withGitHubLineBreaks);
+                                          QSysInfo::prettyProductName(), withGitHubLineBreaks);
     output += prepareDebugInformationLine(QStringLiteral("Build architecture"),
-                                          QSysInfo::buildCpuArchitecture(),
+                                          QSysInfo::buildCpuArchitecture(), withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Current architecture"),
+                                          QSysInfo::currentCpuArchitecture(), withGitHubLineBreaks);
+#endif
+    output += prepareDebugInformationLine(
+        QStringLiteral("Release"), qApp->property("release").toString(), withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Qt Version (build)"),
+                                          QStringLiteral(QT_VERSION_STR), withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Qt Version (runtime)"), qVersion(),
                                           withGitHubLineBreaks);
     output += prepareDebugInformationLine(
-        QStringLiteral("Current architecture"),
-        QSysInfo::currentCpuArchitecture(), withGitHubLineBreaks);
-#endif
-    output += prepareDebugInformationLine(QStringLiteral("Release"),
-                                          qApp->property("release").toString(),
-                                          withGitHubLineBreaks);
-    output += prepareDebugInformationLine(QStringLiteral("Qt Version (build)"),
-                                          QStringLiteral(QT_VERSION_STR),
-                                          withGitHubLineBreaks);
-    output +=
-        prepareDebugInformationLine(QStringLiteral("Qt Version (runtime)"),
-                                    qVersion(), withGitHubLineBreaks);
-    output += prepareDebugInformationLine(QStringLiteral("Portable mode"),
-                                          Utils::Misc::isInPortableMode()
-                                              ? QStringLiteral("yes")
-                                              : QStringLiteral("no"),
-                                          withGitHubLineBreaks);
-    output +=
-        prepareDebugInformationLine(QStringLiteral("Settings path / key"),
-                                    settings.fileName(), withGitHubLineBreaks);
+        QStringLiteral("Portable mode"),
+        Utils::Misc::isInPortableMode() ? QStringLiteral("yes") : QStringLiteral("no"),
+        withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Settings path / key"),
+                                          settings.fileName(), withGitHubLineBreaks);
     output += prepareDebugInformationLine(
         QStringLiteral("Application database path"),
-        QDir::toNativeSeparators(DatabaseService::getDiskDatabasePath()),
-        withGitHubLineBreaks);
+        QDir::toNativeSeparators(DatabaseService::getDiskDatabasePath()), withGitHubLineBreaks);
     output += prepareDebugInformationLine(
         QStringLiteral("Application arguments"),
         qApp->property("arguments").toStringList().join(QStringLiteral("`, `")),
@@ -1522,16 +1587,13 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
     debug = QStringLiteral("1");
 #endif
 
-    output += prepareDebugInformationLine(QStringLiteral("Qt Debug"), debug,
-                                          withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Qt Debug"), debug, withGitHubLineBreaks);
 
     output += prepareDebugInformationLine(QStringLiteral("Locale (system)"),
-                                          QLocale::system().name(),
-                                          withGitHubLineBreaks);
+                                          QLocale::system().name(), withGitHubLineBreaks);
     output += prepareDebugInformationLine(
         QStringLiteral("Locale (interface)"),
-        settings.value(QStringLiteral("interfaceLanguage")).toString(),
-        withGitHubLineBreaks);
+        settings.value(QStringLiteral("interfaceLanguage")).toString(), withGitHubLineBreaks);
 #ifndef INTEGRATION_TESTS
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
@@ -1540,12 +1602,10 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
     QScreen *primaryScreen = QGuiApplication::primaryScreen();
 #endif
     if (primaryScreen != nullptr) {
-        QString screenResolution =
-                QString::number(primaryScreen->geometry().width()) + "x" +
-                QString::number(primaryScreen->geometry().height());
-        output +=
-            prepareDebugInformationLine(QStringLiteral("Primary screen resolution"),
-                                        screenResolution, withGitHubLineBreaks);
+        QString screenResolution = QString::number(primaryScreen->geometry().width()) + "x" +
+                                   QString::number(primaryScreen->geometry().height());
+        output += prepareDebugInformationLine(QStringLiteral("Primary screen resolution"),
+                                              screenResolution, withGitHubLineBreaks);
     }
 
     QList<QScreen *> screens = qApp->screens();
@@ -1554,63 +1614,53 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
         QStringList screenResolutions;
 
         Q_FOREACH (QScreen *screen, screens) {
-            screenResolutions.append(
-                QString::number(screen->geometry().width()) + "x" +
-                QString::number(screen->geometry().height()));
+            screenResolutions.append(QString::number(screen->geometry().width()) + "x" +
+                                     QString::number(screen->geometry().height()));
         }
 
-        output += prepareDebugInformationLine(
-            QStringLiteral("Screen resolution(s)"),
-            screenResolutions.join(QStringLiteral(", ")), withGitHubLineBreaks);
+        output += prepareDebugInformationLine(QStringLiteral("Screen resolution(s)"),
+                                              screenResolutions.join(QStringLiteral(", ")),
+                                              withGitHubLineBreaks);
     }
 #endif
 
-    output += prepareDebugInformationLine(
-        QStringLiteral("Icon theme"), QIcon::themeName(), withGitHubLineBreaks);
-    output += prepareDebugInformationLine(
-        QStringLiteral("Notes in current note folder"),
-        QString::number(Note::countAll()), withGitHubLineBreaks);
-    output += prepareDebugInformationLine(
-        QStringLiteral("Calendar items"),
-        QString::number(CalendarItem::countAll()), withGitHubLineBreaks);
-    output += prepareDebugInformationLine(
-        QStringLiteral("Enabled scripts"),
-        QString::number(Script::countEnabled()), withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Icon theme"), QIcon::themeName(),
+                                          withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Notes in current note folder"),
+                                          QString::number(Note::countAll()), withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("Calendar items"),
+                                          QString::number(CalendarItem::countAll()),
+                                          withGitHubLineBreaks);
+    output +=
+        prepareDebugInformationLine(QStringLiteral("Enabled scripts"),
+                                    QString::number(Script::countEnabled()), withGitHubLineBreaks);
 
     // add information about the server
     output += QStringLiteral("\n## Server Info\n\n");
-    output += prepareDebugInformationLine(
-        QStringLiteral("serverUrl"),
-        CloudConnection::currentCloudConnection().getServerUrl(),
-        withGitHubLineBreaks);
-    const bool appIsValid =
-        settings.value(QStringLiteral("ownCloudInfo/appIsValid")).toBool();
+    output += prepareDebugInformationLine(QStringLiteral("serverUrl"),
+                                          CloudConnection::currentCloudConnection().getServerUrl(),
+                                          withGitHubLineBreaks);
+    const bool appIsValid = settings.value(QStringLiteral("ownCloudInfo/appIsValid")).toBool();
     output += prepareDebugInformationLine(
         QStringLiteral("appIsValid"),
-        QString(appIsValid ? QStringLiteral("yes") : QStringLiteral("no")),
-        withGitHubLineBreaks);
+        QString(appIsValid ? QStringLiteral("yes") : QStringLiteral("no")), withGitHubLineBreaks);
     output += prepareDebugInformationLine(
         QStringLiteral("notesPathExists"),
-        settings.value(QStringLiteral("ownCloudInfo/notesPathExistsText"))
-            .toString(),
+        settings.value(QStringLiteral("ownCloudInfo/notesPathExistsText")).toString(),
         withGitHubLineBreaks);
     if (appIsValid) {
         output += prepareDebugInformationLine(
             QStringLiteral("serverVersion"),
-            settings.value(QStringLiteral("ownCloudInfo/serverVersion"))
-                .toString(),
+            settings.value(QStringLiteral("ownCloudInfo/serverVersion")).toString(),
             withGitHubLineBreaks);
         output += prepareDebugInformationLine(
             QStringLiteral("appVersion"),
-            settings.value(QStringLiteral("ownCloudInfo/appVersion"))
-                .toString(),
+            settings.value(QStringLiteral("ownCloudInfo/appVersion")).toString(),
             withGitHubLineBreaks);
     } else {
         output += prepareDebugInformationLine(
             QStringLiteral("connectionErrorMessage"),
-            settings
-                .value(QStringLiteral("ownCloudInfo/connectionErrorMessage"))
-                .toString(),
+            settings.value(QStringLiteral("ownCloudInfo/connectionErrorMessage")).toString(),
             withGitHubLineBreaks);
     }
 
@@ -1618,81 +1668,71 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
 
     output += QStringLiteral("\n## Spellchecking\n\n");
     output += prepareDebugInformationLine(
-        QStringLiteral("Enabled"),
-        settings.value(QStringLiteral("checkSpelling")).toString(),
+        QStringLiteral("Enabled"), settings.value(QStringLiteral("checkSpelling")).toString(),
         withGitHubLineBreaks);
     output += prepareDebugInformationLine(
         QStringLiteral("Selected language"),
-        settings.value(QStringLiteral("spellCheckLanguage")).toString(),
-        withGitHubLineBreaks);
+        settings.value(QStringLiteral("spellCheckLanguage")).toString(), withGitHubLineBreaks);
 
 #ifndef INTEGRATION_TESTS
     // auto *speller = new Sonnet::Speller();
     output += prepareDebugInformationLine(
         QStringLiteral("Language codes"),
-        Sonnet::Speller::availableLanguages().join(QStringLiteral(", ")),
-        withGitHubLineBreaks);
+        Sonnet::Speller::availableLanguages().join(QStringLiteral(", ")), withGitHubLineBreaks);
     output += prepareDebugInformationLine(
         QStringLiteral("Language names"),
-        Sonnet::Speller::availableLanguageNames().join(QStringLiteral(", ")),
-        withGitHubLineBreaks);
+        Sonnet::Speller::availableLanguageNames().join(QStringLiteral(", ")), withGitHubLineBreaks);
     // delete speller;
 #endif
     output += prepareDebugInformationLine(
         QStringLiteral("Application dictionaries path"),
-        QDir::toNativeSeparators(Utils::Misc::localDictionariesPath()),
-        withGitHubLineBreaks);
+        QDir::toNativeSeparators(Utils::Misc::localDictionariesPath()), withGitHubLineBreaks);
 
     // add note folder information
     output += QStringLiteral("\n## Note folders\n\n");
-    output += prepareDebugInformationLine(
-        QStringLiteral("currentNoteFolderId"),
-        QString::number(NoteFolder::currentNoteFolderId()),
-        withGitHubLineBreaks);
+    output += prepareDebugInformationLine(QStringLiteral("currentNoteFolderId"),
+                                          QString::number(NoteFolder::currentNoteFolderId()),
+                                          withGitHubLineBreaks);
 
     const QList<NoteFolder> &noteFolders = NoteFolder::fetchAll();
     if (noteFolders.count() > 0) {
         Q_FOREACH (const NoteFolder &noteFolder, noteFolders) {
-            output +=
-                QStringLiteral("\n### Note folder `") % noteFolder.getName() +
-                QStringLiteral("`\n\n");
+            output += QStringLiteral("\n### Note folder `") % noteFolder.getName() +
+                      QStringLiteral("`\n\n");
             output += prepareDebugInformationLine(
-                QStringLiteral("id"), QString::number(noteFolder.getId()),
+                QStringLiteral("id"), QString::number(noteFolder.getId()), withGitHubLineBreaks);
+            output += prepareDebugInformationLine(
+                QStringLiteral("isCurrent"),
+                noteFolder.isCurrent() ? QStringLiteral("yes") : QStringLiteral("no"),
                 withGitHubLineBreaks);
-            output += prepareDebugInformationLine(QStringLiteral("isCurrent"),
-                                                  noteFolder.isCurrent()
-                                                      ? QStringLiteral("yes")
-                                                      : QStringLiteral("no"),
+            output += prepareDebugInformationLine(QStringLiteral("activeTagId"),
+                                                  QString::number(noteFolder.getActiveTagId()),
                                                   withGitHubLineBreaks);
             output += prepareDebugInformationLine(
-                QStringLiteral("activeTagId"),
-                QString::number(noteFolder.getActiveTagId()),
-                withGitHubLineBreaks);
-            output += prepareDebugInformationLine(
-                QStringLiteral("localPath"),
-                QDir::toNativeSeparators(noteFolder.getLocalPath()),
+                QStringLiteral("localPath"), QDir::toNativeSeparators(noteFolder.getLocalPath()),
                 withGitHubLineBreaks);
             output += prepareDebugInformationLine(QStringLiteral("remotePath"),
-                                                  noteFolder.getRemotePath(),
-                                                  withGitHubLineBreaks);
+                                                  noteFolder.getRemotePath(), withGitHubLineBreaks);
             output += prepareDebugInformationLine(
                 QStringLiteral("cloudConnectionId"),
-                QString::number(noteFolder.getCloudConnectionId()),
-                withGitHubLineBreaks);
+                QString::number(noteFolder.getCloudConnectionId()), withGitHubLineBreaks);
             output += prepareDebugInformationLine(
                 QStringLiteral("isShowSubfolders"),
-                noteFolder.isShowSubfolders() ? QStringLiteral("yes")
-                                              : QStringLiteral("no"),
+                noteFolder.isShowSubfolders() ? QStringLiteral("yes") : QStringLiteral("no"),
                 withGitHubLineBreaks);
-            output += prepareDebugInformationLine(QStringLiteral("isUseGit"),
-                                                  noteFolder.isUseGit()
-                                                      ? QStringLiteral("yes")
-                                                      : QStringLiteral("no"),
-                                                  withGitHubLineBreaks);
             output += prepareDebugInformationLine(
-                QStringLiteral("activeNoteSubFolder name"),
-                noteFolder.getActiveNoteSubFolder().getName(),
+                QStringLiteral("isUseGit"),
+                noteFolder.isUseGit() ? QStringLiteral("yes") : QStringLiteral("no"),
                 withGitHubLineBreaks);
+            output += prepareDebugInformationLine(
+                QStringLiteral("allowDifferentNoteFileName"),
+                noteFolder.settingsValue(QStringLiteral("allowDifferentNoteFileName")).toBool()
+                    ? QStringLiteral("yes")
+                    : QStringLiteral("no"),
+                withGitHubLineBreaks);
+            output += prepareDebugInformationLine(QStringLiteral("activeNoteSubFolder name"),
+                                                  noteFolder.getActiveNoteSubFolder().getName(),
+                                                  withGitHubLineBreaks);
             output += prepareDebugInformationLine(
                 QStringLiteral("database file"),
                 QDir::toNativeSeparators(noteFolder.getLocalPath() +
@@ -1705,23 +1745,29 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
     output += QStringLiteral("\n## Cloud connections\n");
 
     Q_FOREACH (CloudConnection cloudConnection, CloudConnection::fetchAll()) {
-        output += QStringLiteral("\n### Cloud connection `") %
-                      cloudConnection.getName() +
+        output += QStringLiteral("\n### Cloud connection `") % cloudConnection.getName() +
                   QStringLiteral("`\n\n");
         output += prepareDebugInformationLine(
-            QStringLiteral("id"), QString::number(cloudConnection.getId()),
+            QStringLiteral("id"), QString::number(cloudConnection.getId()), withGitHubLineBreaks);
+        output += prepareDebugInformationLine(
+            QStringLiteral("isCurrent"),
+            cloudConnection.isCurrent() ? QStringLiteral("yes") : QStringLiteral("no"),
             withGitHubLineBreaks);
-        output += prepareDebugInformationLine(QStringLiteral("isCurrent"),
-                                              cloudConnection.isCurrent()
-                                                  ? QStringLiteral("yes")
-                                                  : QStringLiteral("no"),
-                                              withGitHubLineBreaks);
         output += prepareDebugInformationLine(QStringLiteral("serverUrl"),
-                                              cloudConnection.getServerUrl(),
-                                              withGitHubLineBreaks);
+                                              cloudConnection.getServerUrl(), withGitHubLineBreaks);
         output += prepareDebugInformationLine(QStringLiteral("username"),
-                                              cloudConnection.getUsername(),
-                                              withGitHubLineBreaks);
+                                              cloudConnection.getUsername(), withGitHubLineBreaks);
+        output += prepareDebugInformationLine(QStringLiteral("accountId"),
+                                              cloudConnection.getAccountId(), withGitHubLineBreaks);
+
+        if (cloudConnection.getNextcloudDeckEnabled()) {
+            output += prepareDebugInformationLine(QStringLiteral("Nextcloud Deck boardId"),
+                                                  QString::number(cloudConnection.getNextcloudDeckBoardId()),
+                                                  withGitHubLineBreaks);
+            output += prepareDebugInformationLine(QStringLiteral("Nextcloud Deck stackId"),
+                                                  QString::number(cloudConnection.getNextcloudDeckStackId()),
+                                                  withGitHubLineBreaks);
+        }
     }
 
     // add script information
@@ -1730,30 +1776,24 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
     QList<Script> scripts = Script::fetchAll(true);
     if (noteFolders.count() > 0) {
         Q_FOREACH (Script script, scripts) {
-            output += QStringLiteral("\n### Script `") % script.getName() +
-                      QStringLiteral("`\n\n");
+            output += QStringLiteral("\n### Script `") % script.getName() + QStringLiteral("`\n\n");
             output += prepareDebugInformationLine(
-                QStringLiteral("id"), QString::number(script.getId()),
-                withGitHubLineBreaks);
-            output += prepareDebugInformationLine(
-                QStringLiteral("path"),
-                QDir::toNativeSeparators(script.getScriptPath()),
-                withGitHubLineBreaks);
-            output += prepareDebugInformationLine(
-                QStringLiteral("variablesJson"),
-                script.getSettingsVariablesJson(), withGitHubLineBreaks);
+                QStringLiteral("id"), QString::number(script.getId()), withGitHubLineBreaks);
+            output += prepareDebugInformationLine(QStringLiteral("path"),
+                                                  QDir::toNativeSeparators(script.getScriptPath()),
+                                                  withGitHubLineBreaks);
+            output += prepareDebugInformationLine(QStringLiteral("variablesJson"),
+                                                  script.getSettingsVariablesJson(),
+                                                  withGitHubLineBreaks);
             if (script.isScriptFromRepository()) {
                 ScriptInfoJson infoJson = script.getScriptInfoJson();
 
-                output += prepareDebugInformationLine(
-                    QStringLiteral("identifier"), script.getIdentifier(),
-                    withGitHubLineBreaks);
-                output += prepareDebugInformationLine(QStringLiteral("version"),
-                                                      infoJson.version,
+                output += prepareDebugInformationLine(QStringLiteral("identifier"),
+                                                      script.getIdentifier(), withGitHubLineBreaks);
+                output += prepareDebugInformationLine(QStringLiteral("version"), infoJson.version,
                                                       withGitHubLineBreaks);
-                output += prepareDebugInformationLine(
-                    QStringLiteral("minAppVersion"), infoJson.minAppVersion,
-                    withGitHubLineBreaks);
+                output += prepareDebugInformationLine(QStringLiteral("minAppVersion"),
+                                                      infoJson.minAppVersion, withGitHubLineBreaks);
             }
         }
     } else {
@@ -1766,7 +1806,10 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
     // hide values of these keys
     QStringList keyHiddenList = {"cryptoKey",
                                  "ownCloud/todoCalendarCalDAVPassword",
-                                 "PiwikClientId", "networking/proxyPassword"};
+                                 "PiwikClientId",
+                                 "networking/proxyPassword",
+                                 "webSocketServerService/token",
+                                 "webAppClientService/token"};
 
     // under OS X we have to ignore some keys
 #ifdef Q_OS_MAC
@@ -1805,33 +1848,30 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
 
         // hide values of certain keys
         if (keyHiddenList.contains(key)) {
-            output += prepareDebugInformationLine(
-                key, QStringLiteral("<hidden>"), withGitHubLineBreaks,
-                value.typeName());
+            output += prepareDebugInformationLine(key, QStringLiteral("<hidden>"),
+                                                  withGitHubLineBreaks, value.typeName());
         } else {
             switch (value.type()) {
                 case QVariant::StringList:
                     output += prepareDebugInformationLine(
-                        key, value.toStringList().join(QStringLiteral(", ")),
-                        withGitHubLineBreaks, value.typeName());
+                        key, value.toStringList().join(QStringLiteral(", ")), withGitHubLineBreaks,
+                        value.typeName());
                     break;
                 case QVariant::List:
-                    output += prepareDebugInformationLine(
-                        key,
-                        QStringLiteral("<variant list with %1 item(s)>")
-                            .arg(value.toList().count()),
-                        withGitHubLineBreaks, value.typeName());
+                    output +=
+                        prepareDebugInformationLine(key,
+                                                    QStringLiteral("<variant list with %1 item(s)>")
+                                                        .arg(value.toList().count()),
+                                                    withGitHubLineBreaks, value.typeName());
                     break;
                 case QVariant::ByteArray:
                 case QVariant::UserType:
-                    output += prepareDebugInformationLine(
-                        key, QStringLiteral("<binary data>"),
-                        withGitHubLineBreaks, value.typeName());
+                    output += prepareDebugInformationLine(key, QStringLiteral("<binary data>"),
+                                                          withGitHubLineBreaks, value.typeName());
                     break;
                 default:
                     output += prepareDebugInformationLine(key, value.toString(),
-                                                          withGitHubLineBreaks,
-                                                          value.typeName());
+                                                          withGitHubLineBreaks, value.typeName());
             }
         }
     }
@@ -1858,10 +1898,9 @@ QString Utils::Misc::generateDebugInformation(bool withGitHubLineBreaks) {
  * @param regExpList
  * @return
  */
-bool Utils::Misc::regExpInListMatches(const QString &text,
-                                      const QStringList &regExpList) {
+bool Utils::Misc::regExpInListMatches(const QString &text, const QStringList &regExpList) {
     for (const QString &regExp : regExpList) {
-        const QString &trimmed = regExp.trimmed();
+        const QString trimmed = regExp.trimmed();
         if (trimmed.isEmpty()) {
             continue;
         }
@@ -1879,15 +1918,14 @@ bool Utils::Misc::regExpInListMatches(const QString &text,
  *
  * @param html
  */
-void Utils::Misc::transformNextcloudPreviewImages(
-    QString &html, int maxImageWidth, ExternalImageHash *externalImageHash) {
+void Utils::Misc::transformNextcloudPreviewImages(QString &html, int maxImageWidth,
+                                                  ExternalImageHash *externalImageHash) {
     OwnCloudService *ownCloud = OwnCloudService::instance();
 
-    QRegularExpression re(
+    static const QRegularExpression re(
         QStringLiteral(
             R"(<img src=\"(\/core\/preview\?fileId=.+#mimetype=[\w\d%]+&.+)\" alt=\".+\"\/?>)"),
-        QRegularExpression::CaseInsensitiveOption |
-            QRegularExpression::MultilineOption);
+        QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption);
     QRegularExpressionMatchIterator i = re.globalMatch(html);
 
     while (i.hasNext()) {
@@ -1902,16 +1940,15 @@ void Utils::Misc::transformNextcloudPreviewImages(
             inlineImageTag = hashItem.imageTag;
             imageWidth = hashItem.imageWidth;
         } else {
-            inlineImageTag = ownCloud->nextcloudPreviewImageTagToInlineImageTag(
-                imageTag, imageWidth);
+            inlineImageTag =
+                ownCloud->nextcloudPreviewImageTagToInlineImageTag(imageTag, imageWidth);
             hashItem.imageTag = inlineImageTag;
             hashItem.imageWidth = imageWidth;
             externalImageHash->insert(imageTag, hashItem);
         }
 
         imageWidth = std::min(maxImageWidth, imageWidth);
-        inlineImageTag.replace(
-            "/>", QString("width=\"%1\"/>").arg(QString::number(imageWidth)));
+        inlineImageTag.replace("/>", QString("width=\"%1\"/>").arg(QString::number(imageWidth)));
 
         html.replace(imageTag, inlineImageTag);
     }
@@ -1922,13 +1959,12 @@ void Utils::Misc::transformNextcloudPreviewImages(
  *
  * @param html
  */
-void Utils::Misc::transformRemotePreviewImages(
-    QString &html, int maxImageWidth, ExternalImageHash *externalImageHash) {
-    QRegularExpression re(
-        QStringLiteral(R"(<img src=\"(https?:\/\/.+)\".*\/?>)"),
-        QRegularExpression::CaseInsensitiveOption |
-            QRegularExpression::MultilineOption |
-            QRegularExpression::InvertedGreedinessOption);
+void Utils::Misc::transformRemotePreviewImages(QString &html, int maxImageWidth,
+                                               ExternalImageHash *externalImageHash) {
+    static const QRegularExpression re(QStringLiteral(R"(<img src=\"(https?:\/\/.+)\".*\/?>)"),
+                                       QRegularExpression::CaseInsensitiveOption |
+                                           QRegularExpression::MultilineOption |
+                                           QRegularExpression::InvertedGreedinessOption);
     QRegularExpressionMatchIterator i = re.globalMatch(html);
 
     while (i.hasNext()) {
@@ -1943,16 +1979,14 @@ void Utils::Misc::transformRemotePreviewImages(
             inlineImageTag = hashItem.imageTag;
             imageWidth = hashItem.imageWidth;
         } else {
-            inlineImageTag =
-                remotePreviewImageTagToInlineImageTag(imageTag, imageWidth);
+            inlineImageTag = remotePreviewImageTagToInlineImageTag(imageTag, imageWidth);
             hashItem.imageTag = inlineImageTag;
             hashItem.imageWidth = imageWidth;
             externalImageHash->insert(imageTag, hashItem);
         }
 
         imageWidth = std::min(maxImageWidth, imageWidth);
-        inlineImageTag.replace(
-            ">", QString("width=\"%1\">").arg(QString::number(imageWidth)));
+        inlineImageTag.replace(">", QString("width=\"%1\">").arg(QString::number(imageWidth)));
         html.replace(imageTag, inlineImageTag);
     }
 }
@@ -1964,13 +1998,12 @@ void Utils::Misc::transformRemotePreviewImages(
  * @param imageSuffix
  * @return
  */
-QString Utils::Misc::remotePreviewImageTagToInlineImageTag(QString imageTag,
-                                                           int &imageWidth) {
+QString Utils::Misc::remotePreviewImageTagToInlineImageTag(QString imageTag, int &imageWidth) {
     imageTag.replace(QStringLiteral("&amp;"), QStringLiteral("&"));
 
-    QRegularExpression re(QStringLiteral(R"(<img src=\"(https?:\/\/.+)\")"),
-                          QRegularExpression::CaseInsensitiveOption |
-                              QRegularExpression::InvertedGreedinessOption);
+    static const QRegularExpression re(
+        QStringLiteral(R"(<img src=\"(https?:\/\/.+)\")"),
+        QRegularExpression::CaseInsensitiveOption | QRegularExpression::InvertedGreedinessOption);
 
     QRegularExpressionMatch match = re.match(imageTag);
     if (!match.hasMatch()) {
@@ -1986,18 +2019,15 @@ QString Utils::Misc::remotePreviewImageTagToInlineImageTag(QString imageTag,
 
     // for now we do no caching, because we don't know when to invalidate the
     // cache
-    const QString replace = QStringLiteral("data:") % type.name() %
-                            QStringLiteral(";base64,") % data.toBase64();
-    const QString inlineImageTag = imageTag.replace(url, replace);
-
-    return inlineImageTag;
+    const QString replace =
+        QStringLiteral("data:") % type.name() % QStringLiteral(";base64,") % data.toBase64();
+    return imageTag.replace(url, replace);
 }
 
 QString Utils::Misc::createUuidString() {
     const QUuid uuid = QUuid::createUuid();
     QString uuidString = uuid.toString();
-    uuidString.replace(QStringLiteral("{"), QString())
-        .replace(QStringLiteral("}"), QString());
+    uuidString.replace(QStringLiteral("{"), QString()).replace(QStringLiteral("}"), QString());
 
     return uuidString;
 }
@@ -2008,7 +2038,7 @@ QString Utils::Misc::createUuidString() {
  * @return
  */
 QString Utils::Misc::localDictionariesPath() {
-    const QString path = Utils::Misc::appDataPath() % QStringLiteral("/dicts");
+    QString path = Utils::Misc::appDataPath() % QStringLiteral("/dicts");
     QDir dir;
 
     // create path if it doesn't exist yet
@@ -2045,12 +2075,16 @@ bool Utils::Misc::isSameFile(const QString &path1, const QString &path2) {
 }
 
 QString Utils::Misc::generateRandomString(int length) {
-    const QString possibleCharacters(QStringLiteral(
-                 "ABCDEFGHKLMNPQRSTUVWXYZabcdefghkmnpqrstuvwxyz23456789"));
+    const QString possibleCharacters(
+        QStringLiteral("ABCDEFGHKLMNPQRSTUVWXYZabcdefghkmnpqrstuvwxyz23456789"));
 
     QString randomString;
     for (int i = 0; i < length; ++i) {
-        int index = qrand() % possibleCharacters.length();
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+        const int index = qrand() % possibleCharacters.length();
+#else
+        const quint32 index = QRandomGenerator::global()->generate() % possibleCharacters.length();
+#endif
         QChar nextChar = possibleCharacters.at(index);
         randomString.append(nextChar);
     }
@@ -2058,18 +2092,77 @@ QString Utils::Misc::generateRandomString(int length) {
     return randomString;
 }
 
-QString Utils::Misc::makeFileNameRandom(const QString &fileName,
-                                        const QString &overrideSuffix) {
+QString Utils::Misc::makeFileNameRandom(const QString &fileName, const QString &overrideSuffix) {
     const QFileInfo fileInfo(fileName);
 
-    QString baseName = fileInfo.baseName().remove(
-        QRegularExpression(QStringLiteral(R"([^\w\d\-_ ])"))).replace(
-                               QChar(' '), QChar('-'));
+    QString baseName = fileInfo.baseName()
+                           .remove(QRegularExpression(QStringLiteral(R"([^\w\d\-_ ])")))
+                           .replace(QChar(' '), QChar('-'));
     baseName.truncate(32);
 
     // find a more random name for the file
-    return baseName + QChar('-') + QString::number(qrand()) + QChar('.') +
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+    const quint32 number = qrand();
+#else
+    const quint32 number = QRandomGenerator::global()->generate();
+#endif
+
+    return baseName + QChar('-') + QString::number(number) + QChar('.') +
            (overrideSuffix.isEmpty() ? fileInfo.suffix() : overrideSuffix);
+}
+
+/**
+ * Returns a non-existing filename (like "my-image.jpg") in directoryPath
+ * If the filename is already taken a number will be appended (like "my-image-1.jpg")
+ */
+QString Utils::Misc::findAvailableFileName(const QString &filePath, const QString &directoryPath,
+                                           const QString &overrideSuffix) {
+    const QFileInfo fileInfo(filePath);
+    QString baseName = fileInfo.baseName();
+    baseName.truncate(200);
+    const QString newSuffix = fileInfo.suffix();
+    QString newBaseName = baseName;
+    QString newFileName = newBaseName + QStringLiteral(".") + newSuffix;
+    QString newFilePath = directoryPath + QDir::separator() + newFileName;
+    QFile file(newFilePath);
+    int nameCount = 0;
+
+    // check if file with this filename already exists
+    while (file.exists()) {
+        // find new filename for the file
+        newBaseName = baseName + QStringLiteral("-") + QString::number(++nameCount);
+        newFileName = newBaseName + QStringLiteral(".") + newSuffix;
+        newFilePath = directoryPath + QDir::separator() + newFileName;
+        file.setFileName(newFilePath);
+
+        if (nameCount > 1000) {
+            newFileName = makeFileNameRandom(filePath, overrideSuffix);
+            break;
+        }
+    }
+
+    return newFileName;
+}
+
+/**
+ * Returns filename for a file path for inserting images
+ */
+QString Utils::Misc::fileNameForPath(const QString &filePath) {
+    const QFileInfo fileInfo(filePath);
+    QString baseName = fileInfo.fileName();
+    baseName.truncate(200);
+
+    return baseName;
+}
+
+/**
+ * Checks if a filename exists like for findAvailableFileName
+ */
+bool Utils::Misc::fileNameExists(const QString &fileName, const QString &directoryPath) {
+    QString filePath = directoryPath + QDir::separator() + fileNameForPath(fileName);
+    QFile file(filePath);
+
+    return file.exists();
 }
 
 /**
@@ -2078,7 +2171,7 @@ QString Utils::Misc::makeFileNameRandom(const QString &fileName,
  * @param str
  * @return
  */
-QString Utils::Misc::rstrip(const QString& str) {
+QString Utils::Misc::rstrip(const QString &str) {
     int n = str.size() - 1;
 
     for (; n >= 0; --n) {
@@ -2095,8 +2188,452 @@ QString Utils::Misc::rstrip(const QString& str) {
  *
  * @return bool
  */
-bool Utils::Misc::fileExists(const QString& path) {
+bool Utils::Misc::fileExists(const QString &path) {
     const QFile file(path);
     const QFileInfo fileInfo(file);
     return file.exists() && fileInfo.isFile() && fileInfo.isReadable();
+}
+
+static QString removeReducedCJKAccMark(const QString &label, int pos) {
+    if (pos > 0 && pos + 1 < label.length() && label[pos - 1] == QLatin1Char('(') &&
+        label[pos + 1] == QLatin1Char(')') && label[pos].isLetterOrNumber()) {
+        // Check if at start or end, ignoring non-alphanumerics.
+        int len = label.length();
+        int p1 = pos - 2;
+        while (p1 >= 0 && !label[p1].isLetterOrNumber()) {
+            --p1;
+        }
+        ++p1;
+        int p2 = pos + 2;
+        while (p2 < len && !label[p2].isLetterOrNumber()) {
+            ++p2;
+        }
+        --p2;
+
+        if (p1 == 0) {
+            return label.left(pos - 1) + label.mid(p2 + 1);
+        } else if (p2 + 1 == len) {
+            return label.left(p1) + label.mid(pos + 2);
+        }
+    }
+    return label;
+}
+
+/**
+ * @brief Removes accelarator markers from a label
+ *
+ * Taken from KDE's Ki18n library
+ */
+QString Utils::Misc::removeAcceleratorMarker(const QString &label_) {
+    QString label = label_;
+
+    int p = 0;
+    bool accmarkRemoved = false;
+    while (true) {
+        p = label.indexOf(QLatin1Char('&'), p);
+        if (p < 0 || p + 1 == label.length()) {
+            break;
+        }
+
+        if (label[p + 1].isLetterOrNumber()) {
+            // Valid accelerator.
+            label = QString(label.left(p) + label.mid(p + 1));
+
+            // May have been an accelerator in CJK-style "(&X)"
+            // at the start or end of text.
+            label = removeReducedCJKAccMark(label, p);
+
+            accmarkRemoved = true;
+        } else if (label[p + 1] == QLatin1Char('&')) {
+            // Escaped accelerator marker.
+            label = QString(label.left(p) + label.mid(p + 1));
+        }
+
+        ++p;
+    }
+
+    // If no marker was removed, and there are CJK characters in the label,
+    // also try to remove reduced CJK marker -- something may have removed
+    // ampersand beforehand.
+    if (!accmarkRemoved) {
+        bool hasCJK = false;
+        for (const QChar c : asConst(label)) {
+            if (c.unicode() >= 0x2e00) {    // rough, but should be sufficient
+                hasCJK = true;
+                break;
+            }
+        }
+        if (hasCJK) {
+            p = 0;
+            while (true) {
+                p = label.indexOf(QLatin1Char('('), p);
+                if (p < 0) {
+                    break;
+                }
+                label = removeReducedCJKAccMark(label, p + 1);
+                ++p;
+            }
+        }
+    }
+
+    return label;
+}
+
+/**
+ * Tries to find a suiting file extension for a mime type
+ *
+ * @param mimeType
+ * @return
+ */
+QString Utils::Misc::fileExtensionForMimeType(const QString &mimeType) {
+    if (mimeType == "image/jpg" || mimeType == "image/jpeg") {
+        return "jpg";
+    } else if (mimeType == "image/png") {
+        return "png";
+    } else if (mimeType == "image/gif") {
+        return "gif";
+    } else if (mimeType == "image/webp") {
+        return "webp";
+    } else if (mimeType == "application/pdf") {
+        return "pdf";
+    }
+
+    return "";
+}
+
+void Utils::Misc::switchToDarkOrLightMode(bool darkMode) {
+    QSettings settings;
+    settings.setValue("darkMode", darkMode);
+    settings.setValue("darkModeColors", darkMode);
+    settings.setValue("darkModeIconTheme", darkMode);
+    settings.setValue("darkModeTrayIcon", darkMode);
+    settings.setValue("Editor/CurrentSchemaKey",
+                      darkMode ? "EditorColorSchema-cdbf28fc-1ddc-4d13-bb21-6a4043316a2f"
+                               : "EditorColorSchema-6033d61b-cb96-46d5-a3a8-20d5172017eb");
+}
+
+void Utils::Misc::switchToDarkMode() { switchToDarkOrLightMode(true); }
+
+void Utils::Misc::switchToLightMode() { switchToDarkOrLightMode(false); }
+
+void Utils::Misc::unescapeEvernoteImportText(QString &content) {
+    content.replace(QStringLiteral("\\\""), QStringLiteral("\""));
+
+    // decode HTML entities
+    content = Utils::Misc::unescapeHtml(std::move(content));
+}
+
+void Utils::Misc::transformEvernoteImportText(QString &content, bool withCleanup) {
+    // add a newline in front of lists
+    //            content.replace(QRegularExpression("<ul.*?>"),
+    //            "\n<ul>");
+    //            content.replace(QRegularExpression("<ol.*?>"),
+    //            "\n<ol>");
+
+    // remove web-clip code
+    //            content.remove("<div
+    //            style=\"-evernote-webclip:true;\">");
+
+    // replace code blocks
+    content.replace(
+        QRegularExpression(
+            QStringLiteral(
+                R"(<div style="box-sizing.+?-en-codeblock:\s*true;"><div>(.+?)<\/div><\/div>)"),
+            QRegularExpression::MultilineOption),
+        QStringLiteral("\n```\n\\1\n```\n"));
+    content.replace(
+        QRegularExpression(
+            QStringLiteral(R"(<div style="-en-codeblock:\s*true;.+?"><div>(.+?)<\/div><\/div>)"),
+            QRegularExpression::MultilineOption),
+        QStringLiteral("\n```\n\\1\n```\n"));
+
+    // add a linebreak instead of div-containers
+    content.replace(QRegularExpression(QStringLiteral("<\\/div>")), QStringLiteral("\n"));
+
+    // preserve hyperlinks
+    content.replace("<a ", "&lt;a ");
+    content.replace("</a>", "&lt;/a&gt;");
+
+    // convert remaining special characters
+    content = Utils::Misc::unescapeHtml(std::move(content));
+
+    // convert html tags to markdown
+    content = Utils::Misc::htmlToMarkdown(std::move(content));
+
+    if (withCleanup) {
+        cleanupEvernoteImportText(content);
+    }
+}
+
+void Utils::Misc::cleanupEvernoteImportText(QString &content) {
+    // remove all html tags
+    content.remove(QRegularExpression(QStringLiteral("<.+?>")));
+
+    // remove multiple \n
+    content.replace(QRegularExpression(QStringLiteral("\n\n+")), QLatin1String("\n\n"));
+    content.replace(QRegularExpression(QStringLiteral("\n\n\\s+")), QLatin1String("\n\n"));
+}
+
+QString Utils::Misc::testEvernoteImportText(const QString &data) {
+    QXmlStreamReader xml(data);
+
+    while (!xml.atEnd() && !xml.hasError()) {
+        QXmlStreamReader::TokenType token = xml.readNext();
+
+        // If token is just StartDocument, we'll go to next.
+        if (token == QXmlStreamReader::StartDocument) {
+            continue;
+        }
+
+        // If token is StartElement, we'll see if we can read it.
+        if (token == QXmlStreamReader::StartElement) {
+            if (xml.name() == QStringLiteral("en-export")) {
+                continue;
+            }
+
+            if (xml.name() == QStringLiteral("note")) {
+                // Let's check that we're really getting a note.
+                if (xml.tokenType() != QXmlStreamReader::StartElement &&
+                    xml.name() == QStringLiteral("note")) {
+                    return {};
+                }
+
+                QString content;
+                xml.readNext();
+
+                while (!(xml.tokenType() == QXmlStreamReader::EndElement &&
+                         xml.name() == QStringLiteral("note"))) {
+
+                    if (xml.tokenType() == QXmlStreamReader::StartElement) {
+                        if (xml.name() == QStringLiteral("content")) {
+                            xml.readNext();
+                            content = xml.text().toString().trimmed();
+                            Utils::Misc::transformEvernoteImportText(content, true);
+
+                            return content.trimmed();
+                        }
+                    }
+
+                    xml.readNext();
+                }
+            }
+        }
+    }
+
+    return {};
+}
+
+/**
+ * Logs to the log file if allowed
+ *
+ * @param msgType
+ * @param msg
+ */
+void Utils::Misc::logToFileIfAllowed(QtMsgType msgType, const QString &msg) {
+    if (!QSettings().value(QStringLiteral("Debug/fileLogging")).toBool()) {
+        return;
+    }
+
+    QFile logFile(Utils::Misc::logFilePath());
+
+    if (logFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+        QTextStream out(&logFile);
+        QDateTime dateTime = QDateTime::currentDateTime();
+        QString typeStr = logMsgTypeText(msgType);
+        QString text = QStringLiteral("[%1] [%2]: %3\n")
+                           .arg(dateTime.toString(QStringLiteral("MMM dd hh:mm:ss"))
+                                    .remove(QStringLiteral(".")),
+                                typeStr, msg);
+        out << text;
+        logFile.close();
+    }
+}
+
+/**
+ * Returns the text for a LogType
+ *
+ * @param logType
+ * @return
+ */
+QString Utils::Misc::logMsgTypeText(QtMsgType logType) {
+    QString type;
+
+    switch (logType) {
+        case QtMsgType::QtDebugMsg:
+            type = QStringLiteral("Debug");
+            break;
+        case QtMsgType::QtInfoMsg:
+            type = QStringLiteral("Info");
+            break;
+        case QtMsgType::QtWarningMsg:
+            type = QStringLiteral("Warning");
+            break;
+        case QtMsgType::QtCriticalMsg:
+            type = QStringLiteral("Critical");
+            break;
+        case QtMsgType::QtFatalMsg:
+            type = QStringLiteral("Fatal");
+            break;
+        default:
+            type = QStringLiteral("Unknown");
+            break;
+    }
+
+    return type;
+}
+
+/**
+ * Borrowed from
+ * https://nasauber.de/blog/2019/levenshtein-distance-and-longest-common-subsequence-in-qt/
+ *
+ * @param source
+ * @param target
+ * @return
+ */
+int levenshteinDistance(const QString &source, const QString &target) {
+    if (source == target) {
+        return 0;
+    }
+
+    const int sourceCount = source.count();
+    const int targetCount = target.count();
+
+    if (source.isEmpty()) {
+        return targetCount;
+    }
+
+    if (target.isEmpty()) {
+        return sourceCount;
+    }
+
+    if (sourceCount > targetCount) {
+        return levenshteinDistance(target, source);
+    }
+
+    QVector<int> column;
+    column.fill(0, targetCount + 1);
+    QVector<int> previousColumn;
+    previousColumn.reserve(targetCount + 1);
+    for (int i = 0; i < targetCount + 1; i++) {
+        previousColumn.append(i);
+    }
+
+    for (int i = 0; i < sourceCount; i++) {
+        column[0] = i + 1;
+        for (int j = 0; j < targetCount; j++) {
+            column[j + 1] =
+                std::min<int>({1 + column.at(j), 1 + previousColumn.at(1 + j),
+                               previousColumn.at(j) + ((source.at(i) == target.at(j)) ? 0 : 1)});
+        }
+        column.swap(previousColumn);
+    }
+
+    return previousColumn.at(targetCount);
+}
+
+/**
+ * Returns if two strings are equal or similar
+ *
+ * @param str1
+ * @param str2
+ * @param threshold
+ * @return
+ */
+bool Utils::Misc::isSimilar(const QString &str1, const QString &str2, int threshold) {
+    if (str1 == str2) {
+        return true;
+    }
+
+    if (threshold == 0) {
+        return false;
+    }
+
+    // Checks if one string contains the other and just a few characters are different
+    if ((str1.contains(str2) || str2.contains(str1)) &&
+        (abs(str1.length() - str2.length()) <= threshold)) {
+        return true;
+    }
+
+    // Use levenshtein for not too large notes if the middle part of the strings is different
+    // Disabled, because it takes far too long!
+    //    if ((str1.length() < 5000) && (levenshteinDistance(str1, str2) <= threshold)) {
+    //        return true;
+    //    }
+
+    if (str1.length() != str2.length()) {
+        return false;
+    }
+
+    int diff = 0;
+    for (int i = 0; i < str1.length(); i++) {
+        // QChar provides a 16-bit Unicode character, so Emojis will not be detected
+        if (str1[i] != str2[i]) {
+            diff++;
+        }
+    }
+
+    return diff <= threshold;
+}
+
+/**
+ * Returns the base url from a string
+ * e.g. for "https://www.domain.com/test/page.html" it returns "https://www.domain.com"
+ *
+ * with withBasePath == true:
+ * e.g. for "https://www.domain.com/test/page.html" it returns "https://www.domain.com/test/"
+ */
+QString Utils::Misc::getBaseUrlFromUrlString(const QString &urlString, bool withBasePath) {
+    QUrl url(urlString);
+    QString result = url.scheme() + QStringLiteral("://") + url.host();
+
+    if (url.port() != -1) {
+        result += QStringLiteral(":") + QString::number(url.port());
+    }
+
+    if (withBasePath) {
+        result += url.path();
+
+        // cut everything after the last slash
+        result = result.left(result.lastIndexOf(QStringLiteral("/")) + 1);
+    }
+
+    return result;
+}
+
+/**
+ * Attempts to transform links to the same webpage to absolute links with url
+ * So for an url: https://www.example.com/path/to/file.html
+ * This: <a href="/absolute.html">Link</a> <a href="relative.html">Link</a>
+ * Would get: <a href="https://www.example.com/absolute.html">Link</a> <a
+ * href="https://www.example.com/path/to/relative.html">Link</a>
+ *
+ * @param html
+ * @param url
+ * @return
+ */
+QString Utils::Misc::createAbsolutePathsInHtml(const QString &html, const QString &url) {
+    const QString baseUrl = getBaseUrlFromUrlString(url);
+    const QString baseUrlWithBasePath = getBaseUrlFromUrlString(url, true);
+    QString result = html;
+
+    QRegularExpression regex("(href|src)=\"(?!http)([^\"]+)\"");
+    QRegularExpressionMatchIterator i = regex.globalMatch(html);
+
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        const QString attribute = match.captured(1);
+        const QString value = match.captured(2);
+        const QString replaceUrl = value.startsWith('/') ? baseUrl : baseUrlWithBasePath;
+        const QString newValue = QStringLiteral("%1=\"%2\"").arg(attribute, replaceUrl + value);
+
+        result.replace(match.captured(0), newValue);
+    }
+
+    return result;
+}
+
+int Utils::Misc::getPreviewRefreshDebounceTime() {
+    return QSettings()
+        .value(QStringLiteral("MainWindow/noteTextView.refreshDebounceTime"), 600)
+        .toInt();
 }

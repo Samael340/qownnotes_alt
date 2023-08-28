@@ -41,18 +41,14 @@ Alt-H2
 ## Emphasis
 
 ```markdown
-Emphasis, aka italics, with *asterisks* or _underscores_.
+Emphasis, aka italics, with *asterisks*.
 
-Strong emphasis, aka bold, with **asterisks** or __underscores__.
-
-Combined emphasis with **asterisks and _underscores_**.
+Strong emphasis, aka bold, with **asterisks**.
 ```
 
-Emphasis, aka italics, with *asterisks* or _underscores_.
+Emphasis, aka italics, with *asterisks*.
 
-Strong emphasis, aka bold, with **asterisks** or __underscores__.
-
-Combined emphasis with **asterisks and _underscores_**.
+Strong emphasis, aka bold, with **asterisks**.
 
 
 ## Lists
@@ -133,6 +129,8 @@ Inline `code` has `back-ticks around` it.
 
 Blocks of code are either fenced by lines with three back-ticks, or are indented with four spaces.
 
+### 4-Spaces fence
+
 ```markdown
 	s = "Code with space indent"
 	print s
@@ -141,6 +139,24 @@ Blocks of code are either fenced by lines with three back-ticks, or are indented
 	s = "Code with space indent"
 	print s
 
+### Backtick fence
+
+    ```
+    Code goes here
+    Code goes here
+    ```
+
+```
+Code goes here
+Code goes here
+```
+
+### Backtick fence with code highlighting
+
+```bash
+# I am a comment
+cd Notes
+```
 
 ## Tables
 

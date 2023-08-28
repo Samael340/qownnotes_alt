@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,7 @@
 
 #include <entities/notefolder.h>
 
-NoteFolderListWidget::NoteFolderListWidget(QWidget *parent) {
-    Q_UNUSED(parent);
-}
+NoteFolderListWidget::NoteFolderListWidget(QWidget *parent) { Q_UNUSED(parent); }
 
 void NoteFolderListWidget::dropEvent(QDropEvent *e) {
     // finish the move event

@@ -27,7 +27,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QStandardPaths>
 #include <utils/misc.h>
@@ -51,9 +50,10 @@ HunspellDict::HunspellDict(const QString &lang, QString path)
 
         m_speller
                 = new Hunspell(aff.toLocal8Bit().constData(), dictionary.toLocal8Bit().constData());
+
         m_codec = QTextCodec::codecForName(m_speller->get_dic_encoding());
         if (!m_codec) {
-            qCWarning(SONNET_HUNSPELL) << "Failed to find a text codec for name"
+            qWarning() << "Failed to find a text codec for name"
                                        << m_speller->get_dic_encoding()
                                        << "defaulting to locale text codec";
             m_codec = QTextCodec::codecForLocale();
@@ -61,7 +61,7 @@ HunspellDict::HunspellDict(const QString &lang, QString path)
         }
 
     } else {
-        qCWarning(SONNET_HUNSPELL) << "Unable to find dictionary for" << lang << "in path" << path;
+        qWarning() << "Unable to find dictionary for" << lang << "in path" << path;
 
         // don't load user dictionary if dictionary was not found, may lead to crashes
         return;
@@ -122,21 +122,8 @@ bool HunspellDict::isCorrect(const QString &word) const
         return false;
     }
 
-#if USE_OLD_HUNSPELL_API
-    int result = m_speller->spell(toDictEncoding(word).constData());
-    qCDebug(SONNET_HUNSPELL) << " result :" << result;
-    return result != 0;
-#else
-
-#if QT_VERSION >= 0x050400
     bool result = m_speller->spell(toDictEncoding(word).toStdString());
-
-#else
-    bool result = m_speller->spell(QString(toDictEncoding(word)).toStdString());
-#endif
-   // qCDebug(SONNET_HUNSPELL) << " result :" << result;
     return result;
-#endif
 }
 
 QStringList HunspellDict::suggest(const QString &word) const
@@ -146,22 +133,10 @@ QStringList HunspellDict::suggest(const QString &word) const
     }
 
     QStringList lst;
-#if USE_OLD_HUNSPELL_API
-    char **selection;
-    int nbWord = m_speller->suggest(&selection, toDictEncoding(word).constData());
-    for (int i = 0; i < nbWord; ++i) {
-        lst << m_codec->toUnicode(selection[i]);
-    }
-    m_speller->free_list(&selection, nbWord);
-#else
-#if QT_VERSION >= 0x050400
+
     const auto suggestions = m_speller->suggest(toDictEncoding(word).toStdString());
-#else
-    const auto suggestions = m_speller->suggest(QString(toDictEncoding(word)).toStdString());
-#endif
     std::for_each (suggestions.begin(), suggestions.end(), [this, &lst](const std::string &suggestion) {
             lst << m_codec->toUnicode(suggestion.c_str()); });
-#endif
 
     return lst;
 }

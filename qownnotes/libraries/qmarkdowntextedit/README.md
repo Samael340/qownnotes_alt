@@ -1,4 +1,5 @@
 # [QMarkdownTextEdit](https://github.com/pbek/qmarkdowntextedit)
+[![Build Status GitHub Actions](https://github.com/pbek/qmarkdowntextedit/workflows/Build/badge.svg?branch=develop)](https://github.com/pbek/qmarkdowntextedit/actions)
 [![Build Status Linux/OS X](https://travis-ci.org/pbek/qmarkdowntextedit.svg?branch=develop)](https://travis-ci.org/pbek/qmarkdowntextedit)
 [![Build Status Windows](https://ci.appveyor.com/api/projects/status/github/pbek/qmarkdowntextedit)](https://ci.appveyor.com/project/pbek/qmarkdowntextedit)
 
@@ -15,6 +16,7 @@ QMarkdownTextEdit is a C++ Qt [QPlainTextEdit](http://doc.qt.io/qt-5/qplaintexte
     - Close search field with `Escape`
 - Replacing of text with `Ctrl + R`
     - You can also replace text with regular expressions or whole words
+- Line numbers (Qt >= 5.5)
 - Very fast
 - And much more...
 
@@ -42,9 +44,17 @@ Commonmark compliance is enforced where possible however we are not fully Common
 
 There are multiple ways to use this. You can use the editor directly, or you can subclass it or you can just use the highlighter.
 ### Using the editor
+
+#### QMake
 - Include [qmarkdowntextedit.pri](https://github.com/pbek/qmarkdowntextedit/blob/develop/qmarkdowntextedit.pri) 
   to your project like this `include (qmarkdowntextedit/qmarkdowntextedit.pri)`
 - add a normal `QPlainTextEdit` to your UI and promote it to `QMarkdownTextEdit` (base class `QPlainTextEdit`)
+
+#### CMake
+- Include [CMakeLists.txt](https://github.com/pbek/qmarkdowntextedit/blob/develop/CMakeLists.txt)
+  to your project like this `add_subdirectory(qmarkdowntextedit)`
+- add a normal `QPlainTextEdit` to your UI and promote it to `QMarkdownTextEdit` (base class `QPlainTextEdit`)
+
 
 ### Using the highlighter only
 Highlighter can work with both `QPlainTextEdit` and `QTextEdit`. Example:

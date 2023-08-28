@@ -8,7 +8,7 @@ class QTextCursor;
 
 namespace FakeVim {
 namespace Internal {
-class ExCommand;
+struct ExCommand;
 }
 }    // namespace FakeVim
 
@@ -16,7 +16,7 @@ class FakeVimProxy : public QObject {
     Q_OBJECT
 
    public:
-    FakeVimProxy(QWidget *widget, MainWindow *mw, QObject *parent = 0);
+    FakeVimProxy(QWidget *widget, QObject *parent = 0);
 
    signals:
     void handleInput(const QString &keys);
@@ -26,14 +26,14 @@ class FakeVimProxy : public QObject {
 
     void highlightMatches(const QString &pattern);
 
-    void changeStatusMessage(const QString &contents, int cursorPos);
+    void changeStatusMessage(const QString &contents, int cursorPos, int anchorPos,
+                             int messageLevel);
 
     void changeExtraInformation(const QString &info);
 
     void updateStatusBar();
 
-    void handleExCommand(bool *handled,
-                         const FakeVim::Internal::ExCommand &cmd);
+    void handleExCommand(bool *handled, const FakeVim::Internal::ExCommand &cmd);
 
     void requestSetBlockSelection(const QTextCursor &tc);
 
@@ -71,7 +71,6 @@ class FakeVimProxy : public QObject {
     QString content() const;
 
     QWidget *m_widget;
-    MainWindow *m_mainWindow;
     QString m_statusMessage;
     QString m_statusData;
 

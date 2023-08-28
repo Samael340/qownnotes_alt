@@ -4,13 +4,28 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets sql svg network xml xmlpatterns printsupport qml websockets concurrent
+QT       += core gui widgets sql svg network xml printsupport qml websockets concurrent
 
 # quick is enabled for more scripting options
 # Windows and macOS seem to ignore that
 #QT       += quick
 
 CONFIG += with_aspell
+
+# enable pch for DEV_MODE
+# put any dev specific options here
+CONFIG(DEV_MODE) {
+    message("[DevMode] PCH Enabled")
+    CONFIG += precompile_header
+    PRECOMPILED_HEADER  = pch.h
+    HEADERS += pch.h
+}
+
+CONFIG(USE_QLITEHTML) {
+    message("QLiteHtml usage enabled")
+    DEFINES += USE_QLITEHTML=1
+    include(libraries/qlitehtml/src/qlitehtml.pri)
+}
 
 TARGET = QOwnNotes
 TEMPLATE = app
@@ -61,6 +76,8 @@ TRANSLATIONS = languages/QOwnNotes_en.ts \
     languages/QOwnNotes_is.ts \
     languages/QOwnNotes_pa.ts \
     languages/QOwnNotes_he.ts \
+    languages/QOwnNotes_yi.ts \
+    languages/QOwnNotes_th.ts \
     languages/QOwnNotes_sn.ts \
     languages/QOwnNotes_km.ts \
     languages/QOwnNotes_si.ts \
@@ -81,12 +98,24 @@ TRANSLATIONS = languages/QOwnNotes_en.ts \
     languages/QOwnNotes_sq.ts
 
 CODECFORTR = UTF-8
-CONFIG += c++11
+lessThan(QT_MAJOR_VERSION, 6) {
+    CONFIG += c++11
+
+    # for older Qt versions
+    win32-msvc {
+        QMAKE_CXXFLAGS += "/std:c++11"
+    } else {
+        QMAKE_CXXFLAGS += "-std=c++11"
+    }
+} else {
+    CONFIG += c++17
+}
 
 INCLUDEPATH += $$PWD/libraries $$PWD/libraries/diff_match_patch
 
 SOURCES += main.cpp\
     dialogs/attachmentdialog.cpp \
+    dialogs/nextclouddeckdialog.cpp \
     entities/cloudconnection.cpp \
     helpers/codetohtmlconverter.cpp \
     helpers/qownspellchecker.cpp \
@@ -95,9 +124,9 @@ SOURCES += main.cpp\
     libraries/simplecrypt/simplecrypt.cpp \
     libraries/versionnumber/versionnumber.cpp \
     libraries/botan/botanwrapper.cpp \
-    libraries/md4c/md4c/md4c.c \
-    libraries/md4c/md2html/render_html.c \
-    libraries/md4c/md2html/entity.c \
+    libraries/md4c/src/md4c.c \
+    libraries/md4c/src/md4c-html.c \
+    libraries/md4c/src/entity.c \
     dialogs/aboutdialog.cpp \
     dialogs/linkdialog.cpp \
     dialogs/notediffdialog.cpp \
@@ -116,7 +145,9 @@ SOURCES += main.cpp\
     entities/tag.cpp \
     entities/script.cpp \
     entities/bookmark.cpp \
+    entities/commandsnippet.cpp \
     services/owncloudservice.cpp \
+    services/nextclouddeckservice.cpp \
     services/updateservice.cpp \
     helpers/htmlentities.cpp \
     helpers/clientproxy.cpp \
@@ -133,6 +164,7 @@ SOURCES += main.cpp\
     services/cryptoservice.cpp \
     services/scriptingservice.cpp \
     services/websocketserverservice.cpp \
+    services/webappclientservice.cpp \
     dialogs/masterdialog.cpp \
     utils/misc.cpp \
     utils/git.cpp \
@@ -144,14 +176,16 @@ SOURCES += main.cpp\
     widgets/navigationwidget.cpp \
     widgets/notepreviewwidget.cpp \
     api/noteapi.cpp \
+    api/notesubfolderapi.cpp \
     api/tagapi.cpp \
     widgets/logwidget.cpp \
     widgets/combobox.cpp \
     dialogs/sharedialog.cpp \
     widgets/fontcolorwidget.cpp \
     dialogs/evernoteimportdialog.cpp \
-    dialogs/orphanedimagesdialog.cpp \
-    dialogs/orphanedattachmentsdialog.cpp \
+    dialogs/joplinimportdialog.cpp \
+    dialogs/storedimagesdialog.cpp \
+    dialogs/storedattachmentsdialog.cpp \
     dialogs/actiondialog.cpp \
     dialogs/tabledialog.cpp \
     libraries/qtcsv/src/sources/reader.cpp \
@@ -162,19 +196,29 @@ SOURCES += main.cpp\
     widgets/scriptsettingwidget.cpp \
     api/scriptapi.cpp \
     widgets/label.cpp \
+    widgets/qrcodewidget.cpp \
     widgets/lineedit.cpp \
     widgets/qtexteditsearchwidget.cpp \
     widgets/scriptlistwidget.cpp \
     widgets/notefolderlistwidget.cpp \
     widgets/notetreewidgetitem.cpp \
+    widgets/todoitemtreewidget.cpp \
     widgets/layoutwidget.cpp \
+    widgets/htmlpreviewwidget.cpp \
     dialogs/serverbookmarksimportdialog.cpp \
     dialogs/websockettokendialog.cpp \
-    dialogs/imagedialog.cpp
+    dialogs/imagedialog.cpp \
+    dialogs/commandbar.cpp \
+    models/commandmodel.cpp \
+    libraries/fuzzy/kfuzzymatcher.cpp \
+    libraries/qr-code-generator/QrCode.cpp \
+    widgets/notesubfoldertree.cpp \
+    utils/urlhandler.cpp
 
 HEADERS  += mainwindow.h \
     build_number.h \
     dialogs/attachmentdialog.h \
+    dialogs/nextclouddeckdialog.h \
     entities/cloudconnection.h \
     helpers/LanguageCache.h \
     helpers/codetohtmlconverter.h \
@@ -185,9 +229,9 @@ HEADERS  += mainwindow.h \
     libraries/simplecrypt/simplecrypt.h \
     libraries/versionnumber/versionnumber.h \
     libraries/botan/botanwrapper.h \
-    libraries/md4c/md4c/md4c.h \
-    libraries/md4c/md2html/render_html.h \
-    libraries/md4c/md2html/entity.h \
+    libraries/md4c/src/md4c.h \
+    libraries/md4c/src/md4c-html.h \
+    libraries/md4c/src/entity.h \
     entities/notehistory.h \
     entities/note.h \
     entities/trashitem.h \
@@ -197,6 +241,7 @@ HEADERS  += mainwindow.h \
     entities/tag.h \
     entities/script.h \
     entities/bookmark.h \
+    entities/commandsnippet.h \
     dialogs/aboutdialog.h \
     dialogs/linkdialog.h \
     dialogs/notediffdialog.h \
@@ -207,9 +252,11 @@ HEADERS  += mainwindow.h \
     dialogs/updatedialog.h \
     dialogs/versiondialog.h \
     services/owncloudservice.h \
+    services/nextclouddeckservice.h \
     services/updateservice.h \
     services/scriptingservice.h \
     services/websocketserverservice.h \
+    services/webappclientservice.h \
     helpers/htmlentities.h \
     helpers/clientproxy.h \
     helpers/toolbarcontainer.h \
@@ -234,14 +281,16 @@ HEADERS  += mainwindow.h \
     widgets/navigationwidget.h \
     widgets/notepreviewwidget.h \
     api/noteapi.h \
+    api/notesubfolderapi.h \
     api/tagapi.h \
     widgets/logwidget.h \
     widgets/combobox.h \
     dialogs/sharedialog.h \
     widgets/fontcolorwidget.h \
     dialogs/evernoteimportdialog.h \
-    dialogs/orphanedimagesdialog.h \
-    dialogs/orphanedattachmentsdialog.h \
+    dialogs/joplinimportdialog.h \
+    dialogs/storedimagesdialog.h \
+    dialogs/storedattachmentsdialog.h \
     dialogs/actiondialog.h \
     dialogs/tabledialog.h \
     libraries/qtcsv/src/include/qtcsv_global.h \
@@ -256,19 +305,29 @@ HEADERS  += mainwindow.h \
     widgets/scriptsettingwidget.h \
     api/scriptapi.h \
     widgets/label.h \
+    widgets/qrcodewidget.h \
     widgets/lineedit.h \
     widgets/qtexteditsearchwidget.h \
     widgets/scriptlistwidget.h \
     widgets/notefolderlistwidget.h \
     widgets/notetreewidgetitem.h \
+    widgets/todoitemtreewidget.h \
     widgets/layoutwidget.h \
+    widgets/htmlpreviewwidget.h \
     dialogs/serverbookmarksimportdialog.h \
     dialogs/websockettokendialog.h \
-    dialogs/imagedialog.h
+    dialogs/imagedialog.h \
+    dialogs/commandbar.h \
+    models/commandmodel.h \
+    libraries/fuzzy/kfuzzymatcher.h \
+    libraries/qr-code-generator/QrCode.hpp \
+    widgets/notesubfoldertree.h \
+    utils/urlhandler.h \
 
 FORMS    += mainwindow.ui \
     dialogs/attachmentdialog.ui \
     dialogs/imagedialog.ui \
+    dialogs/nextclouddeckdialog.ui \
     dialogs/notediffdialog.ui \
     dialogs/aboutdialog.ui \
     dialogs/updatedialog.ui \
@@ -286,8 +345,9 @@ FORMS    += mainwindow.ui \
     dialogs/sharedialog.ui \
     widgets/fontcolorwidget.ui \
     dialogs/evernoteimportdialog.ui \
-    dialogs/orphanedimagesdialog.ui \
-    dialogs/orphanedattachmentsdialog.ui \
+    dialogs/joplinimportdialog.ui \
+    dialogs/storedimagesdialog.ui \
+    dialogs/storedattachmentsdialog.ui \
     dialogs/actiondialog.ui \
     dialogs/tabledialog.ui \
     dialogs/notedialog.ui \
@@ -315,7 +375,7 @@ include(libraries/piwiktracker/piwiktracker.pri)
 include(libraries/botan/botan.pri)
 include(libraries/qkeysequencewidget/qkeysequencewidget/qkeysequencewidget.pri)
 include(libraries/qttoolbareditor/toolbar_editor.pri)
-include(libraries/fakevim/fakevim/fakevim.pri)
+include(libraries/fakevim/fakevim.pri)
 include(libraries/singleapplication/singleapplication.pri)
 include(libraries/sonnet/src/core/sonnet-core.pri)
 include(libraries/qhotkey/qhotkey.pri)
@@ -339,18 +399,37 @@ unix {
 #  target.files += QOwnNotes
 
   desktop.path = $$DATADIR/applications
-  desktop.files += PBE.QOwnNotes.desktop
 
-  i18n.path = $$DATADIR/qt5/translations
+  # Don't add desktop file when building snap
+  !CONFIG(snapcraft, snapcraft) {
+      desktop.files += PBE.QOwnNotes.desktop
+  }
+
+  lessThan(QT_MAJOR_VERSION, 6) {
+      i18n.path = $$DATADIR/qt5/translations
+  } else {
+      i18n.path = $$DATADIR/qt6/translations
+  }
   i18n.files += languages/*.qm
 
   icons.path = $$DATADIR/icons/hicolor
   icons.files += images/icons/*
 }
 
+!win32-msvc: QMAKE_CXXFLAGS += "-Wall -Wextra -Wundef"
+
+# Enable Werror on unixes except mac
+CONFIG(DEV_MODE) {
+    unix:!mac {
+        message("Werror enabled")
+        QMAKE_CXXFLAGS += "-Wno-error=deprecated-declarations -Werror -pedantic"
+    }
+}
+
 CONFIG(debug, debug|release) {
 #    QMAKE_CXXFLAGS_DEBUG += -g3 -O0
     message("Currently in DEBUG mode.")
+    DEFINES += QT_DEBUG
 } else {
     DEFINES += QT_NO_DEBUG
 

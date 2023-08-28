@@ -1,1 +1,1 @@
-#define RELEASE "TuxFamily"
+#define RELEASE "GitHub"

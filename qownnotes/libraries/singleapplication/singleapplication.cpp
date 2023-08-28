@@ -26,6 +26,11 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QSharedMemory>
 #include <QtCore/QUuid>
+#include <QElapsedTimer>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QtCore/QRandomGenerator>
+#endif
 
 #include "singleapplication.h"
 #include "singleapplication_p.h"
@@ -76,7 +81,7 @@ SingleApplication::SingleApplication( int &argc, char *argv[], bool allowSeconda
     }
 
     InstancesInfo* inst = static_cast<InstancesInfo*>( d->memory->data() );
-    QTime time;
+    QElapsedTimer time;
     time.start();
 
     // Make sure the shared memory block is initialised and in consistent state
@@ -93,8 +98,14 @@ SingleApplication::SingleApplication( int &argc, char *argv[], bool allowSeconda
         d->memory->unlock();
 
         // Random sleep here limits the probability of a colision between two racing apps
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
         qsrand( QDateTime::currentMSecsSinceEpoch() % std::numeric_limits<uint>::max() );
-        QThread::sleep( 8 + static_cast <unsigned long>( static_cast <float>( qrand() ) / RAND_MAX * 10 ) );
+        const quint32 number = qrand();
+#else
+        const quint32 number = QRandomGenerator::global()->generate();
+#endif
+
+        QThread::sleep( 8 + static_cast <unsigned long>( static_cast <float>( number ) / (float)RAND_MAX * 10.f ) );
     }
 
     if( inst->primary == false) {
@@ -123,7 +134,7 @@ SingleApplication::SingleApplication( int &argc, char *argv[], bool allowSeconda
     delete d;
 
     // Call user function if application will be aborted
-    if( instanceAbortedFunction != Q_NULLPTR ) {
+    if( instanceAbortedFunction != nullptr ) {
         instanceAbortedFunction();
     }
 

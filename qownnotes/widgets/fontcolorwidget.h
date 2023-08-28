@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,8 +41,7 @@ class FontColorWidget : public QFrame {
 
     void on_colorSchemeComboBox_currentIndexChanged(int index);
 
-    void on_textTreeWidget_currentItemChanged(QTreeWidgetItem *current,
-                                              QTreeWidgetItem *previous);
+    void on_textTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
     void on_copySchemeButton_clicked();
 
@@ -70,6 +69,10 @@ class FontColorWidget : public QFrame {
 
     void needRestart();
 
+    void on_fontCheckBox_toggled(bool checked);
+
+    void on_fontComboBox_currentFontChanged(const QFont &f);
+
    private:
     Ui::FontColorWidget *ui;
     QStringList _defaultSchemaKeys;
@@ -84,19 +87,19 @@ class FontColorWidget : public QFrame {
 
     void updateSchemeEditFrame();
 
-    void setSchemaValue(const QString &key, const QVariant &value,
-                        QString schemaKey = QString());
+    void setSchemaValue(const QString &key, const QVariant &value, QString schemaKey = QString());
 
-    QString textSettingsKey(const QString &key,
-                            QTreeWidgetItem *item = Q_NULLPTR);
+    QString textSettingsKey(const QString &key, QTreeWidgetItem *item = nullptr);
 
-    void updateTextItem(QTreeWidgetItem *item = Q_NULLPTR);
+    void updateTextItem(QTreeWidgetItem *item = nullptr);
 
     void updateForegroundColorCheckBox(bool checked, bool store = false);
 
     void updateBackgroundColorCheckBox(bool checked, bool store = false);
 
-    int textSettingsIndex(QTreeWidgetItem *item = Q_NULLPTR);
+    void updateFontCheckBox(bool checked, bool store = false);
+
+    int textSettingsIndex(QTreeWidgetItem *item = nullptr);
 
     void updateTextItems(int index);
 

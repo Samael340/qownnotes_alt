@@ -2,16 +2,15 @@
 
 #include <mainwindow.h>
 
-#include <QDebug>
 #include <QClipboard>
+#include <QDebug>
 
 #include "filedialog.h"
 #include "libraries/qtcsv/src/include/reader.h"
 #include "ui_tabledialog.h"
 #include "widgets/qownnotesmarkdowntextedit.h"
 
-TableDialog::TableDialog(QWidget *parent)
-    : MasterDialog(parent), ui(new Ui::TableDialog) {
+TableDialog::TableDialog(QWidget *parent) : MasterDialog(parent), ui(new Ui::TableDialog) {
     ui->setupUi(this);
 
     // ignore the return key so we can better edit text in the table
@@ -40,16 +39,20 @@ void TableDialog::on_createTableWidget_itemSelectionChanged() {
     */
 
     updateMaxItems();
+    const QList<QTableWidgetSelectionRange> &list = ui->createTableWidget->selectedRanges();
+
+    if (list.isEmpty()) {
+        return;
+    }
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    QTableWidgetSelectionRange range =
-        ui->createTableWidget->selectedRanges().constFirst();
+    QTableWidgetSelectionRange range = list.constFirst();
 #else
-    QTableWidgetSelectionRange range =
-        ui->createTableWidget->selectedRanges().first();
+    QTableWidgetSelectionRange range = list.first();
 #endif
 
-    ui->rowSpinBox->setValue(std::max(_maxRows, range.rowCount()));
-    ui->columnSpinBox->setValue(std::max(_maxColumns, range.columnCount()));
+    ui->rowSpinBox->setValue(std::max<int>(_maxRows, range.rowCount()));
+    ui->columnSpinBox->setValue(std::max<int>(_maxColumns, range.columnCount()));
 }
 
 void TableDialog::updateMaxItems() {
@@ -59,8 +62,8 @@ void TableDialog::updateMaxItems() {
             bool hasText = item != nullptr ? !item->text().isEmpty() : false;
 
             if (hasText) {
-                _maxRows = std::max(_maxRows, row + 1);
-                _maxColumns = std::max(_maxColumns, col + 1);
+                _maxRows = std::max<int>(_maxRows, row + 1);
+                _maxColumns = std::max<int>(_maxColumns, col + 1);
             }
         }
     }
@@ -88,8 +91,7 @@ void TableDialog::on_buttonBox_accepted() {
  * Imports the CSV file
  */
 void TableDialog::importCSV() {
-    QString filePath = _tempFile != nullptr ?
-                _tempFile->fileName() : ui->fileLineEdit->text();
+    QString filePath = _tempFile != nullptr ? _tempFile->fileName() : ui->fileLineEdit->text();
 
     if (filePath.isEmpty()) {
         return;
@@ -101,9 +103,8 @@ void TableDialog::importCSV() {
     separator.replace("\\t", "\t");
 
     // read data from file
-    QList<QStringList> readData = QtCSV::Reader::readToList(
-        filePath, separator,
-        ui->textDelimiterComboBox->currentText());
+    QList<QStringList> readData =
+        QtCSV::Reader::readToList(filePath, separator, ui->textDelimiterComboBox->currentText());
 
     // loop through all rows
     for (int row = 0; row < readData.size(); ++row) {
@@ -138,18 +139,15 @@ void TableDialog::createMarkdownTable() {
     QString text = QStringLiteral("\n\n");
     int colWidth = ui->columnWidthSpinBox->value();
     QString space = QStringLiteral(" ").repeated(colWidth);
-    QString headline =
-        QStringLiteral("-").repeated(ui->separatorColumnWidthSpinBox->value());
+    QString headline = QStringLiteral("-").repeated(ui->separatorColumnWidthSpinBox->value());
 
     for (int row = 0; row < ui->rowSpinBox->value(); row++) {
         // add all columns of the row
         for (int col = 0; col < ui->columnSpinBox->value(); col++) {
             auto item = ui->createTableWidget->item(row, col);
             QString itemText = item != nullptr ? item->text() : QString();
-            text +=
-                QStringLiteral("|") +
-                (itemText.isEmpty() ? space
-                                    : itemText.leftJustified(colWidth, ' '));
+            text += QStringLiteral("|") +
+                    (itemText.isEmpty() ? space : itemText.leftJustified(colWidth, ' '));
         }
 
         text += QStringLiteral("|\n");
@@ -183,8 +181,7 @@ void TableDialog::on_headlineCheckBox_toggled(bool checked) {
  */
 void TableDialog::on_fileButton_clicked() {
     ui->csvFileTextEdit->clear();
-    QStringList filters = QStringList() << tr("CSV files") + " (*.csv)"
-                                        << tr("All files") + " (*)";
+    QStringList filters = QStringList() << tr("CSV files") + " (*.csv)" << tr("All files") + " (*)";
     FileDialog dialog(QStringLiteral("CSVTableImport"));
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
@@ -250,7 +247,7 @@ void TableDialog::on_clipboardButton_clicked() {
         ui->csvFileTextEdit->setPlainText(text);
 
         _tempFile = new QTemporaryFile(QDir::tempPath() + QDir::separator() +
-                               QStringLiteral("table-XXXXXX.csv"));
+                                       QStringLiteral("table-XXXXXX.csv"));
 
         if (!_tempFile->open()) {
             _tempFile = nullptr;
@@ -268,15 +265,13 @@ void TableDialog::on_clipboardButton_clicked() {
     }
 }
 
-void TableDialog::updateSeparator(
-    const QString &text) const {
-    const QStringList list = { "\t", ";", "," };
+void TableDialog::updateSeparator(const QString &text) const {
+    const QStringList list = {"\t", ";", ","};
 
-    foreach(const QString &character, list) {
+    foreach (const QString &character, list) {
         if (text.contains(character)) {
             // set separator if found
-            ui->separatorComboBox->setCurrentText(
-                character == "\t" ? "\\t" : character);
+            ui->separatorComboBox->setCurrentText(character == "\t" ? "\\t" : character);
 
             return;
         }

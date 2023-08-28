@@ -205,8 +205,9 @@ void Toolbar_Editor::on_combo_menu_currentIndexChanged(int index) {
         }
 }
 
-void Toolbar_Editor::update_list_toolbar(QString name) {
+void Toolbar_Editor::update_list_toolbar(int index) {
     list_toolbar->clear();
+    const QString name = combo_toolbar->itemText(index);
 
             foreach(QAction *act, toolbar_items[name]) {
             QListWidgetItem *item;
@@ -235,7 +236,7 @@ void Toolbar_Editor::on_button_up_clicked() {
 
     qSwap(list[curr_index], list[curr_index - 1]);
 
-    update_list_toolbar(combo_toolbar->currentText());
+    update_list_toolbar(combo_toolbar->currentIndex());
     list_toolbar->setCurrentRow(curr_index - 1);
 }
 
@@ -249,7 +250,7 @@ void Toolbar_Editor::on_button_down_clicked() {
 
     qSwap(list[curr_index], list[curr_index + 1]);
 
-    update_list_toolbar(combo_toolbar->currentText());
+    update_list_toolbar(combo_toolbar->currentIndex());
     list_toolbar->setCurrentRow(curr_index + 1);
 }
 
@@ -268,7 +269,7 @@ void Toolbar_Editor::on_button_remove_clicked() {
     QList<QAction *> &list = toolbar_items[combo_toolbar->currentText()];
     if (to_rm >= 0 && to_rm < list.size()) {
         list.removeAt(to_rm);
-        update_list_toolbar(combo_toolbar->currentText());
+        update_list_toolbar(combo_toolbar->currentIndex());
         list_toolbar->setCurrentRow(to_rm - 1);
     }
 }
@@ -286,11 +287,11 @@ void Toolbar_Editor::insert_action(QAction *new_action) {
         QList<QAction *> &list = toolbar_items[combo_toolbar->currentText()];
         if (act_before >= 0 && act_before < list.size()) {
             list.insert(act_before + 1, new_action);
-            update_list_toolbar(combo_toolbar->currentText());
+            update_list_toolbar(combo_toolbar->currentIndex());
             list_toolbar->setCurrentRow(act_before + 1);
         } else {
             list.push_back(new_action);
-            update_list_toolbar(combo_toolbar->currentText());
+            update_list_toolbar(combo_toolbar->currentIndex());
             list_toolbar->setCurrentRow(list.size() - 1);
         }
 

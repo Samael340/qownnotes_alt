@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 class NoteFolderListWidget : public QListWidget {
    public:
-    explicit NoteFolderListWidget(QWidget *parent = Q_NULLPTR);
+    explicit NoteFolderListWidget(QWidget *parent = nullptr);
 
    protected:
     void dropEvent(QDropEvent *e);

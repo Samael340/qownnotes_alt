@@ -196,7 +196,11 @@
              </property>
              <layout class="QGridLayout" name="gridLayout_8">
               <item row="1" column="0">
-               <widget class="QLineEdit" name="titleLineEdit"/>
+               <widget class="QLineEdit" name="titleLineEdit">
+                <property name="toolTip">
+                 <string>Minimum 8 characters</string>
+                </property>
+               </widget>
               </item>
               <item row="1" column="1">
                <widget class="QPushButton" name="searchIssueButton">
@@ -235,7 +239,11 @@
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
-               <widget class="QOwnNotesMarkdownTextEdit" name="questionPlainTextEdit"/>
+               <widget class="QOwnNotesMarkdownTextEdit" name="questionPlainTextEdit">
+                <property name="toolTip">
+                 <string>Minimum 10 characters</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -247,7 +255,11 @@
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <widget class="QOwnNotesMarkdownTextEdit" name="expectedBehaviourPlainTextEdit"/>
+               <widget class="QOwnNotesMarkdownTextEdit" name="expectedBehaviourPlainTextEdit">
+                <property name="toolTip">
+                 <string>Minimum 10 characters</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -259,7 +271,11 @@
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
-               <widget class="QOwnNotesMarkdownTextEdit" name="actualBehaviourPlainTextEdit"/>
+               <widget class="QOwnNotesMarkdownTextEdit" name="actualBehaviourPlainTextEdit">
+                <property name="toolTip">
+                 <string>Minimum 10 characters</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -271,7 +287,11 @@
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
-               <widget class="QOwnNotesMarkdownTextEdit" name="stepsPlainTextEdit"/>
+               <widget class="QOwnNotesMarkdownTextEdit" name="stepsPlainTextEdit">
+                <property name="toolTip">
+                 <string>Minimum 10 characters</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -475,7 +495,7 @@
        <item row="2" column="0" colspan="3">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The issue text will be copied to your clipboard. Then the webpage to create a &lt;a href=&quot;https://github.com/pbek/QOwnNotes/issues/new&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;new issue&lt;/span&gt;&lt;/a&gt; will open and you will need to &lt;span style=&quot; font-weight:600;&quot;&gt;paste the issue text&lt;/span&gt; manually and submit the issue.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The issue text will be copied to your clipboard. Then the webpage to create a &lt;a href=&quot;https://github.com/pbek/QOwnNotes/issues/new/choose&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;new issue&lt;/span&gt;&lt;/a&gt; will open and you will need to &lt;span style=&quot; font-weight:600;&quot;&gt;paste the issue text&lt;/span&gt; manually and submit the issue.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -517,8 +537,8 @@
   <tabstop>cancelButton</tabstop>
  </tabstops>
  <resources>
-  <include location="../breeze-qownnotes.qrc"/>
   <include location="../images.qrc"/>
+  <include location="../breeze-qownnotes.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -113,7 +113,7 @@ private slots:
     /**
      * Update list_toolbar with the actions of the given toolbar
      */
-    void update_list_toolbar(QString name);
+    void update_list_toolbar(int index);
 
     void on_list_menu_doubleClicked(const QModelIndex &index);
 

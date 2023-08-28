@@ -314,16 +314,24 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QTreeWidget" name="todoItemTreeWidget">
+         <widget class="TodoItemTreeWidget" name="todoItemTreeWidget">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
           </property>
-          <attribute name="headerVisible">
-           <bool>false</bool>
-          </attribute>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::InternalMove</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
           <column>
            <property name="text">
-            <string notr="true">1</string>
+            <string>Summary</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Due date</string>
            </property>
           </column>
          </widget>
@@ -332,6 +340,16 @@
          <widget class="QComboBox" name="todoListSelector">
           <property name="toolTip">
            <string>select your todo list</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="showDueTodayItemsOnlyCheckBox">
+          <property name="toolTip">
+           <string>This doesn't work for sub-items, because they may be hidden by the parent item!</string>
+          </property>
+          <property name="text">
+           <string>Show only items due today</string>
           </property>
          </widget>
         </item>
@@ -348,6 +366,11 @@
    <extends>QPlainTextEdit</extends>
    <header location="global">widgets/qownnotesmarkdowntextedit.h</header>
   </customwidget>
+  <customwidget>
+   <class>TodoItemTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header location="global">widgets/todoitemtreewidget.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>newItemEdit</tabstop>
@@ -357,7 +380,6 @@
   <tabstop>reminderDateTimeEdit</tabstop>
   <tabstop>descriptionEdit</tabstop>
   <tabstop>reloadTodoListButton</tabstop>
-  <tabstop>showCompletedItemsCheckBox</tabstop>
   <tabstop>todoListSelector</tabstop>
   <tabstop>reminderCheckBox</tabstop>
  </tabstops>

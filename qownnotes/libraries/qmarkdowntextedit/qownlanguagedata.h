@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Waqar Ahmed -- <waqar.17a@gmail.com>
+ * Copyright (c) 2019-2021 Waqar Ahmed -- <waqar.17a@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,15 @@ void loadShellData(QMultiHash<char, QLatin1String> &types,
 /* JS Data *********************************************/
 /**********************************************************/
 void loadJSData(QMultiHash<char, QLatin1String> &types,
+                QMultiHash<char, QLatin1String> &keywords,
+                QMultiHash<char, QLatin1String> &builtin,
+                QMultiHash<char, QLatin1String> &literals,
+                QMultiHash<char, QLatin1String> &other);
+
+/**********************************************************/
+/* JS Data *********************************************/
+/**********************************************************/
+void loadNixData(QMultiHash<char, QLatin1String> &types,
                 QMultiHash<char, QLatin1String> &keywords,
                 QMultiHash<char, QLatin1String> &builtin,
                 QMultiHash<char, QLatin1String> &literals,
@@ -215,5 +224,12 @@ void loadMakeData(QMultiHash<char, QLatin1String> &types,
                   QMultiHash<char, QLatin1String> &builtin,
                   QMultiHash<char, QLatin1String> &literals,
                   QMultiHash<char, QLatin1String> &other);
-
+/********************************************************/
+/***   Forth DATA  **************************************/
+/********************************************************/
+void loadForthData(QMultiHash<char, QLatin1String> &types,
+                   QMultiHash<char, QLatin1String> &keywords,
+                   QMultiHash<char, QLatin1String> &builtin,
+                   QMultiHash<char, QLatin1String> &literals,
+                   QMultiHash<char, QLatin1String> &other);
 #endif

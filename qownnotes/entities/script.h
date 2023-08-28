@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,9 @@
 
 class ScriptInfoJson {
    public:
+    explicit ScriptInfoJson();
     explicit ScriptInfoJson(const QJsonObject& jsonObject);
+    friend QDebug operator<<(QDebug dbg, const ScriptInfoJson &bookmark);
 
     QString name;
     QString identifier;
@@ -39,6 +41,7 @@ class ScriptInfoJson {
     QString richPlatformText;
     bool platformSupported;
     bool appVersionSupported;
+    bool isEmpty() const;
 };
 
 class Script {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,7 @@ struct Node {
     int elementType;
 
     bool operator==(const Node &node) const {
-        return text == node.text && pos == node.pos &&
-               elementType == node.elementType;
+        return text == node.text && pos == node.pos && elementType == node.elementType;
     }
 };
 
@@ -35,25 +34,30 @@ class NavigationWidget : public QTreeWidget {
 
    public:
     explicit NavigationWidget(QWidget *parent = 0);
-    ~NavigationWidget();
 
-    void parse(const QTextDocument *document);
-    void setDocument(const QTextDocument *document);
+    void parse(const QTextDocument *document, int textCursorPosition);
     static QVector<Node> parseDocument(const QTextDocument *const document);
 
+    void selectItemForCursorPosition(int position);
+
    private slots:
-    void onCurrentItemChanged(QTreeWidgetItem *current,
-                              QTreeWidgetItem *previous);
-    void onParseCompleted();
+    void onCurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void onItemClicked(QTreeWidgetItem *current, int column);
+
+   private:
+    void buildNavTree(const QVector<Node> &nodes);
+    void doParse();
 
    signals:
     void positionClicked(int position);
 
    private:
-    const QTextDocument *_document;
+    const QTextDocument *_doc;
     QHash<int, QTreeWidgetItem *> _lastHeadingItemList;
-    QFutureWatcher<QVector<Node>> *_parseFutureWatcher;
     QVector<Node> _navigationTreeNodes;
+    int _cursorPosition;
 
     QTreeWidgetItem *findSuitableParentItem(int elementType) const;
+    int findItemIndexForCursorPosition(int position) const;
+    static QString stripMarkdown(const QString &input);
 };

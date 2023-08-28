@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,17 @@
 #include <QEvent>
 #include <QPlainTextEdit>
 
+#include "markdownhighlighter.h"
 #include "qplaintexteditsearchwidget.h"
 
-class MarkdownHighlighter;
+class LineNumArea;
 
 class QMarkdownTextEdit : public QPlainTextEdit {
     Q_OBJECT
+    Q_PROPERTY(
+        bool highlighting READ highlightingEnabled WRITE setHighlightingEnabled)
+
+    friend class LineNumArea;
 
    public:
     enum AutoTextOption {
@@ -46,7 +51,6 @@ class QMarkdownTextEdit : public QPlainTextEdit {
     QString getMarkdownUrlAtPosition(const QString &text, int position);
     void initSearchFrame(QWidget *searchFrame, bool darkMode = false);
     void setAutoTextOptions(AutoTextOptions options);
-    void setHighlightingEnabled(bool enabled);
     static bool isValidUrl(const QString &urlString);
     void resetMouseCursor() const;
     void setReadOnly(bool ro);
@@ -55,21 +59,35 @@ class QMarkdownTextEdit : public QPlainTextEdit {
                       QPlainTextEditSearchWidget::SearchMode::PlainTextMode);
     void hideSearchWidget(bool reset);
     void updateSettings();
+    void setLineNumbersCurrentLineColor(QColor color);
+    void setLineNumbersOtherLineColor(QColor color);
+    void setSearchWidgetDebounceDelay(uint debounceDelay);
 
-   public slots:
+    void setHighlightingEnabled(bool enabled);
+    [[nodiscard]] bool highlightingEnabled() const;
+
+    void setHighlightCurrentLine(bool set);
+    bool highlightCurrentLine();
+
+    void setCurrentLineHighlightColor(const QColor &c);
+    QColor currentLineHighlightColor();
+
+   public Q_SLOTS:
     void duplicateText();
     void setText(const QString &text);
     void setPlainText(const QString &text);
     void adjustRightMargin();
     void hide();
     bool openLinkAtCursorPosition();
-    bool handleBracketRemoval();
+    bool handleBackspaceEntered();
     void centerTheCursor();
     void undo();
     void moveTextUpDown(bool up);
+    void setLineNumberEnabled(bool enabled);
 
    protected:
-    MarkdownHighlighter *_highlighter;
+    QTextCursor _textCursor;
+    MarkdownHighlighter *_highlighter = nullptr;
     bool _highlightingEnabled;
     QStringList _ignoredClickUrlSchemata;
     QPlainTextEditSearchWidget *_searchWidget;
@@ -77,12 +95,17 @@ class QMarkdownTextEdit : public QPlainTextEdit {
     AutoTextOptions _autoTextOptions;
     bool _mouseButtonDown = false;
     bool _centerCursor = false;
+    bool _highlightCurrentLine = false;
+    QColor _currentLineHighlightColor = QColor();
+    uint _debounceDelay = 0;
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    QMargins viewportMargins();
     bool increaseSelectedTextIndention(
-        bool reverse, const QString &indentCharacters = QChar('\t'));
-    bool handleTabEntered(bool reverse,
-                          const QString &indentCharacters = QChar('\t'));
+        bool reverse,
+        const QString &indentCharacters = QChar::fromLatin1('\t'));
+    bool handleTabEntered(bool reverse, const QString &indentCharacters =
+                                            QChar::fromLatin1('\t'));
     QMap<QString, QString> parseMarkdownUrlsFromText(const QString &text);
     bool handleReturnEntered();
     bool handleBracketClosing(const QChar openingCharacter,
@@ -90,12 +113,24 @@ class QMarkdownTextEdit : public QPlainTextEdit {
     bool bracketClosingCheck(const QChar openingCharacter,
                              QChar closingCharacter);
     bool quotationMarkCheck(const QChar quotationCharacter);
-    void focusOutEvent(QFocusEvent *event);
-    void paintEvent(QPaintEvent *e);
-
-   signals:
-    void urlClicked(QString url);
-
-   private:
+    void focusOutEvent(QFocusEvent *event) override;
+    void paintEvent(QPaintEvent *e) override;
+    bool handleCharRemoval(MarkdownHighlighter::RangeType type, int block, int position);
+    void resizeEvent(QResizeEvent *event) override;
+    void setLineNumberLeftMarginOffset(int offset);
+    int _lineNumberLeftMarginOffset = 0;
+    LineNumArea *lineNumberArea()
+    {
+        return _lineNumArea;
+    }
+    void updateLineNumAreaGeometry();
+    void updateLineNumberArea(const QRect rect, int dy);
+    Q_SLOT void updateLineNumberAreaWidth(int);
     bool _handleBracketClosingUsed;
+    LineNumArea *_lineNumArea;
+
+   Q_SIGNALS:
+    void urlClicked(QString url);
+    void zoomIn();
+    void zoomOut();
 };

@@ -15,17 +15,15 @@ class UpdateDialog : public MasterDialog {
     Q_OBJECT
 
    public:
-    explicit UpdateDialog(QWidget *parent = nullptr,
-                          const QString &changesHtml = QString(),
+    explicit UpdateDialog(QWidget *parent = nullptr, const QString &changesHtml = QString(),
                           const QString &releaseUrl = QString(),
-                          const QString &releaseVersionString = QString(),
-                          int releaseBuildNumber = 0);
+                          const QString &releaseVersionString = QString());
     ~UpdateDialog();
     static bool isUpdateDialogOpen();
-    int exec();
+    int exec() override;
 
    public slots:
-    void show();
+    void show() override;
 
    private slots:
     void dialogButtonClicked(QAbstractButton *button);
@@ -49,9 +47,11 @@ class UpdateDialog : public MasterDialog {
         Cancel
     };
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
     bool initializeUpdateProcess(const QString &filePath);
+
+    bool initializeLinuxUpdateProcess(const QString &filePath);
 
     bool initializeWindowsUpdateProcess(const QString &filePath);
 

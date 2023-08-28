@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,14 +43,13 @@ class Settings {
 
     QStringList getSchemaKeys(const QString& schema) const;
 
-    QVariant getSchemaValue(const QString& key,
-                            const QVariant& defaultValue = QVariant(),
+    QVariant getSchemaValue(const QString& key, const QVariant& defaultValue = QVariant(),
                             QString schemaKey = QString()) const;
+    QFont getFont(int index) const;
     QColor getForegroundColor(int index) const;
     QColor getBackgroundColor(int index) const;
 
-    void setFormatStyle(MarkdownHighlighter::HighlighterState index,
-                        QTextCharFormat& format) const;
+    void setFormatStyle(MarkdownHighlighter::HighlighterState index, QTextCharFormat& format) const;
 
     QFont getEditorTextFont() const;
     QFont getEditorFixedFont() const;
@@ -74,8 +73,7 @@ QString textSettingsKey(const QString& key, int index);
 
 QString encodeCssTextCharFormat(const QTextCharFormat& format);
 
-QString encodeCssStyleForState(MarkdownHighlighter::HighlighterState index,
-                               const QString& htmlTag);
+QString encodeCssStyleForState(MarkdownHighlighter::HighlighterState index, const QString& htmlTag);
 
 QString encodeCssFont(const QFont& refFont);
 

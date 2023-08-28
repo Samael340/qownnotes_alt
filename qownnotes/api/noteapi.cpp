@@ -8,19 +8,22 @@
 
 #include "tagapi.h"
 
-NoteApi* NoteApi::fetch(int _id) {
-    _note = Note::fetch(_id);
+NoteApi* NoteApi::fetch(int id) {
+    _note = Note::fetch(id);
 
     if (_note.isFetched()) {
-        this->_id = _note.getId();
+        _id = _note.getId();
         _name = _note.getName();
         _fileName = _note.getFileName();
         _noteText = _note.getNoteText();
         _hasDirtyData = _note.getHasDirtyData();
         _noteSubFolderId = _note.getNoteSubFolderId();
-        _decryptedNoteText = _note.getDecryptedNoteText();
         _fileCreated = _note.getFileCreated();
         _fileLastModified = _note.getFileLastModified();
+
+        // we'll try not to fetch the decrypted note text, because it
+        // would be done every time the current note changes
+        _decryptedNoteText = _note.getDecryptedNoteText();
     }
 
     return this;
@@ -45,17 +48,20 @@ QQmlListProperty<TagApi> NoteApi::tags() {
     _tags.clear();
 
     Note note = Note::fetch(_id);
-    QList<Tag> tags = Tag::fetchAllOfNote(note);
-    QListIterator<Tag> itr(tags);
+    QVector<Tag> tags = Tag::fetchAllOfNote(note);
+    QVectorIterator<Tag> itr(tags);
     while (itr.hasNext()) {
         Tag tag = itr.next();
 
         auto* tagApi = new TagApi();
-        tagApi->fetch(tag.getId());
+        tagApi->copy(tag);
         _tags.append(tagApi);
     }
-
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     return {this, _tags};
+#else
+    return {this, &_tags};
+#endif
 }
 
 /**
@@ -64,8 +70,8 @@ QQmlListProperty<TagApi> NoteApi::tags() {
 QStringList NoteApi::tagNames() const {
     QStringList tagNameList;
     Note note = Note::fetch(_id);
-    QList<Tag> tags = Tag::fetchAllOfNote(note);
-    QListIterator<Tag> itr(tags);
+    QVector<Tag> tags = Tag::fetchAllOfNote(note);
+    QVectorIterator<Tag> itr(tags);
     while (itr.hasNext()) {
         Tag tag = itr.next();
         tagNameList.append(tag.getName());
@@ -86,7 +92,7 @@ bool NoteApi::addTag(const QString& tagName) {
     }
 
     Note note = Note::fetch(_id);
-    if (!note.exists()) {
+    if (!note.isFetched()) {
         return false;
     }
 
@@ -108,12 +114,12 @@ bool NoteApi::addTag(const QString& tagName) {
  */
 bool NoteApi::removeTag(QString tagName) {
     Tag tag = Tag::fetchByName(std::move(tagName));
-    if (!tag.exists()) {
+    if (!tag.isFetched()) {
         return false;
     }
 
     Note note = Note::fetch(_id);
-    if (!note.exists()) {
+    if (!note.isFetched()) {
         return false;
     }
 
@@ -126,10 +132,10 @@ bool NoteApi::removeTag(QString tagName) {
  * @param newName new file name (without file-extension)
  * @return true if the note was renamed
  */
-bool NoteApi::renameNoteFile(const QString &newName) {
+bool NoteApi::renameNoteFile(const QString& newName) {
     Note note = Note::fetch(_id);
 
-    if (note.exists()) {
+    if (note.isFetched()) {
         return note.renameNoteFile(newName);
     }
 
@@ -141,9 +147,7 @@ bool NoteApi::renameNoteFile(const QString &newName) {
  *
  * @return bool
  */
-bool NoteApi::allowDifferentFileName() {
-    return Note::allowDifferentFileName();
-}
+bool NoteApi::allowDifferentFileName() { return Note::allowDifferentFileName(); }
 
 /**
  * Fetches all notes
@@ -154,15 +158,18 @@ bool NoteApi::allowDifferentFileName() {
  * @return
  */
 QQmlListProperty<NoteApi> NoteApi::fetchAll(int limit, int offset) {
-    QVector<int> noteIds = Note::fetchAllIds(limit, offset);
+    const QVector<int> noteIds = Note::fetchAllIds(limit, offset);
     QList<NoteApi*> notes;
 
-    Q_FOREACH (int noteId, noteIds) {
+    for (int noteId : noteIds) {
         NoteApi* note = NoteApi::fetch(noteId);
         notes.append(note);
     }
-
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     return {this, notes};
+#else
+    return {this, &notes};
+#endif
 }
 
 /**
@@ -172,8 +179,7 @@ QQmlListProperty<NoteApi> NoteApi::fetchAll(int limit, int offset) {
  * @return
  */
 QString NoteApi::toMarkdownHtml(bool forExport) {
-    return _note.toMarkdownHtml(NoteFolder::currentLocalPath(), 980, forExport,
-                                true, true);
+    return _note.toMarkdownHtml(NoteFolder::currentLocalPath(), 980, forExport, true, true);
 }
 
 /**
@@ -184,4 +190,23 @@ QString NoteApi::toMarkdownHtml(bool forExport) {
  */
 QString NoteApi::getFileURLFromFileName(const QString& localFileName) {
     return _note.getFileURLFromFileName(localFileName);
+}
+
+void NoteApi::copy(const Note& note) {
+    _note = note;
+
+    if (_note.isFetched()) {
+        _id = note.getId();
+        _name = note.getName();
+        _fileName = note.getFileName();
+        _noteText = note.getNoteText();
+        _hasDirtyData = note.getHasDirtyData();
+        _noteSubFolderId = note.getNoteSubFolderId();
+        _fileCreated = note.getFileCreated();
+        _fileLastModified = note.getFileLastModified();
+
+        // we'll try not to fetch the decrypted note text, because it
+        // would be done every time the current note changes
+        _decryptedNoteText = note.getDecryptedNoteText();
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,14 +39,35 @@ class QOwnNotesMarkdownHighlighter : public MarkdownHighlighter {
 
     void updateCurrentNote(Note *note);
 
+    struct ScriptingHighlightingRule {
+        explicit ScriptingHighlightingRule(const HighlighterState state_) : state(state_) {}
+        ScriptingHighlightingRule() = default;
+
+        QRegularExpression pattern;
+        QString shouldContain;
+        HighlighterState state = NoState;
+        uint8_t capturingGroup = 0;
+        uint8_t maskedGroup = 0;
+    };
+
    protected:
     void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
+
+   private:
     void highlightBrokenNotesLink(const QString &text);
 
     // Set the format of a word as misspelled i.e., red wavy underline
     void setMisspelled(const int start, const int count);
     void highlightSpellChecking(const QString &text);
 
+    void updateCachedRegexes(const QString &newExt);
+
    private:
     Note *_currentNote = nullptr;
+
+    QString _defaultNoteFileExt;
+    QRegularExpression _regexTagStyleLink;
+    QRegularExpression _regexBracketLink;
+    void highlightScriptingRules(const QVector<ScriptingHighlightingRule> &rules,
+                                 const QString &text);
 };

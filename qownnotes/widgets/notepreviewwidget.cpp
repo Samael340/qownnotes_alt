@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,13 @@
 #include <QMenu>
 #include <QMovie>
 #include <QProxyStyle>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "utils/misc.h"
 
 class NoDottedOutlineForLinksStyle : public QProxyStyle {
    public:
-    int styleHint(StyleHint hint, const QStyleOption *option,
-                  const QWidget *widget,
+    int styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                   QStyleHintReturn *returnData) const Q_DECL_OVERRIDE {
         if (hint == SH_TextControl_FocusIndicatorTextCharFormat) return 0;
         return QProxyStyle::styleHint(hint, option, widget, returnData);
@@ -82,8 +81,7 @@ bool NotePreviewWidget::eventFilter(QObject *obj, QEvent *event) {
             _searchWidget->activate();
             return true;
         } else if ((keyEvent->key() == Qt::Key_F3)) {
-            _searchWidget->doSearch(
-                !keyEvent->modifiers().testFlag(Qt::ShiftModifier));
+            _searchWidget->doSearch(!keyEvent->modifiers().testFlag(Qt::ShiftModifier));
             return true;
         }
 
@@ -99,20 +97,25 @@ bool NotePreviewWidget::eventFilter(QObject *obj, QEvent *event) {
  * @return Urls to gif files
  */
 QStringList NotePreviewWidget::extractGifUrls(const QString &text) const {
-    static QRegExp regex(R"(<img[^>]+src=\"(file:\/\/\/[^\"]+\.gif)\")",
-                         Qt::CaseInsensitive);
-
-    QStringList urls;
+    QSet<QString> urlSet;
+    static const QRegularExpression regex(R"(<img[^>]+src=\"(file:\/\/\/[^\"]+\.gif)\")",
+                                          QRegularExpression::CaseInsensitiveOption);
     int pos = 0;
+
     while (true) {
-        pos = regex.indexIn(text, pos);
-        if (pos == -1) break;
-        QString url = regex.cap(1);
-        if (!urls.contains(url)) urls.append(url);
-        pos += regex.matchedLength();
+        QRegularExpressionMatch match;
+        pos = text.indexOf(regex, pos, &match);
+        if (pos == -1 || !match.hasMatch()) break;
+        QString url = match.captured(1);
+        urlSet.insert(url);
+        pos += match.capturedLength();
     }
 
-    return urls;
+#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
+    return urlSet.toList();
+#else
+    return QStringList(urlSet.begin(), urlSet.end());
+#endif
 }
 
 /**
@@ -151,8 +154,7 @@ void NotePreviewWidget::animateGif(const QString &text) {
 
         connect(movie, &QMovie::frameChanged, this, [this, url, movie](int) {
             if (auto doc = document()) {
-                doc->addResource(QTextDocument::ImageResource, url,
-                                 movie->currentPixmap());
+                doc->addResource(QTextDocument::ImageResource, url, movie->currentPixmap());
                 doc->markContentsDirty(0, doc->characterCount());
             }
         });
@@ -172,9 +174,7 @@ void NotePreviewWidget::setHtml(const QString &text) {
  * @brief Returns the searchWidget instance
  * @return
  */
-QTextEditSearchWidget *NotePreviewWidget::searchWidget() {
-    return _searchWidget;
-}
+QTextEditSearchWidget *NotePreviewWidget::searchWidget() { return _searchWidget; }
 
 /**
  * Uses another widget as parent for the search widget
@@ -228,39 +228,35 @@ void NotePreviewWidget::contextMenuEvent(QContextMenuEvent *event) {
         menu->addSeparator();
     }
 
-    auto *copyImageAction = new QAction(this);
-    auto *copyLinkLocationAction = new QAction(this);
+    QAction *copyImageAction = nullptr;
+    QAction *copyLinkLocationAction = nullptr;
 
     // check if clicked object was an image
     if (isImageFormat) {
         copyImageAction = menu->addAction(tr("Copy image file path"));
         auto *copyImageClipboardAction = menu->addAction(tr("Copy image to clipboard"));
 
-        connect(copyImageClipboardAction, &QAction::triggered, this,
-                [this, format]() {
-                    QString imagePath = format.toImageFormat().name();
-                    QUrl imageUrl = QUrl(imagePath);
-                    QClipboard *clipboard = QApplication::clipboard();
-                    if (imageUrl.isLocalFile()) {
-                        clipboard->setImage(QImage(imageUrl.toLocalFile()));
-                    } else if (imagePath.startsWith(
-                        QLatin1String("data:image/"), Qt::CaseInsensitive)) {
-                        QStringList parts = imagePath.split(
-                            QStringLiteral(";base64,"));
-                        if (parts.count() == 2) {
-                            clipboard->setImage(QImage::fromData(
-                                QByteArray::fromBase64(parts[1].toLatin1())));
-                        }
-                    }
-                });
+        connect(copyImageClipboardAction, &QAction::triggered, this, [format]() {
+            QString imagePath = format.toImageFormat().name();
+            QUrl imageUrl = QUrl(imagePath);
+            QClipboard *clipboard = QApplication::clipboard();
+            if (imageUrl.isLocalFile()) {
+                clipboard->setImage(QImage(imageUrl.toLocalFile()));
+            } else if (imagePath.startsWith(QLatin1String("data:image/"), Qt::CaseInsensitive)) {
+                QStringList parts = imagePath.split(QStringLiteral(";base64,"));
+                if (parts.count() == 2) {
+                    clipboard->setImage(
+                        QImage::fromData(QByteArray::fromBase64(parts[1].toLatin1())));
+                }
+            }
+        });
     }
 
     if (isAnchor) {
         copyLinkLocationAction = menu->addAction(tr("Copy link location"));
     }
 
-    auto *htmlFileExportAction =
-        menu->addAction(tr("Export generated raw HTML"));
+    auto *htmlFileExportAction = menu->addAction(tr("Export generated raw HTML"));
 
     QAction *selectedItem = menu->exec(globalPos);
 
@@ -289,12 +285,51 @@ void NotePreviewWidget::contextMenuEvent(QContextMenuEvent *event) {
     }
 }
 
+QVariant NotePreviewWidget::loadResource(int type, const QUrl &file) {
+    if (type == QTextDocument::ImageResource && file.isValid()) {
+        QString fileName = file.toLocalFile();
+        int fileSize = QFileInfo(fileName).size();
+
+        // We only use our cache for images > 512KB
+        if (fileSize > (512 * 1000)) {
+            QPixmap pm;
+            if (lookupCache(fileName, pm)) {
+                return pm;
+            }
+
+            pm = QPixmap(fileName);
+            insertInCache(fileName, pm);
+            return pm;
+        }
+    }
+
+    return QTextBrowser::loadResource(type, file);
+}
+
+bool NotePreviewWidget::lookupCache(const QString &key, QPixmap &pm) {
+    auto it = std::find_if(_largePixmapCache.begin(), _largePixmapCache.end(),
+                           [key](const LargePixmap &l) { return key == l.fileName; });
+    if (it == _largePixmapCache.end()) return false;
+    pm = it->pixmap;
+    return true;
+}
+
+void NotePreviewWidget::insertInCache(const QString &key, const QPixmap &pm) {
+    _largePixmapCache.push_back({key, std::move(pm)});
+
+    // limit to 6 images
+    while (_largePixmapCache.size() > 6) _largePixmapCache.erase(_largePixmapCache.begin());
+}
+
 void NotePreviewWidget::exportAsHTMLFile() {
     FileDialog dialog(QStringLiteral("PreviewHTMLFileExport"));
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter(tr("HTML files") + " (*.html)");
-    dialog.setWindowTitle(tr("Export preview as raw HTML file"));
+    dialog.setWindowTitle(
+        tr("Export preview as raw HTML file",
+           "\"Raw\" means that actually the html that was fed to the preview will be stored (the "
+           "QTextBrowser modifies the html that it is showing)"));
     dialog.selectFile(QStringLiteral("preview.html"));
     int ret = dialog.exec();
 
@@ -315,7 +350,9 @@ void NotePreviewWidget::exportAsHTMLFile() {
                 return;
             }
             QTextStream out(&file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             out.setCodec("UTF-8");
+#endif
             out << _html;
             file.flush();
             file.close();

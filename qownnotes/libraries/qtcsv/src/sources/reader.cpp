@@ -5,24 +5,38 @@
 #include <QTextStream>
 #include <QDebug>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QStringConverter>
+#endif
+
 #include "../include/abstractdata.h"
 #include "../sources/filechecker.h"
 #include "../sources/symbols.h"
 
 using namespace QtCSV;
 
-class ElementInfo;
+struct ElementInfo;
 
 class ReaderPrivate
 {
 public:
     // Function that really reads csv-file and save it's data as strings to
     // QList<QStringList>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     static bool read(const QString& filePath,
                      QList<QStringList>& list,
                      const QString& separator,
                      const QString& textDelimiter,
                      QTextCodec* codec);
+#else
+    static bool read(
+        const QString& filePath,
+        QList<QStringList>& list,
+        const QString& separator,
+        const QString& textDelimiter,
+        QStringConverter::Encoding codec);
+#endif
 
 private:
     // Check if file path and separator are valid
@@ -36,7 +50,7 @@ private:
                                      ElementInfo& elemInfo);
 
     // Try to find end position of first or middle element
-    static int FindMiddleElementPositioin(const QString& str,
+    static int FindMiddleElementPosition(const QString& str,
                                           const int& startPos,
                                           const QString& separator,
                                           const QString& txtDelim);
@@ -74,7 +88,11 @@ bool ReaderPrivate::read(const QString& filePath,
                             QList<QStringList>& list,
                             const QString& separator,
                             const QString& textDelimiter,
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                             QTextCodec* codec)
+#else
+                         QStringConverter::Encoding codec)
+#endif
 {
     if ( false == checkParams(filePath, separator) )
     {
@@ -89,7 +107,11 @@ bool ReaderPrivate::read(const QString& filePath,
     }
 
     QTextStream stream(&csvFile);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     stream.setCodec(codec);
+#else
+    stream.setEncoding(codec);
+#endif
 
     // This list will contain elements of the row if elements of this row
     // are located on several lines
@@ -228,7 +250,7 @@ QStringList ReaderPrivate::splitElements(const QString& line,
                 // 1. Be the first or the middle element. Then it should end
                 // with delimiter and the seprator symbols standing next to each
                 // other.
-                int midElemEndPos = FindMiddleElementPositioin(
+                int midElemEndPos = FindMiddleElementPosition(
                                         line, pos, separator, textDelimiter);
                 if (midElemEndPos > 0)
                 {
@@ -289,7 +311,7 @@ QStringList ReaderPrivate::splitElements(const QString& line,
             // 1. End somewhere in the middle of the line. Then it should end
             // with delimiter and the seprator symbols standing next to each
             // other.
-            int midElemEndPos = FindMiddleElementPositioin(
+            int midElemEndPos = FindMiddleElementPosition(
                                 line, pos, separator, textDelimiter);
             if (midElemEndPos > 0)
             {
@@ -327,7 +349,7 @@ QStringList ReaderPrivate::splitElements(const QString& line,
 // @output:
 // - int - end position of the element or -1 if this element is not first
 // or middle
-int ReaderPrivate::FindMiddleElementPositioin(const QString& str,
+int ReaderPrivate::FindMiddleElementPosition(const QString& str,
                                               const int& startPos,
                                               const QString& separator,
                                               const QString& txtDelim)
@@ -361,8 +383,8 @@ int ReaderPrivate::FindMiddleElementPositioin(const QString& str,
         int numOfDelimiters = 0;
         for (int pos = elemEndPos; startPos <= pos; --pos, ++numOfDelimiters)
         {
-            QStringRef strRef = str.midRef(pos, txtDelim.size());
-            if (QStringRef::compare(strRef, txtDelim) != 0)
+            QString strRef = str.mid(pos, txtDelim.size());
+            if (QString::compare(strRef, txtDelim) != 0)
             {
                 break;
             }
@@ -423,8 +445,8 @@ bool ReaderPrivate::IsElementLast(const QString& str,
     int numOfDelimiters = 0;
     for (int pos = str.size() - 1; startPos <= pos; --pos, ++numOfDelimiters)
     {
-        QStringRef strRef = str.midRef(pos, txtDelim.size());
-        if (QStringRef::compare(strRef, txtDelim) != 0)
+        QString strRef = str.mid(pos, txtDelim.size());
+        if (QString::compare(strRef, txtDelim) != 0)
         {
             break;
         }
@@ -490,7 +512,11 @@ QStringList ReaderPrivate::removeTextDelimiters(const QStringList& elements,
 QList<QStringList> Reader::readToList(const QString& filePath,
                                       const QString& separator,
                                       const QString& textDelimiter,
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                                      QStringConverter::Encoding codec)
+#else
                                       QTextCodec* codec)
+#endif
 {
     QList<QStringList> data;
     ReaderPrivate::read(filePath, data, separator, textDelimiter, codec);
@@ -512,7 +538,11 @@ bool Reader::readToData(const QString& filePath,
                         AbstractData& data,
                         const QString& separator,
                         const QString& textDelimiter,
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                        QStringConverter::Encoding codec)
+#else
                         QTextCodec* codec)
+#endif
 {
     QList<QStringList> list;
     if (false == ReaderPrivate::read(filePath, list, separator, textDelimiter,

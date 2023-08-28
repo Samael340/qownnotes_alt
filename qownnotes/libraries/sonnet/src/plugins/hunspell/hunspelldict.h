@@ -24,6 +24,8 @@
 #include "spellerplugin_p.h"
 #include "hunspell/src/hunspell/hunspell.hxx"
 
+#include <QTextCodec>
+
 class HunspellDict : public Sonnet::SpellerPlugin
 {
 public:

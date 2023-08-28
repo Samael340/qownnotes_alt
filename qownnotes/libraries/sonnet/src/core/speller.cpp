@@ -61,7 +61,7 @@ public:
             recreateDict();
             settings->setModified(false);
         }
-        return dict;
+        return !dict.isNull();
     }
 
     void recreateDict()
@@ -83,7 +83,7 @@ Speller::Speller(const QString &lang)
 
 Speller::~Speller()
 {
-    qCDebug(SONNET_LOG_CORE) << "deleting" << this << "for" << d->language;
+//     qDebug() << "deleting" << this << "for" << d->language;
     delete d;
 }
 
@@ -253,7 +253,7 @@ bool Speller::testAttribute(Attribute attr) const
 
 bool Speller::isValid() const
 {
-    return d->dict;
+    return !d->dict.isNull();
 }
 
 void Speller::setLanguage(const QString &lang)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include <QDebug>
 #include <QProcess>
+#include <QStandardPaths>
 #include <QtCore/QSettings>
 
 #include "gui.h"
@@ -28,9 +29,7 @@
  *
  * @return
  */
-bool Utils::Git::isCurrentNoteFolderUseGit() {
-    return NoteFolder::currentNoteFolder().isUseGit();
-}
+bool Utils::Git::isCurrentNoteFolderUseGit() { return NoteFolder::currentNoteFolder().isUseGit(); }
 
 /**
  * Commits changes from the current note folder to git
@@ -41,13 +40,15 @@ void Utils::Git::commitCurrentNoteFolder() {
         return;
     }
 
+    const auto git = gitCommand();
+
     auto* process = new QProcess();
     process->setWorkingDirectory(NoteFolder::currentLocalPath());
 
-    if (!executeGitCommand("init", process) ||
-        !executeGitCommand("config commit.gpgsign false", process) ||
-        !executeGitCommand("add -A", process) ||
-        !executeGitCommand("commit -m \"QOwnNotes commit\"", process)) {
+    if (!executeGitCommand(git, QStringList{"init"}, process) ||
+        !executeGitCommand(git, QStringList{"config", "commit.gpgsign", "false"}, process) ||
+        !executeGitCommand(git, QStringList{"add", "-A"}, process) ||
+        !executeGitCommand(git, QStringList{"commit", "-m", "QOwnNotes commit"}, process)) {
     }
 
     delete (process);
@@ -60,21 +61,22 @@ void Utils::Git::commitCurrentNoteFolder() {
  * @param process
  * @return
  */
-bool Utils::Git::executeCommand(const QString& command, QProcess* process,
-                                bool withErrorDialog) {
-    if (process == Q_NULLPTR) {
+bool Utils::Git::executeCommand(const QString& command, const QStringList& arguments,
+                                QProcess* process, bool withErrorDialog) {
+    if (process == nullptr) {
         process = new QProcess();
     }
 
-    process->start(command);
+    process->start(command, arguments);
 
     if (!process->waitForFinished()) {
-        qWarning() << "Command '" + command + "' failed";
+        qWarning() << "Command '" + command + "' (" << arguments << ") failed";
 
         if (withErrorDialog) {
             Utils::Gui::warning(
-                Q_NULLPTR, QObject::tr("Command failed!"),
-                QObject::tr("The command <code>%1</code> failed!").arg(command),
+                nullptr, QObject::tr("Command failed!"),
+                QObject::tr("The command <code>%1</code> with arguments <code>%2</code> failed!")
+                    .arg(command, arguments.join(QStringLiteral(", "))),
                 "command-failed");
         }
 
@@ -90,7 +92,7 @@ bool Utils::Git::executeCommand(const QString& command, QProcess* process,
     QByteArray errorMessage = process->readAllStandardError();
 
     if (!errorMessage.isEmpty()) {
-        qWarning() << "Error message by '" + command + "': " + errorMessage;
+        qWarning() << "Error message by '" + command + "' (" << arguments << "): " + errorMessage;
     }
 
     return true;
@@ -103,10 +105,9 @@ bool Utils::Git::executeCommand(const QString& command, QProcess* process,
  * @param process
  * @return
  */
-bool Utils::Git::executeGitCommand(const QString& arguments, QProcess* process,
-                                   bool withErrorDialog) {
-    return executeCommand("\"" + gitCommand() + "\" " + arguments, process,
-                          withErrorDialog);
+bool Utils::Git::executeGitCommand(const QString& gitExe, const QStringList& arguments,
+                                   QProcess* process, bool withErrorDialog) {
+    return executeCommand(gitExe, arguments, process, withErrorDialog);
 }
 
 /**
@@ -118,15 +119,24 @@ QString Utils::Git::gitCommand() {
     QSettings settings;
     QString path = settings.value("gitExecutablePath").toString();
 
-    if (path.isEmpty()) {
-#ifdef Q_OS_WIN
-        path = "git.exe";
-#else
-        path = "git";
-#endif
+    // ok, user defined path
+    if (!path.isEmpty()) {
+        return path;
     }
 
-    return path;
+#ifdef Q_OS_WIN
+    path = "git.exe";    // FIXME: is the ".exe" even needed? I don't think so
+#else
+    path = "git";
+#endif
+
+    // Ensure the "git" is from a standard path, and not a random exe named git
+    auto fullGitPath = QStandardPaths::findExecutable(path);
+    if (fullGitPath.isEmpty()) {
+        return {};
+    }
+
+    return fullGitPath;
 }
 
 /**
@@ -161,18 +171,16 @@ void Utils::Git::showLog(const QString& filePath) {
 
     QStringList parameters = QStringList();
 
+#ifdef Q_OS_WIN
+    // we are executing the full command with parameters directly
+    // using "cmd.exe /c" doesn't work
+    QString command = gitLogCommand;
+#else
     // we need a shell to be able to use the executable with the parameters
     // together
-#ifdef Q_OS_WIN
-    QString command = "cmd.exe";
-    parameters << "/c";
-#else
     QString command = "bash";
-    parameters << "-c";
+    parameters << "-c" << gitLogCommand;
 #endif
 
-    parameters << gitLogCommand;
-
-    Utils::Misc::startDetachedProcess(command, parameters,
-                                      NoteFolder::currentLocalPath());
+    Utils::Misc::startDetachedProcess(command, parameters, NoteFolder::currentLocalPath());
 }

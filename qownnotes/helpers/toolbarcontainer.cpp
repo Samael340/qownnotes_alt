@@ -12,8 +12,7 @@
 
 ToolbarContainer::ToolbarContainer(QToolBar *toolbar)
     : name(toolbar->objectName()), title(toolbar->windowTitle()) {
-    foreach (QAction *a, toolbar->actions())
-        actions.push_back(a->objectName());
+    foreach (QAction *a, toolbar->actions()) actions.push_back(a->objectName());
 }
 
 QToolBar *ToolbarContainer::create(QMainWindow *w) const {
@@ -50,22 +49,22 @@ QToolBar *ToolbarContainer::create(QMainWindow *w) const {
 
 bool ToolbarContainer::toolbarFound() {
     MainWindow *mainWindow = MainWindow::instance();
-    if (mainWindow == Q_NULLPTR) {
+    if (mainWindow == nullptr) {
         return false;
     }
 
     auto *toolbar = mainWindow->findChild<QToolBar *>(name);
-    return toolbar != Q_NULLPTR;
+    return toolbar != nullptr;
 }
 
 void ToolbarContainer::updateToolbar() {
     MainWindow *mainWindow = MainWindow::instance();
-    if (mainWindow == Q_NULLPTR) {
+    if (mainWindow == nullptr) {
         return;
     }
 
     auto *toolbar = mainWindow->findChild<QToolBar *>(name);
-    if (toolbar == Q_NULLPTR) {
+    if (toolbar == nullptr) {
         return;
     }
 
@@ -78,25 +77,21 @@ void ToolbarContainer::updateToolbar() {
             // TODO(pbek): we will enable that again later
             if (false) {
                 //            if (item == "actionWorkspaceComboBox") {
-                qDebug() << __func__
-                         << " - 'actionWorkspaceComboBox': " << item;
+                qDebug() << __func__ << " - 'actionWorkspaceComboBox': " << item;
 
                 // TODO(pbek): for some reason we can't find the combobox
-                auto *workspaceComboBox = mainWindow->findChild<QComboBox *>(
-                    QStringLiteral("workspaceComboBox"));
+                auto *workspaceComboBox =
+                    mainWindow->findChild<QComboBox *>(QStringLiteral("workspaceComboBox"));
 
-                qDebug() << __func__
-                         << " - 'workspaceComboBox': " << workspaceComboBox;
+                qDebug() << __func__ << " - 'workspaceComboBox': " << workspaceComboBox;
 
-                auto *widgetAction =
-                    mainWindow->findChild<QWidgetAction *>(item);
+                auto *widgetAction = mainWindow->findChild<QWidgetAction *>(item);
 
                 qDebug() << __func__ << " - 'widgetAction': " << widgetAction;
 
-                if (widgetAction == Q_NULLPTR) {
+                if (widgetAction == nullptr) {
                     widgetAction = new QWidgetAction(mainWindow);
-                    widgetAction->setObjectName(
-                        QStringLiteral("actionWorkspaceComboBox"));
+                    widgetAction->setObjectName(QStringLiteral("actionWorkspaceComboBox"));
                     widgetAction->setText(QObject::tr("Workspace selector"));
                 }
 
@@ -112,7 +107,7 @@ void ToolbarContainer::updateToolbar() {
                     }
                 }
 
-                if (action != Q_NULLPTR) {
+                if (action != nullptr) {
                     toolbar->addAction(action);
                 } else {
                     qWarning() << QObject::tr("Unknown action %1").arg(item);
@@ -131,9 +126,7 @@ void ToolbarContainer::updateToolbar() {
  */
 void ToolbarContainer::updateIconSize(QToolBar *toolbar) {
     QSettings settings;
-    int toolBarIconSize =
-        settings.value(QStringLiteral("MainWindow/mainToolBar.iconSize"))
-            .toInt();
+    int toolBarIconSize = settings.value(QStringLiteral("MainWindow/mainToolBar.iconSize")).toInt();
     QSize size(toolBarIconSize, toolBarIconSize);
     toolbar->setIconSize(size);
 }

@@ -58,16 +58,17 @@ class SettingsDialog : public MasterDialog {
         PanelsPage,
         LocalTrashPage,
         LayoutPage,
-        WebCompanionPage
+        WebCompanionPage,
+        WebApplicationPage,
+        ExperimentalPage
     };
 
     explicit SettingsDialog(int page = 0, QWidget *parent = 0);
 
     ~SettingsDialog();
 
-    void connectTestCallback(bool appIsValid, QString appVersion,
-                             QString serverVersion, QString notesPathExistsText,
-                             QString connectionErrorMessage);
+    void connectTestCallback(bool appIsValid, QString appVersion, QString serverVersion,
+                             QString notesPathExistsText, QString connectionErrorMessage);
 
     void setOKLabelData(int number, const QString &text, OKLabelStatus status);
 
@@ -81,7 +82,7 @@ class SettingsDialog : public MasterDialog {
     void readSettings();
 
    protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
    private slots:
 
@@ -142,8 +143,8 @@ class SettingsDialog : public MasterDialog {
 
     void on_noteFolderRemotePathButton_clicked();
 
-    void on_noteFolderRemotePathTreeWidget_currentItemChanged(
-        QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_noteFolderRemotePathTreeWidget_currentItemChanged(QTreeWidgetItem *current,
+                                                              QTreeWidgetItem *previous);
 
     void on_useOwnCloudPathButton_clicked();
 
@@ -166,11 +167,7 @@ class SettingsDialog : public MasterDialog {
 
     void on_removeCustomNoteFileExtensionButton_clicked();
 
-    void on_defaultNoteFileExtensionListWidget_itemChanged(
-        QListWidgetItem *item);
-
-    void on_defaultNoteFileExtensionListWidget_currentRowChanged(
-        int currentRow);
+    void on_defaultNoteFileExtensionListWidget_itemChanged(QListWidgetItem *item);
 
     void on_darkModeCheckBox_toggled();
 
@@ -291,6 +288,40 @@ class SettingsDialog : public MasterDialog {
 
     void on_noteTextViewUseEditorStylesCheckBox_toggled(bool checked);
 
+    void on_databaseIntegrityCheckButton_clicked();
+
+    void on_webAppServerUrlResetButton_clicked();
+
+    void on_webAppShowTokenButton_clicked();
+
+    void on_webAppCopyTokenButton_clicked();
+
+    void on_webAppGenerateTokenButton_clicked();
+
+    void on_enableWebApplicationCheckBox_toggled();
+
+    void on_showLineNumbersInEditorCheckBox_toggled(bool checked);
+
+    void on_editorWidthInDFMOnlyCheckBox_toggled(bool checked);
+
+    void on_webAppTokenLineEdit_textChanged(const QString &arg1);
+
+    void on_showQRCodeButton_clicked();
+
+    void on_scriptReloadEngineButton2_clicked();
+
+    void on_loginFlowButton_clicked();
+
+    void on_loginFlowCancelButton_clicked();
+
+    void on_defaultNoteFileExtensionListWidget_itemSelectionChanged();
+
+    void on_noteTextViewRefreshDebounceTimeResetButton_clicked();
+
+    void on_appNextcloudDeckCheckBox_toggled(bool checked);
+
+    void on_nextcloudDeckStackTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+
 private:
     Ui::SettingsDialog *ui;
     QStatusBar *noteFolderRemotePathTreeStatusBar;
@@ -311,6 +342,7 @@ private:
     QCheckBox *_noteNotificationNoneCheckBox;
     QString _newScriptName;
     CloudConnection _selectedCloudConnection;
+    int _loginFlowPollCount = 0;
 
     void storeSettings();
 
@@ -320,11 +352,9 @@ private:
 
     void outputSettings();
 
-    static void selectListWidgetValue(QListWidget *listWidget,
-                                      const QString &value);
+    static void selectListWidgetValue(QListWidget *listWidget, const QString &value);
 
-    static bool listWidgetValueExists(QListWidget *listWidget,
-                                      const QString &value);
+    static bool listWidgetValueExists(QListWidget *listWidget, const QString &value);
 
     static QString getSelectedListWidgetValue(QListWidget *listWidget);
 
@@ -334,14 +364,12 @@ private:
 
     void setupNoteFolderPage();
 
-    QTreeWidgetItem *findNoteFolderRemotePathTreeWidgetItem(
-        QTreeWidgetItem *parent, const QString &text);
+    QTreeWidgetItem *findNoteFolderRemotePathTreeWidgetItem(QTreeWidgetItem *parent,
+                                                            const QString &text);
 
-    void addPathToNoteFolderRemotePathTreeWidget(QTreeWidgetItem *parent,
-                                                 const QString &path);
+    void addPathToNoteFolderRemotePathTreeWidget(QTreeWidgetItem *parent, const QString &path);
 
-    QString generatePathFromCurrentNoteFolderRemotePathItem(
-        QTreeWidgetItem *item);
+    QString generatePathFromCurrentNoteFolderRemotePathItem(QTreeWidgetItem *item);
 
     void setNoteFolderRemotePathTreeWidgetFrameVisibility(bool visi);
 
@@ -351,7 +379,7 @@ private:
 
     void validateCurrentScript();
 
-    QListWidgetItem *addCustomNoteFileExtension(const QString &fileExtension);
+    QListWidgetItem *addCustomNoteFileExtension(QString fileExtension);
 
     void loadShortcutSettings();
 
@@ -397,9 +425,11 @@ private:
 
     void initCloudConnectionComboBox(int selectedId = -1);
 
-    void handleDarkModeCheckBoxToggled(bool updateCheckBoxes = false,
-                                       bool updateSchema = false);
+    void handleDarkModeCheckBoxToggled(bool updateCheckBoxes = false, bool updateSchema = false);
+
     void resetOKLabelData();
+
+    void loadNextcloudDeckStackTreeWidget();
 };
 
 #endif    // SETTINGSDIALOG_H

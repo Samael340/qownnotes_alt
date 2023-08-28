@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ class ComboBox : public QComboBox {
     Q_OBJECT
 
    public:
-    explicit ComboBox(QWidget *parent = Q_NULLPTR);
+    explicit ComboBox(QWidget *parent = nullptr);
 
    protected:
    private slots:

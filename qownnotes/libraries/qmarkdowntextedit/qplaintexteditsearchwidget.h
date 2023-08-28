@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Patrizio Bekerle -- <patrizio@bekerle.com>
+ * Copyright (c) 2014-2023 Patrizio Bekerle -- <patrizio@bekerle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 #pragma once
 
 #include <QPlainTextEdit>
+#include <QTimer>
 #include <QWidget>
 
 namespace Ui {
@@ -32,9 +33,13 @@ class QPlainTextEditSearchWidget : public QWidget {
                   bool updateUI = true);
     void setDarkMode(bool enabled);
     ~QPlainTextEditSearchWidget();
+
     void setSearchText(const QString &searchText);
     void setSearchMode(SearchMode searchMode);
+    void setDebounceDelay(uint debounceDelay);
     void activate(bool focus);
+    void clearSearchExtraSelections();
+    void updateSearchExtraSelections();
 
    private:
     Ui::QPlainTextEditSearchWidget *ui;
@@ -42,16 +47,17 @@ class QPlainTextEditSearchWidget : public QWidget {
     int _currentSearchResult;
     QList<QTextEdit::ExtraSelection> _searchExtraSelections;
     QColor selectionColor;
-
-    void updateSearchExtraSelections();
+    QTimer _debounceTimer;
+    QString _searchTerm;
     void setSearchExtraSelections() const;
+    void stopDebounce();
 
    protected:
     QPlainTextEdit *_textEdit;
     bool _darkMode;
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
-   public slots:
+   public Q_SLOTS:
     void activate();
     void deactivate();
     void doSearchDown();
@@ -63,11 +69,12 @@ class QPlainTextEditSearchWidget : public QWidget {
     void reset();
     void doSearchCount();
 
-   protected slots:
+   protected Q_SLOTS:
     void searchLineEditTextChanged(const QString &arg1);
+    void performSearch();
     void updateSearchCountLabelText();
     void setSearchSelectionColor(const QColor &color);
-   private slots:
+   private Q_SLOTS:
     void on_modeComboBox_currentIndexChanged(int index);
     void on_matchCaseSensitiveButton_toggled(bool checked);
 };

@@ -31,6 +31,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QDateTime>
 #include <QCryptographicHash>
 #include <QDataStream>
+#include <QIODevice>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QRandomGenerator>
+#endif
 
 SimpleCrypt::SimpleCrypt():
     m_key(0),
@@ -38,7 +43,9 @@ SimpleCrypt::SimpleCrypt():
     m_protectionMode(ProtectionChecksum),
     m_lastError(ErrorNoError)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
     qsrand(uint(QDateTime::currentMSecsSinceEpoch() & 0xFFFF));
+#endif
 }
 
 SimpleCrypt::SimpleCrypt(quint64 key):
@@ -47,7 +54,10 @@ SimpleCrypt::SimpleCrypt(quint64 key):
     m_protectionMode(ProtectionChecksum),
     m_lastError(ErrorNoError)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
     qsrand(uint(QDateTime::currentMSecsSinceEpoch() & 0xFFFF));
+#endif
+
     splitKey();
 }
 
@@ -103,7 +113,11 @@ QByteArray SimpleCrypt::encryptToByteArray(QByteArray plaintext)
     if (m_protectionMode == ProtectionChecksum) {
         flags |= CryptoFlagChecksum;
         QDataStream s(&integrityProtection, QIODevice::WriteOnly);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         s << qChecksum(ba.constData(), ba.length());
+#else
+        s << qChecksum(QByteArrayView(ba));
+#endif
     } else if (m_protectionMode == ProtectionHash) {
         flags |= CryptoFlagHash;
         QCryptographicHash hash(QCryptographicHash::Sha1);
@@ -113,7 +127,11 @@ QByteArray SimpleCrypt::encryptToByteArray(QByteArray plaintext)
     }
 
     //prepend a random char to the string
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
     char randomChar = char(qrand() & 0xFF);
+#else
+    char randomChar = char(QRandomGenerator::global()->generate() & 0xFF);
+#endif
     ba = randomChar + integrityProtection + ba;
 
     int pos(0);
@@ -225,7 +243,11 @@ QByteArray SimpleCrypt::decryptToByteArray(QByteArray cypher)
             s >> storedChecksum;
         }
         ba = ba.mid(2);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         quint16 checksum = qChecksum(ba.constData(), ba.length());
+#else
+        quint16 checksum = qChecksum(QByteArrayView(ba));
+#endif
         integrityOk = (checksum == storedChecksum);
     } else if (flags.testFlag(CryptoFlagHash)) {
         if (ba.length() < 20) {
