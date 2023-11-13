@@ -214,7 +214,7 @@ class MainWindow : public QMainWindow {
 
     class QOwnNotesMarkdownTextEdit *noteTextEdit();
 
-    void refreshNotePreview();
+    void refreshNotePreview(bool force = false);
 
     Q_INVOKABLE bool removeNoteTab(int index) const;
 
@@ -688,7 +688,7 @@ class MainWindow : public QMainWindow {
 
     void on_actionCopy_path_to_note_to_clipboard_triggered();
 
-public:
+   public:
     /** Settings access **/
     static bool isInDistractionFreeMode();
     void setShowNotesFromAllNoteSubFolders(bool show);

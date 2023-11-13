@@ -1,5 +1,102 @@
 # QOwnNotes Changelog
 
+## 23.11.1
+- added more Japanese, Arabic, Czech, Spanish, Tamil, Korean, Dutch, Slovenian,
+  German translation (thank you yateno, noureddin, vojtaanton, fitojb,
+  tamilneram.github.io, venusgirl, stephanp, salamelek, rakekniven, nlpz404)
+
+## 23.11.0
+- there now is a new PasswordLineEdit component that is now used for entering
+  passwords in all dialogs (for [#2893](https://github.com/pbek/QOwnNotes/issues/2893))
+  - it allows to also show the password
+- links will now be highlighted in headings in the note text edit
+  (for [#196](https://github.com/pbek/qmarkdowntextedit/pull/196), thank you, @tim-gromeyer)
+  - this, of course, only makes sense if you allow the note filename to be
+    different from the headline
+
+## 23.10.1
+- a fakevim fix for building with Qt 6.6.0 was added
+  (for [#2878](https://github.com/pbek/QOwnNotes/pull/2878), thank you, @NickCao)
+- added more Arabic, Spanish, Turkish, Korean, Tamil, German, Dutch translation
+  (thank you noureddin, fitojb, rgucluer, venusgirl, tamilneram.github.io, bumpsy, stephanp)
+
+## 23.10.0
+- newlines are now removed from links from the clipboard in the link dialog
+  (for [#2726](https://github.com/pbek/QOwnNotes/issues/2726))
+- notes are now imported to the current note subfolder in the Evernote and Joplin
+  import instead of the root folder (for [#2863](https://github.com/pbek/QOwnNotes/issues/2863))
+- the seconds of the selected time will now be set to 0 instead of the current seconds
+  of the time in the Nextcloud Deck dialog (for [#2789](https://github.com/pbek/QOwnNotes/issues/2789))
+- there now is a setting for the feature to unset the `All notes` selection in
+  the subfolder panel when clicking a note tab in the *Panels settings*
+  (for [#2861](https://github.com/pbek/QOwnNotes/issues/2861))
+- added more Arabic, Slovenian, Dutch, German, Korean translation (thank you
+  noureddin, salamelek, stephanp, bumpsy, venusgirl)
+
+## 23.9.7
+- Evernote notes with malformed XML will now stop the import process when importing
+  them in the Evernote import (for [#2858](https://github.com/pbek/QOwnNotes/issues/2858))
+- the `All notes` selection in the subfolder panel will now be unset when
+  clicking a note tab, so that the subfolder of a note can be selected
+  (for [#2861](https://github.com/pbek/QOwnNotes/issues/2861))
+
+## 23.9.6
+- an issue with duplicate imported media files and attachments when importing notes
+  from Evernote was fixed (for [#2859](https://github.com/pbek/QOwnNotes/issues/2859))
+- the missing qtconcurrent package was added to the Gentoo build process
+  (for [#2857](https://github.com/pbek/QOwnNotes/pull/2857), thank you, @FireUnderTheMountain)
+- the `!` character will now also be highlighted in the note text edit for images
+  (for [#192](https://github.com/pbek/qmarkdowntextedit/pull/192), thank you, @tim-gromeyer)
+
+## 23.9.5
+- an issue with importing the content of notes from Evernote with the `evernote-export4`
+  format was fixed (for [#2856](https://github.com/pbek/QOwnNotes/issues/2856))
+- links from the clipboard are now trimmed in the link dialog
+  (for [#2726](https://github.com/pbek/QOwnNotes/issues/2726))
+- the Gentoo build process was improved (for [#2821](https://github.com/pbek/QOwnNotes/issues/2821),
+  thank you, @FireUnderTheMountain)
+- [qc](https://github.com/qownnotes/qc) v0.5.1 was released
+  - the last selected command is now only stored when there actually was a
+    command selected and the dialog wasn't quit without selecting a command
+    (for [#9](https://github.com/qownnotes/qc/issues/9))
+- added more German, Bulgarian, Tamil, Dutch, Bosnian, Arabic, Turkish, Korean,
+  Romanian translation (thank you bumpsy, m.angelov, tamilneram.github.io,
+  stephanp, noureddin, rgucluer, venusgirl, ioancroitor)
+
+## 23.9.4
+- the font size in the preview will now change immediately when the font size in
+  the note text edit is reset (for [#2836](https://github.com/pbek/QOwnNotes/issues/2836))
+- amount of items in the schema drop-down in the *Editor fonts & colors* settings
+  was increased to 15 to make it easier to see the schemes (for [#2841](https://github.com/pbek/QOwnNotes/issues/2841))
+- in the *Note main menu* the menu item to `Setup note folders` was renamed to
+  `Setup note folders / subfolders` in an attempt to make note subfolders more accessible
+  (for [#2843](https://github.com/pbek/QOwnNotes/issues/2843))
+- added more German, Dutch, Korean translation (thank you bumpsy, stephanp, venusgirl)
+
+## 23.9.3
+- in the *Editor fonts & colors* settings the default color schemes are now ordered
+  alphabetically, with the two default schemes in front (for [#2840](https://github.com/pbek/QOwnNotes/issues/2840))
+  - the custom schemes are still placed at the back of the list
+  - this should improve readability
+- added more German translation (thank you bumpsy)
+
+## 23.9.2
+- the font size in the preview will now change immediately when the font size in
+  the note text edit changes (for [#2836](https://github.com/pbek/QOwnNotes/issues/2836))
+- added more German, Spanish translation (thank you bumpsy, tummechatronics)
+
+## 23.9.1
+- URLs with their title are not loaded anymore, if the note-link shortcut was used
+  with the link-dialog (for [#2833](https://github.com/pbek/QOwnNotes/issues/2833))
+- the Gentoo build process should run again (for [#2821](https://github.com/pbek/QOwnNotes/issues/2821))
+- added more Slovenian, Ukrainian, Turkish translation (thank you salamelek, eugeneuvin, rgucluer)
+
+## 23.9.0
+- when all notes of a tag, including the notes of their child-tags are shown in the
+  note list the numbers of notes per tag are now calculated correctly in the tag tree
+  (for [#2819](https://github.com/pbek/QOwnNotes/issues/2819))
+- added more French translation (thank you chocolatine)
+
 ## 23.8.2
 - added a **new editor color schema** *Atom Mellow Dark* by @davuses
   (for [#2817](https://github.com/pbek/QOwnNotes/issues/2817))

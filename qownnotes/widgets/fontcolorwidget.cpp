@@ -82,10 +82,31 @@ void FontColorWidget::initSchemaSelector() {
     ui->fontComboBox->setEnabled(false);
 
     //
-    // load the default schemes
+    // Load the default schemes
     //
 
     _defaultSchemaKeys = Utils::Schema::schemaSettings->defaultSchemaKeys();
+    // QMaps are sorted by key automatically
+    QMap<QString, QString> defaultSchemaNameKeys;
+
+    const QSettings& defaultSchemaSettings = Utils::Schema::schemaSettings->defaultSchemaSettings();
+
+    // Gather the default schema names and keys in correctly sorted order
+    Q_FOREACH (const QString& schemaKey, _defaultSchemaKeys) {
+        QString name = defaultSchemaSettings.value(schemaKey + "/Name").toString();
+
+        // Enforce the light theme to be on top
+        if (schemaKey == QStringLiteral("EditorColorSchema-6033d61b-cb96-46d5-a3a8-20d5172017eb")) {
+            name = QStringLiteral("  ") + name;
+        }
+
+        // Enforce the dark theme to be 2nd
+        if (schemaKey == QStringLiteral("EditorColorSchema-cdbf28fc-1ddc-4d13-bb21-6a4043316a2f")) {
+            name = QStringLiteral(" ") + name;
+        }
+
+        defaultSchemaNameKeys.insert(name, schemaKey);
+    }
 
     QSettings settings;
     QString currentSchemaKey =
@@ -96,11 +117,9 @@ void FontColorWidget::initSchemaSelector() {
     int index = 0;
     int currentIndex = 0;
 
-    Q_FOREACH (const QString& schemaKey, _defaultSchemaKeys) {
-        const QSettings& defaultSchemaSettings =
-            Utils::Schema::schemaSettings->defaultSchemaSettings();
+    Q_FOREACH (const QString& schemaKey, defaultSchemaNameKeys.values()) {
         const QString name = defaultSchemaSettings.value(schemaKey + "/Name").toString();
-        ui->colorSchemeComboBox->addItem(name, schemaKey);
+        ui->colorSchemeComboBox->addItem(name.trimmed(), schemaKey);
 
         if (currentSchemaKey == schemaKey) {
             currentIndex = index;
@@ -110,7 +129,7 @@ void FontColorWidget::initSchemaSelector() {
     }
 
     //
-    // load the custom schemes
+    // Load the custom schemes
     //
     QStringList schemes = settings.value(QStringLiteral("Editor/ColorSchemes")).toStringList();
     Q_FOREACH (QString schemaKey, schemes) {
@@ -126,7 +145,7 @@ void FontColorWidget::initSchemaSelector() {
         index++;
     }
 
-    // set the current color schema
+    // Set the current color schema
     ui->colorSchemeComboBox->setCurrentIndex(currentIndex);
 }
 
@@ -790,8 +809,7 @@ void FontColorWidget::on_fontSizeAdaptionSpinBox_valueChanged(int value) {
  * Opens a new GitHub issue to share a schema
  */
 void FontColorWidget::on_shareSchemaPushButton_clicked() {
-    QDesktopServices::openUrl(
-        QUrl("https://github.com/pbek/QOwnNotes/issues/new/choose"));
+    QDesktopServices::openUrl(QUrl("https://github.com/pbek/QOwnNotes/issues/new/choose"));
 }
 
 /**

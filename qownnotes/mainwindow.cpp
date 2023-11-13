@@ -544,6 +544,18 @@ void MainWindow::initNotePreviewAndTextEdits() {
     ui->encryptedNoteTextEdit->installEventFilter(this);
     ui->encryptedNoteTextEdit->viewport()->installEventFilter(this);
 
+    // Allow to update the preview if the zoom level of the note text edits change
+    // Using regenerateNotePreview(), refreshNotePreview(true) or ui->noteTextView->repaint() didn't
+    // work
+    connect(ui->noteTextEdit, &QOwnNotesMarkdownTextEdit::zoomIn, this,
+            &MainWindow::forceRegenerateNotePreview);
+    connect(ui->noteTextEdit, &QOwnNotesMarkdownTextEdit::zoomOut, this,
+            &MainWindow::forceRegenerateNotePreview);
+    connect(ui->encryptedNoteTextEdit, &QOwnNotesMarkdownTextEdit::zoomIn, this,
+            &MainWindow::forceRegenerateNotePreview);
+    connect(ui->encryptedNoteTextEdit, &QOwnNotesMarkdownTextEdit::zoomOut, this,
+            &MainWindow::forceRegenerateNotePreview);
+
 #ifdef USE_QLITEHTML
     _notePreviewWidget = new HtmlPreviewWidget(this);
     if (!ui->noteViewFrame->layout()) ui->noteViewFrame->setLayout(new QVBoxLayout);
@@ -623,9 +635,7 @@ void MainWindow::triggerStartupMenuAction() {
  */
 void MainWindow::initGlobalKeyboardShortcuts() {
     // deleting old global shortcut assignments
-    foreach (QHotkey *hotKey, _globalShortcuts) {
-        delete hotKey;
-    }
+    foreach (QHotkey *hotKey, _globalShortcuts) { delete hotKey; }
 
     _globalShortcuts.clear();
     QSettings settings;
@@ -1342,7 +1352,7 @@ void MainWindow::updatePanelMenu() {
 
     updateJumpToActionsAvailability();
 
-    // update the preview in case it was disable previously
+    // update the preview in case it was disabled previously
     if (_notePreviewDockWidget->isVisible()) {
         setNoteTextFromNote(&currentNote, true);
     }
@@ -1406,10 +1416,9 @@ void MainWindow::togglePanelVisibility(const QString &objectName) {
     // filter notes again according to new widget state
     filterNotes();
 
-    // Ensure we have latest note preview
+    // Ensure we have the latest note preview
     if (dockWidget == _notePreviewDockWidget && dockWidget->isVisible()) {
-        _noteViewNeedsUpdate = true;
-        refreshNotePreview();
+        refreshNotePreview(true);
     }
 }
 
@@ -2436,7 +2445,8 @@ bool MainWindow::startAutoReadOnlyModeIfEnabled() {
     QSettings settings;
 
     if (settings.value(QStringLiteral("autoReadOnlyMode")).toBool()) {
-        _autoReadOnlyModeTimer->start(settings.value(QStringLiteral("autoReadOnlyModeTimeout")).toInt() * 1000);
+        _autoReadOnlyModeTimer->start(
+            settings.value(QStringLiteral("autoReadOnlyModeTimeout")).toInt() * 1000);
 
         return true;
     }
@@ -5071,17 +5081,17 @@ void MainWindow::handleTextNoteLinking(int page) {
         const QString url = dialog->getURL();
         const QString linkName = dialog->getLinkName();
         const QString linkDescription = dialog->getLinkDescription();
-        // remove ] characters, because they will break markdown links
+        // remove "]" characters, because they will break Markdown links
         QString noteName = dialog->getSelectedNoteName().remove("]");
 
         if ((!noteName.isEmpty()) || (!url.isEmpty())) {
             QString newText;
             QString chosenLinkName =
                 linkName.isEmpty() ? textEdit->textCursor().selectedText() : linkName;
-            // remove ] characters, because they will break markdown links
+            // remove "]" characters, because they will break Markdown links
             chosenLinkName.remove("]");
 
-            // if user has entered an url
+            // if user has entered a URL
             if (!url.isEmpty()) {
                 newText = !chosenLinkName.isEmpty()
                               ? QStringLiteral("[") + chosenLinkName + QStringLiteral("](") + url +
@@ -6550,7 +6560,7 @@ void MainWindow::on_action_Encrypt_note_triggered() {
         auto *dialog = new PasswordDialog(this, labelText, true);
         const int dialogResult = dialog->exec();
 
-        // if the user didn't pressed ok return
+        // if the user didn't press ok return
         if (dialogResult != QDialog::Accepted) {
             return;
         }
@@ -7241,6 +7251,9 @@ void MainWindow::on_action_Reset_note_text_size_triggered() {
                             "the font size is reset by 'Reset note text size'")
                              .arg(fontSize),
                          3000);
+
+    // Allow to update the preview if the zoom level of the note text edits change
+    forceRegenerateNotePreview();
 }
 
 /**
@@ -7451,17 +7464,23 @@ QTreeWidgetItem *MainWindow::addTagToTagTreeWidget(QTreeWidgetItem *parent, cons
     const QString name = tag._name;
     auto hideCount = QSettings().value("tagsPanelHideNoteCount", false).toBool();
 
-    int count = 0;
+    int linkCount = 0;
+    QVector<int> linkedNoteIds;
+    bool isMultipleTags = false;
+
     if (!hideCount) {
         const QVector<int> tagIdListToCount = Tag::isTaggingShowNotesRecursively()
                                                   ? Tag::fetchTagIdsRecursivelyByParentId(tagId)
                                                   : QVector<int>{tag._id};
+        isMultipleTags = tagIdListToCount.count() > 1;
         const auto selectedSubFolderItems = ui->noteSubFolderTreeWidget->selectedItems();
         const bool showNotesFromAllSubFolders = this->_showNotesFromAllNoteSubFolders;
         const bool isShowNotesRecursively =
             NoteSubFolder::isNoteSubfoldersPanelShowNotesRecursively();
 
         if (selectedSubFolderItems.count() > 1) {
+            linkedNoteIds.reserve(tagIdListToCount.size());
+
             for (const int tagIdToCount : tagIdListToCount) {
                 for (QTreeWidgetItem *folderItem : selectedSubFolderItems) {
                     int id = folderItem->data(0, Qt::UserRole).toInt();
@@ -7471,19 +7490,42 @@ QTreeWidgetItem *MainWindow::addTagToTagTreeWidget(QTreeWidgetItem *parent, cons
                         continue;
                     }
 
-                    count = Tag::countLinkedNoteFileNamesForNoteSubFolder(
-                        tagIdToCount, folder, showNotesFromAllSubFolders, isShowNotesRecursively);
+                    if (!isMultipleTags) {
+                        linkCount = Tag::countLinkedNoteFileNamesForNoteSubFolder(
+                            tagIdToCount, folder, showNotesFromAllSubFolders,
+                            isShowNotesRecursively);
+                    } else {
+                        linkedNoteIds << Tag::fetchAllLinkedNoteIdsForFolder(
+                            tagIdToCount, folder, showNotesFromAllSubFolders,
+                            isShowNotesRecursively);
+                    }
                 }
             }
         } else {
             for (const int tagToCount : tagIdListToCount) {
-                count = Tag::countLinkedNoteFileNames(tagToCount, showNotesFromAllSubFolders,
-                                                      isShowNotesRecursively);
+                if (!isMultipleTags) {
+                    linkCount = Tag::countLinkedNoteFileNames(
+                        tagToCount, showNotesFromAllSubFolders, isShowNotesRecursively);
+                } else {
+                    linkedNoteIds << Tag::fetchAllLinkedNoteIds(
+                        tagToCount, showNotesFromAllSubFolders, isShowNotesRecursively);
+                }
             }
         }
     }
 
-    const int linkCount = count;
+    if (isMultipleTags) {
+        // remove duplicate note ids
+        QVector<int> uniqueLinkedNoteIds;
+        for (const int &value : linkedNoteIds) {
+            if (!uniqueLinkedNoteIds.contains(value)) {
+                uniqueLinkedNoteIds.append(value);
+            }
+        }
+
+        linkCount = uniqueLinkedNoteIds.count();
+    }
+
     const QString toolTip =
         tr("Show all notes tagged with '%1' (%2)").arg(name, QString::number(linkCount));
     auto *item = new QTreeWidgetItem();
@@ -9638,7 +9680,13 @@ NoteSubFolderTree *MainWindow::noteSubFolderTree() { return ui->noteSubFolderTre
 
 QOwnNotesMarkdownTextEdit *MainWindow::noteTextEdit() { return ui->noteTextEdit; }
 
-void MainWindow::refreshNotePreview() { _noteViewUpdateTimer->start(1); }
+void MainWindow::refreshNotePreview(bool force) {
+    if (force) {
+        _noteViewNeedsUpdate = true;
+    }
+
+    _noteViewUpdateTimer->start(1);
+}
 
 /**
  * Searches for note sub folders in the note sub folder tree widget
@@ -11439,6 +11487,14 @@ void MainWindow::on_noteEditTabWidget_currentChanged(int index) {
         return;
     }
 
+    // Allow the subfolder of the note to be selected in the subfolder list
+    // See: https://github.com/pbek/QOwnNotes/issues/2861
+    if (QSettings()
+            .value(QStringLiteral("noteSubfoldersPanelTabsUnsetAllNotesSelection"))
+            .toBool()) {
+        setShowNotesFromAllNoteSubFolders(false);
+    }
+
     setCurrentNoteFromNoteId(noteId);
     widget->setLayout(ui->noteEditTabWidgetLayout);
 
@@ -11630,19 +11686,17 @@ void MainWindow::on_actionToggle_Always_on_top_triggered() {
     show();
 }
 
-void MainWindow::on_action_Load_Todo_Items_triggered() {
-    reloadTodoLists();
-}
+void MainWindow::on_action_Load_Todo_Items_triggered() { reloadTodoLists(); }
 
-void MainWindow::on_actionInsert_Nextcloud_Deck_card_triggered()
-{
+void MainWindow::on_actionInsert_Nextcloud_Deck_card_triggered() {
     NextcloudDeckService nextcloudDeckService(this);
 
     if (!nextcloudDeckService.isEnabled()) {
-        if (QMessageBox::warning(nullptr, tr("Nextcloud Deck support disabled!"),
-                                 tr("Nextcloud Deck support is not enabled or the settings are invalid.<br />"
-                                    "Please check your <strong>Nextcloud</strong> configuration in the settings!"),
-                                 tr("Open &settings"), tr("&Cancel"), QString(), 0, 1) == 0) {
+        if (QMessageBox::warning(
+                nullptr, tr("Nextcloud Deck support disabled!"),
+                tr("Nextcloud Deck support is not enabled or the settings are invalid.<br />"
+                   "Please check your <strong>Nextcloud</strong> configuration in the settings!"),
+                tr("Open &settings"), tr("&Cancel"), QString(), 0, 1) == 0) {
             openSettingsDialog(SettingsDialog::OwnCloudPage);
         }
 
@@ -11665,6 +11719,5 @@ void MainWindow::on_actionCopy_path_to_note_to_clipboard_triggered() {
 
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(path);
-    showStatusBarMessage(tr("Note path '%1' was copied to the clipboard").arg(path),
-                         3000);
+    showStatusBarMessage(tr("Note path '%1' was copied to the clipboard").arg(path), 3000);
 }

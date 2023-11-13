@@ -1955,10 +1955,27 @@ void MarkdownHighlighter::formatAndMaskRemaining(
     const QTextCharFormat &format) {
     int afterFormat = formatBegin + formatLength;
 
-    setFormat(beginningText, formatBegin - beginningText,
-              _formats[MaskedSyntax]);
-    setFormat(formatBegin, formatLength, format);
-    setFormat(afterFormat, endText - afterFormat, _formats[MaskedSyntax]);
+    auto maskedSyntax = _formats[MaskedSyntax];
+    maskedSyntax.setFontPointSize(
+        QSyntaxHighlighter::format(beginningText).fontPointSize());
+
+    // highlight before the link
+    setFormat(beginningText, formatBegin - beginningText, maskedSyntax);
+
+    // highlight the link if we are not in a heading
+    if (!isHeading(currentBlockState())) {
+        setFormat(formatBegin, formatLength, format);
+    }
+
+    // highlight after the link
+    maskedSyntax.setFontPointSize(
+        QSyntaxHighlighter::format(afterFormat).fontPointSize());
+    setFormat(afterFormat, endText - afterFormat, maskedSyntax);
+
+    _ranges[currentBlock().blockNumber()].append(
+        InlineRange(beginningText, formatBegin, RangeType::Link));
+    _ranges[currentBlock().blockNumber()].append(
+        InlineRange(afterFormat, endText, RangeType::Link));
 }
 
 /**
@@ -1970,8 +1987,7 @@ void MarkdownHighlighter::formatAndMaskRemaining(
  */
 int MarkdownHighlighter::highlightLinkOrImage(const QString &text,
                                               int startIndex) {
-    // If the current blockis a heading, don't process further
-    if (isHeading(currentBlockState())) return startIndex;
+    clearRangesForBlock(currentBlock().blockNumber(), RangeType::Link);
 
     // Get the character at the starting index
     QChar startChar = text.at(startIndex);
@@ -2008,6 +2024,8 @@ int MarkdownHighlighter::highlightLinkOrImage(const QString &text,
             int hrefEnd = text.indexOf(QLatin1Char('"'), startIndex + 6);
             if (hrefEnd == -1) return space;
 
+            _ranges[currentBlock().blockNumber()].append(
+                InlineRange(startIndex + 6, hrefEnd, RangeType::Link));
             setFormat(startIndex + 6, hrefEnd - startIndex - 6, _formats[Link]);
             return hrefEnd;
         }
@@ -2015,7 +2033,11 @@ int MarkdownHighlighter::highlightLinkOrImage(const QString &text,
         QString link = text.mid(startIndex, space - startIndex - 1);
         if (!isLink(link)) return startIndex;
 
-        setFormat(startIndex, link.length() + 1, _formats[Link]);
+        auto linkLength = link.length();
+
+        _ranges[currentBlock().blockNumber()].append(
+            InlineRange(startIndex, startIndex + linkLength, RangeType::Link));
+        setFormat(startIndex, linkLength + 1, _formats[Link]);
         return space;
     }
 
@@ -2035,7 +2057,7 @@ int MarkdownHighlighter::highlightLinkOrImage(const QString &text,
 
         // Apply formatting to highlight the image.
         formatAndMaskRemaining(startIndex + 1, endIndex - startIndex - 1,
-                               startIndex, closingIndex, _formats[Image]);
+                               startIndex - 1, closingIndex, _formats[Image]);
         return closingIndex;
     }
     // If the character after the closing ']' is '(', it's a regular link
@@ -2354,6 +2376,16 @@ bool MarkdownHighlighter::isPosInACodeSpan(int blockNumber, int position) const
             return true;
         return false;
     }) != rangeList.cend();
+}
+
+bool MarkdownHighlighter::isPosInALink(int blockNumber, int position) const {
+    const QVector<InlineRange> rangeList = _ranges.value(blockNumber);
+    return std::find_if(rangeList.cbegin(), rangeList.cend(),
+                        [position](const InlineRange &range) {
+                            return position > range.begin &&
+                                   position < range.end &&
+                                   range.type == RangeType::Link;
+                        }) != rangeList.cend();
 }
 
 QPair<int, int> MarkdownHighlighter::getSpanRange(MarkdownHighlighter::RangeType rangeType, int blockNumber, int position) const
