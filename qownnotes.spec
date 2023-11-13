@@ -1,5 +1,5 @@
 Name: qownnotes
-Version: 23.8.2
+Version: 23.11.1
 Release: alt1
 License: GPLv2
 Group: Office
@@ -78,6 +78,9 @@ install -D -m644 languages/*.qm "%buildroot/%_datadir/QOwnNotes/languages/"
 %_pixmapsdir/QOwnNotes.png
 
 %changelog
+* Mon Nov 13 2023 Semyon Knyazev <samael@altlinux.org> 23.11.1-alt1
+- new version
+
 * Mon Aug 28 2023 Semyon Knyazev <samael@altlinux.org> 23.8.2-alt1
 - new version
 
